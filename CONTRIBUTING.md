@@ -1,0 +1,92 @@
+# Contributing to Raiquid
+
+This is the short version of how we work day-to-day. For project context
+(what Raiquid is, the domain model, architecture decisions), read
+`docs/RAIQUID_CONTEXT.md` first — this file is process, that one is
+substance.
+
+## Setup
+
+```bash
+nvm use          # Node version pinned in .nvmrc
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+## Branching
+
+`type/short-description`, e.g. `feat/investor-marketplace-filters`,
+`fix/business-invoice-status-badge`. Branch off `main`, PR back into
+`main`. No long-lived feature branches — if a feature needs more than a
+few days, split it into smaller PRs behind a `ScreenPlaceholder` or a
+feature flag rather than one large branch.
+
+## Commits
+
+[Conventional Commits](https://www.conventionalcommits.org/), enforced by
+commitlint on every commit:
+
+```
+<type>(<scope>): <subject>
+
+feat(investor): add marketplace tier filter
+fix(business): correct funded-percentage rounding
+docs(context): update route map after admin restructure
+```
+
+Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `style`.
+Scopes: `business`, `buyer`, `investor`, `admin`, `marketing`, `auth`,
+`ui`, `types`, `infra`, `docs`, `deps` (see `commitlint.config.js` for
+the enforced list).
+
+## Before opening a PR
+
+```bash
+npm run validate   # lint + typecheck + format:check
+npm run build      # catches anything validate doesn't
+```
+
+Both run in CI on every PR; running them locally first saves a
+round-trip.
+
+## The rules that keep this codebase from fragmenting
+
+These are the ones worth internalizing, not just following because a
+linter says so:
+
+1. **One status/tier enum, one place it's displayed.** Invoice status,
+   provenance tier, whitelist status, on-chain status all live in
+   `src/types/domain.ts`, and their label/color mapping lives in
+   `src/lib/domain-display.ts`. If you need a new status value or a
+   different color for one, change it there — never hardcode a tone or
+   label inline in a page component.
+2. **Nav items live in `src/lib/nav-config.ts`, once.** The desktop
+   sidebar and mobile bottom-tab bar both render from the same array.
+   Adding a nav item to one component and not the other is exactly the
+   drift this file exists to prevent.
+3. **New shared UI goes in `src/components/ui`, not inline.** If you
+   catch yourself styling a second bespoke button/card/badge instead of
+   using or extending `Button`/`Card`/`Badge`, stop and extend the
+   primitive instead. Every one-off is a future inconsistency someone
+   else has to notice and fix.
+4. **Colocate route-specific components under their route folder**
+   (e.g. `src/app/investor/marketplace/_components/`) using a
+   `_`-prefixed private folder; only promote a component to
+   `src/components/` once a second route needs it. Don't pre-emptively
+   share.
+5. **Route params use `PageProps<'/exact/path/[param]'>`**, the
+   Next.js-generated global type (see any `[invoiceId]/page.tsx` for an
+   example) — don't hand-type `{ params: { invoiceId: string } }`.
+6. **Replace a `ScreenPlaceholder`, don't build around it.** If a page
+   is a placeholder, the correct PR either replaces the whole file with
+   a real implementation, or leaves it untouched — never adds partial
+   real content around a leftover placeholder block.
+
+## Code review
+
+Every PR needs one approval before merging. CODEOWNERS auto-requests
+the right reviewer based on which folder changed — if you're touching
+`src/components/layout/` or `src/types/`, expect the tech director in
+the loop, since those are shared-foundation changes that affect every
+screen.
