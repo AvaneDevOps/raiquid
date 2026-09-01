@@ -9,7 +9,7 @@
 ## Checklist
 
 - [ ] Matches the design at both desktop and mobile breakpoints
-- [ ] Uses shared primitives from `src/components/ui` (no one-off buttons/cards/badges)
+- [ ] Uses shared primitives from `src/components/shared/ui` (no one-off buttons/cards/badges)
 - [ ] Status/tier chips use `InvoiceStatusBadge` / `ProvenanceTierBadge` (not raw `<Badge tone="...">`)
 - [ ] New nav items added to `src/lib/nav-config.ts`, not hardcoded in a component
 - [ ] `npm run validate` passes locally (lint + typecheck + format)

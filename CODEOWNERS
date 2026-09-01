@@ -8,8 +8,8 @@
 /src/app/buyer/             @raiquid/frontend-leads
 /src/app/investor/          @raiquid/frontend-leads
 /src/app/admin/             @raiquid/tech-director
-/src/components/ui/         @raiquid/frontend-leads
-/src/components/layout/     @raiquid/tech-director
+/src/components/shared/ui/       @raiquid/frontend-leads
+/src/components/shared/layout/   @raiquid/tech-director
 /src/types/                 @raiquid/tech-director
 /src/middleware.ts          @raiquid/tech-director
 /.github/                   @raiquid/tech-director

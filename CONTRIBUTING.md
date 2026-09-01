@@ -65,16 +65,25 @@ linter says so:
    sidebar and mobile bottom-tab bar both render from the same array.
    Adding a nav item to one component and not the other is exactly the
    drift this file exists to prevent.
-3. **New shared UI goes in `src/components/ui`, not inline.** If you
-   catch yourself styling a second bespoke button/card/badge instead of
-   using or extending `Button`/`Card`/`Badge`, stop and extend the
+3. **`src/components/` is `shared/` plus one folder per app area.**
+   `src/components/shared/` (`ui/`, `domain/`, `layout/`) is for
+   components that appear across multiple roles or are generic —
+   nothing role-specific. `src/components/{business,buyer,investor,admin,marketing}/`
+   each hold components used only within that area. A component
+   **starts in its area folder**; it only gets promoted to
+   `src/components/shared/` once a _second_ area actually needs it —
+   don't pre-emptively share, and never duplicate a component across
+   two areas instead of promoting it. If you catch yourself styling a
+   second bespoke button/card/badge instead of using or extending
+   `Button`/`Card`/`Badge` from `shared/ui`, stop and extend the
    primitive instead. Every one-off is a future inconsistency someone
    else has to notice and fix.
 4. **Colocate route-specific components under their route folder**
    (e.g. `src/app/investor/marketplace/_components/`) using a
-   `_`-prefixed private folder; only promote a component to
-   `src/components/` once a second route needs it. Don't pre-emptively
-   share.
+   `_`-prefixed private folder; promote a component to its app-area
+   folder under `src/components/` once a second route in that area
+   needs it, and only to `src/components/shared/` once a second app
+   area needs it. Don't pre-emptively share.
 5. **Route params use `PageProps<'/exact/path/[param]'>`**, the
    Next.js-generated global type (see any `[invoiceId]/page.tsx` for an
    example) — don't hand-type `{ params: { invoiceId: string } }`.
@@ -87,6 +96,6 @@ linter says so:
 
 Every PR needs one approval before merging. CODEOWNERS auto-requests
 the right reviewer based on which folder changed — if you're touching
-`src/components/layout/` or `src/types/`, expect the tech director in
+`src/components/shared/layout/` or `src/types/`, expect the tech director in
 the loop, since those are shared-foundation changes that affect every
 screen.

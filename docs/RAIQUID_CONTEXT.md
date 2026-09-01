@@ -1,7 +1,7 @@
 # Raiquid — project context
 
 Read this before writing any code. It's the handover from the person who
-set up this repo (via Claude) to whoever builds it out next — a human
+set up this repo to whoever builds it out next — a human
 developer or another AI coding agent. If you're an agent picking this up
 cold: this document plus `docs/DESIGN_SYSTEM.md` and `docs/ROUTE_MAP.md`
 are your brief. Don't guess at anything covered here; where something
@@ -113,7 +113,7 @@ alone**:
   on-chain status) lives once in `src/types/domain.ts`.
 - Every enum's display label + color lives once in
   `src/lib/domain-display.ts`, consumed only by the domain badge
-  components in `src/components/domain/status-badges.tsx`.
+  components in `src/components/shared/domain/status-badges.tsx`.
 - Nav items live once in `src/lib/nav-config.ts`, consumed by both the
   desktop sidebar and the mobile bottom-tab bar.
 
@@ -164,7 +164,7 @@ What's not real (build these next, in roughly this order):
 
 ## Open decisions (not made yet — don't assume an answer)
 
-- **Auth provider.** Nothing is wired up. `src/components/layout/
+- **Auth provider.** Nothing is wired up. `src/components/shared/layout/
 session-user.tsx` defines the `SessionUser` shape every shell needs
   and throws `Not implemented` — that's the seam. `src/proxy.ts` has
   the route-protection seam. Pick a provider (NextAuth/Auth.js, Clerk,
