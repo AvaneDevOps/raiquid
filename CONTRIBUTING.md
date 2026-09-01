@@ -8,11 +8,18 @@ substance.
 ## Setup
 
 ```bash
-nvm use          # Node version pinned in .nvmrc
+nvm install      # first time only — installs the Node version in .nvmrc
+nvm use          # Node version pinned in .nvmrc (22)
 npm install
 cp .env.example .env.local
 npm run dev
 ```
+
+Node 22 is the standard and what CI runs on. It's not hard-enforced
+(`.npmrc` sets `engine-strict=false`), so if you're on Node 20.9+ you can
+still install and run — Next.js 16.3 only needs `>=20.9`. You'll see a
+one-time `EBADENGINE` warning; treat it as a reminder to upgrade when you
+get a chance. Below Node 20.9, Next won't run at all.
 
 ## Branching
 
