@@ -93,7 +93,7 @@ without a design reason.
    Composed directly by the `(landing)` route group's `layout.tsx` —
    there is no single `LandingShell` component.
 2. **StandaloneShell** — thin header, no nav links, single centered card
-   on a plain background. Used by the `(standalone)` route group (auth,
+   on a plain background. Used by the `(shared)` route group (auth,
    verify, confirm/*). Reachable pre-authentication.
 3. **RoleShell** — desktop: fixed left sidebar (wordmark, nav items,
    user card pinned to the bottom). Mobile: sidebar disappears, nav

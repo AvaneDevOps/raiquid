@@ -59,7 +59,7 @@ Open http://localhost:3000.
 src/
   app/                 route tree (see docs/ROUTE_MAP.md for the full map)
     (landing)/         raiquid.io public pages
-    (standalone)/      auth, verify, magic-link confirm -- no app chrome
+    (shared)/          auth, verify, magic-link confirm -- no app chrome
     business/           buyer/           investor/           admin/
     dev/components/     dev-only component gallery (delete before shipping)
   components/
