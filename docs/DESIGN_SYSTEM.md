@@ -3,9 +3,13 @@
 This documents what the approved screens (`raiquid-screens.zip`, 31
 screens × desktop/mobile) actually show, so whoever implements a
 component builds the same visual language everywhere instead of
-reinventing it per screen. It is a reference, not code — the
-components it describes are currently empty stubs in
-`src/components/`; see each stub's TODO comment for a pointer back here.
+reinventing it per screen.
+
+The `src/components/shared/**` layer described here is **implemented**
+(styles + logic, not stubs) — `ui/`, `domain/`, and `layout/`. Render
+every piece at `/dev/components` (a dev-only gallery route). The
+area-specific folders (`business/`, `buyer/`, `investor/`, `admin/`,
+`landing/`) are still empty and fill in as screens get built.
 
 ## Method note (why you can trust these numbers)
 
@@ -19,9 +23,10 @@ Figma file or a token export (Figma Tokens / Style Dictionary JSON)
 becomes available, reconcile against that and treat it as authoritative
 over this document.
 
-Fonts, by contrast, are **not** evidence — you cannot recover a font
-family from pixels. They're a considered visual match, flagged as an
-assumption below. Confirm with design before shipping.
+Fonts cannot be recovered from pixels, but the families below are now
+**settled** — confirmed by the "Ledger of Stone" design session that
+produced this system: Fraunces / IBM Plex Sans / IBM Plex Mono. They're
+wired up in `src/app/layout.tsx` via `next/font/google`.
 
 ## Color tokens
 
@@ -53,35 +58,52 @@ platform wants to draw the eye to (e.g. "You receive early"). Green and
 red-orange are reserved strictly for success/danger semantics — never
 used decoratively.
 
-## Typography (assumption — confirm before shipping)
+Team vocabulary (from the design session; the CSS variable names above
+stay as-is for now): `--color-bg` = _basalt-950_, `--color-surface` =
+_basalt-900_, `--color-surface-raised` = _basalt-850_, `--color-border`
+= _line_, `--color-border-strong` = _line-strong_, `--color-foreground`
+= _limestone_, `--color-muted-foreground` = _stone_, accent =
+_minted-gold_, success = _patina-green_, danger = _rust-red_.
 
-| Token            | Family (assumed) | Used for                                                                                              |
-| ---------------- | ---------------- | ----------------------------------------------------------------------------------------------------- |
-| `--font-display` | Fraunces (serif) | Headings — has the elegant italic treatment seen on "working capital." in the hero                    |
-| `--font-sans`    | Inter            | Body copy, labels, form inputs                                                                        |
-| `--font-mono`    | JetBrains Mono   | Invoice/token ids, on-chain addresses, status chips, the browser-chrome-style url bars in the mockups |
+Raiquid is **dark-theme only, everywhere**, including the `(landing)`
+pages. There is no light theme — do not add one. `globals.css` sets
+`color-scheme: dark`.
 
-All three are loaded via `next/font/google` in the root layout once
-implemented (no external `<link>` tags, no layout shift).
+## Typography
+
+| Token            | Family        | Used for                                                                                            |
+| ---------------- | ------------- | --------------------------------------------------------------------------------------------------- |
+| `--font-display` | Fraunces      | Headings, `CardTitle`, stat figures — the serif with the elegant italic treatment                   |
+| `--font-sans`    | IBM Plex Sans | Body copy, labels, form inputs, nav — everything not a heading or a datum                           |
+| `--font-mono`    | IBM Plex Mono | Invoice/token ids, on-chain addresses, the text inside every seal chip, the browser-chrome url bars |
+
+All three are loaded via `next/font/google` in `src/app/layout.tsx`
+(self-hosted, no external `<link>`, no layout shift) and exposed to
+Tailwind as the `font-display` / `font-sans` / `font-mono` utilities.
+`Italiana` is reserved for the logo wordmark only and is not loaded yet
+(no logo asset).
 
 ## Layout shells
 
 Four distinct shells cover all 31 screens — do not invent a fifth
 without a design reason.
 
-1. **MarketingShell** — header (logo, nav links, Sign in / Get started)
-   - footer. Used by `(marketing)`.
+1. **Landing chrome** — `LandingHeader` (wordmark, nav links, Sign in /
+   Get started) + `LandingFooter` (wordmark, links, sandbox disclaimer).
+   Composed directly by the `(landing)` route group's `layout.tsx` —
+   there is no single `LandingShell` component.
 2. **StandaloneShell** — thin header, no nav links, single centered card
-   on a plain background. Used by `(standalone)` (auth, verify,
-   confirm/*). Reachable pre-authentication.
-3. **RoleShell** — desktop: fixed left sidebar (logo, nav items, user
-   card pinned to the bottom). Mobile: sidebar disappears, nav items
-   move to a fixed bottom tab bar, and the user card moves to a small
-   header at the top. **Both breakpoints render from the exact same
-   `NavItem[]` array** (`src/lib/nav-config.ts`) — confirmed by
-   comparing screen 04/15/19 desktop vs. mobile exports pixel-for-pixel
-   on nav item order and labels. Used by `business/`, `buyer/`,
-   `investor/`.
+   on a plain background. Used by the `(shared)` route group (auth,
+   verify, confirm/*). Reachable pre-authentication.
+3. **RoleShell** — desktop: fixed left sidebar (wordmark, nav items,
+   user card pinned to the bottom). Mobile: sidebar disappears, nav
+   items move to a fixed bottom tab bar, and the user card moves to a
+   small header at the top. **Both breakpoints render from the same
+   `ROLE_NAV[role]` entry** (`src/lib/nav-config.ts`). `RoleShell` takes
+   a `role` prop (`"business" | "buyer" | "investor"`) plus the
+   `SessionUser`; `Sidebar` / `BottomTabBar` look the nav array up
+   themselves, so the Lucide icon components never cross the
+   server→client boundary. Used by `business/`, `buyer/`, `investor/`.
 4. **AdminShell** — breadcrumb-style "Raiquid / platform" header over a
    horizontal tab row (Overview / Reserve pool / Provenance registry /
    Ledger). Confirmed **identical at both breakpoints** (screen 26
@@ -99,7 +121,7 @@ Tailwind classes.
 
 `src/components/` is split into **`shared/`** (components that appear
 across multiple roles or are generic) and **one folder per app area**
-(`business/`, `buyer/`, `investor/`, `admin/`, `marketing/`) for
+(`business/`, `buyer/`, `investor/`, `admin/`, `landing/`) for
 components unique to that part of the app.
 
 **Shared vs. area-specific:** a component starts life in its area
@@ -109,24 +131,41 @@ component, promote it to `src/components/shared/` rather than
 duplicating it. Each area folder carries an `index.ts` barrel and a
 `README.md` stating this rule.
 
-Everything below lives under `src/components/shared/`, currently as an
-empty stub. Build in roughly this order — later components depend on
-earlier ones.
+Everything below lives under `src/components/shared/` and is
+**implemented**. Each subfolder has an `index.ts` barrel, so
+`@/components/shared/ui`, `.../domain`, `.../layout` all work as import
+paths.
 
-| Component                                                                                 | File                              | What it is                                                                                                                                                                                                                     |
-| ----------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Button`                                                                                  | `shared/ui/button.tsx`            | 4 variants (primary/secondary/ghost/danger) × 3 sizes. Primary = amber gradient fill. Needs `asChild` (via `@radix-ui/react-slot`, already a dependency) to render as a `<Link>` without nesting `<a>` inside `<button>`.      |
-| `Badge`                                                                                   | `shared/ui/badge.tsx`             | Bordered pill, 4 tones (amber/green/red/neutral), mono font. This is the _generic_ primitive — status-specific rendering goes through the domain components below, never a raw `<Badge tone="...">` in a page.                 |
-| `Card` / `CardHeader` / `CardTitle` / `StatCard`                                          | `shared/ui/card.tsx`              | The one panel treatment used everywhere: rounded-xl, `border-border`, `bg-surface`. `StatCard` is the label-over-large-figure pattern (e.g. "Active invoices" / "3").                                                          |
-| `ProgressBar`                                                                             | `shared/ui/progress-bar.tsx`      | Amber horizontal bar — invoice funding %, reserve pool chart.                                                                                                                                                                  |
-| `EmptyState`                                                                              | `shared/ui/notice.tsx`            | Centered icon + heading + body + CTA (screen 31, "No invoices yet").                                                                                                                                                           |
-| `InlineNotice`                                                                            | `shared/ui/notice.tsx`            | Dot + copy callout box, 3 tones — sandbox disclaimers, reassurance copy, delayed-transaction warnings. Used constantly; check screens 03/05/13/14/16/18/21/31 for real copy examples.                                          |
-| `InvoiceStatusBadge`, `ProvenanceTierBadge`, `WhitelistStatusBadge`, `OnChainStatusBadge` | `shared/domain/status-badges.tsx` | Wrap `Badge` with the enum -> {label, tone} lookup from `src/lib/domain-display.ts`. **These are the only place a status/tier ever gets rendered** — never call `<Badge tone="green">Repaid</Badge>` directly in a page.       |
-| `InvoiceRef`                                                                              | `shared/domain/status-badges.tsx` | Monospace id chip, e.g. `RQ-INV-4471`.                                                                                                                                                                                         |
-| `Stepper`                                                                                 | `shared/domain/stepper.tsx`       | Numbered-circle-connected-by-a-line tracker. Generic over a `steps` array — reused for the 5-stage invoice lifecycle (screens 06-09) AND the 3-stage verify/whitelisting flows (screens 03, 18). Don't build a second stepper. |
-| `Sidebar`, `BottomTabBar`, `UserSummary`                                                  | `shared/layout/`                  | Desktop nav, mobile nav, and the avatar+name+subtitle card shared between them.                                                                                                                                                |
-| `RoleShell`, `AdminShell`, `StandaloneShell`                                              | `shared/layout/`                  | The three authenticated/semi-authenticated shells described above.                                                                                                                                                             |
-| `MarketingHeader`, `MarketingFooter`                                                      | `shared/layout/`                  | Public site chrome.                                                                                                                                                                                                            |
+| Component                                                                                 | File                                                     | What it is                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Button`                                                                                  | `shared/ui/button.tsx`                                   | 4 variants (primary/secondary/ghost/danger) × 3 sizes (sm/md/lg). Primary = minted-gold vertical gradient. **Rounded corners — never the seal-chip shape.** `asChild` (via `@radix-ui/react-slot`) renders the style onto a `<Link>` instead of a `<button>`. |
+| `Badge`                                                                                   | `shared/ui/badge.tsx`                                    | The generic chip — 4 tones (amber/green/red/neutral), mono, and the **seal-chip silhouette** (see below), applied here so every wrapper inherits it. Never render a raw `<Badge tone="…">` for a status in a page — go through the domain components.         |
+| `Card` / `CardHeader` / `CardTitle` / `StatCard`                                          | `shared/ui/card.tsx`                                     | The one panel treatment: `rounded-xl`, `border-border`, `bg-surface`. `StatCard` is label-over-large-figure (e.g. "Active invoices" / "3"); `emphasize` tints the figure minted-gold.                                                                         |
+| `ProgressBar`                                                                             | `shared/ui/progress-bar.tsx`                             | Minted-gold horizontal fill bar — invoice funding %, reserve-pool coverage. `percent` clamped 0–100, `role="progressbar"`.                                                                                                                                    |
+| `EmptyState`                                                                              | `shared/ui/notice.tsx`                                   | Centered icon + heading + body + CTA (screen 31, "No invoices yet"). `icon` prop takes a node.                                                                                                                                                                |
+| `InlineNotice`                                                                            | `shared/ui/notice.tsx`                                   | Dot + copy callout box, 3 tones (`info` / `success` / `danger`) — sandbox disclaimers, reassurance copy, delayed-transaction warnings. The "no real funds move" disclaimer is an `info` notice.                                                               |
+| `InvoiceStatusBadge`, `ProvenanceTierBadge`, `WhitelistStatusBadge`, `OnChainStatusBadge` | `shared/domain/status-badges.tsx`                        | Wrap `Badge` with the enum → `{label, tone}` lookup from `src/lib/domain-display.ts`. **The only place a status/tier is rendered.** Change a label or colour in `domain-display.ts`, never inline.                                                            |
+| `InvoiceRef`                                                                              | `shared/domain/status-badges.tsx`                        | Monospace id chip, e.g. `RQ-INV-4471`. Same seal-chip shape as the status badges; keeps the id's own casing.                                                                                                                                                  |
+| `Stepper`                                                                                 | `shared/domain/stepper.tsx`                              | Numbered-circles-joined-by-a-line tracker. Generic over a `steps` array — drives both `INVOICE_LIFECYCLE_STEPS` (5-stage, screens 06–09) and `WHITELIST_STEPS` (3-stage, screens 03/18) from `domain-display.ts`.                                             |
+| `Sidebar`, `BottomTabBar`, `UserSummary`                                                  | `shared/layout/`                                         | Desktop nav (`hidden md:flex`), mobile bottom nav (`flex md:hidden`), and the avatar+name+subtitle card shared between them. `Sidebar`/`BottomTabBar` take `role`, not a nav array.                                                                           |
+| `RoleShell`, `AdminShell`, `StandaloneShell`                                              | `shared/layout/`                                         | The three authenticated / semi-authenticated shells described above.                                                                                                                                                                                          |
+| `LandingHeader`, `LandingFooter`                                                          | `shared/layout/landing-header.tsx`, `landing-footer.tsx` | Public `(landing)` site chrome.                                                                                                                                                                                                                               |
+
+## The seal-chip shape
+
+Every status / tier / token-id **chip** (never a button, never a card)
+has its **top-left and bottom-right corners sliced at 45°**, giving a
+stamped-seal / ticket-stub silhouette. It's a `clip-path` polygon in the
+`seal-chip` utility (`globals.css`), applied by `<Badge>` so every tone
+and every domain wrapper (`InvoiceStatusBadge`, `InvoiceRef`, …) gets it
+automatically.
+
+The cut depth is `--seal-chamfer` (currently `7px`), tuned by eye —
+revisit against the chips in `04-bizDashboard` / `28-adminProvenance`
+once the Figma source is available. Chips currently render as a
+tone-tinted fill with no hairline stroke; if the source shows a 1px
+border tracking the chamfer, wrap the content in a second element with
+the same `seal-chip` class over a 1px tone-coloured pad.
 
 ## Domain-specific visual patterns worth naming
 

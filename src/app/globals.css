@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /**
- * Design tokens.
+ * Design tokens — "Ledger of Stone" system.
  *
  * The color values below were sampled directly from the pixels of the
  * approved screen exports (histogram + hue-range extraction across
@@ -13,14 +13,30 @@
  * Dictionary JSON), reconcile against that and update this block, not the
  * other way around.
  *
- * Fonts are a considered assumption, not sampled (you cannot recover a
- * font family from pixels). They match the visual character of the mocks
- * -- a serif display face with an italic accent weight, a warm sans body,
- * and a monospace for ids/badges/data -- but must be confirmed against the
- * design source before this ships. See docs/DESIGN_SYSTEM.md, Typography.
+ * Team vocabulary (design-session names, kept as comments so the CSS
+ * variable names stay stable for now):
+ *   --color-bg              → "basalt-950"
+ *   --color-surface         → "basalt-900"
+ *   --color-surface-raised  → "basalt-850"
+ *   --color-border          → "line"
+ *   --color-border-strong   → "line-strong"
+ *   --color-foreground      → "limestone"
+ *   --color-muted-foreground→ "stone"
+ *   --color-accent-*        → "minted-gold"
+ *   --color-success         → "patina-green"
+ *   --color-danger          → "rust-red"
+ *
+ * Raiquid is dark-theme only, everywhere, including the (landing) pages.
+ * There is no light theme — do not add one.
+ *
+ * Fonts are wired up in src/app/layout.tsx via next/font/google
+ * (Fraunces / IBM Plex Sans / IBM Plex Mono) and exposed to Tailwind as
+ * the --font-display / --font-sans / --font-mono theme variables below.
  */
 
 :root {
+  color-scheme: dark;
+
   /* Surfaces */
   --color-bg: #18150f; /* page background */
   --color-surface: #1e1a13; /* cards, sidebar, table rows */
@@ -32,7 +48,7 @@
   --color-foreground: #e8e1d3; /* headings, primary text */
   --color-muted-foreground: #948d81; /* secondary/help text */
 
-  /* Accent (amber/gold) -- primary CTAs, links, in-progress state */
+  /* Accent (minted-gold) -- primary CTAs, links, in-progress state */
   --color-accent-400: #e7b862;
   --color-accent-500: #dcae57;
   --color-accent-600: #d19d43;
@@ -42,11 +58,6 @@
   --color-success-muted: #3d5a4b;
   --color-danger: #e58667; /* Overdue, Failed, Decline */
   --color-danger-muted: #6b4433;
-
-  /* Fonts */
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
 @theme inline {
@@ -67,6 +78,8 @@
   --color-danger: var(--color-danger);
   --color-danger-muted: var(--color-danger-muted);
 
+  /* Defined by next/font on <html> (see src/app/layout.tsx); each
+     next/font call carries its own system fallback stack. */
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -76,11 +89,36 @@ body {
   background: var(--color-bg);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Utility for the struck-through "was" amount seen next to discounted/paid
-   figures across the app (e.g. a naira amount shown crossed out once
-   repaid or once fees are deducted). */
+/**
+ * The "seal chip" shape.
+ *
+ * Every status / tier / token-id chip in Raiquid (NOT buttons, NOT
+ * cards) has its top-left and bottom-right corners sliced off at 45°,
+ * giving a stamped-seal / ticket-stub silhouette. Applied automatically
+ * by <Badge> (and everything that wraps it), so no page ever hand-rolls
+ * this.
+ *
+ * --seal-chamfer is the cut depth. Tuned by eye against the chips in
+ * 04-bizDashboard / 28-adminProvenance; revisit once the Figma source
+ * is available.
+ */
+@utility seal-chip {
+  --seal-chamfer: 7px;
+  clip-path: polygon(
+    var(--seal-chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--seal-chamfer)),
+    calc(100% - var(--seal-chamfer)) 100%,
+    0 100%,
+    0 var(--seal-chamfer)
+  );
+}
+
+/* Struck-through "was" amount shown next to a discounted / net / repaid
+   figure (e.g. face value crossed out beside the early-payout amount). */
 .text-strike-muted {
   text-decoration: line-through;
   text-decoration-color: var(--color-muted-foreground);

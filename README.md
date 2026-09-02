@@ -58,14 +58,15 @@ Open http://localhost:3000.
 ```
 src/
   app/                 route tree (see docs/ROUTE_MAP.md for the full map)
-    (marketing)/       raiquid.io public pages
-    (standalone)/      auth, verify, magic-link confirm -- no app chrome
+    (landing)/         raiquid.io public pages
+    (shared)/          auth, verify, magic-link confirm -- no app chrome
     business/           buyer/           investor/           admin/
+    dev/components/     dev-only component gallery (delete before shipping)
   components/
-    ui/                generic primitives (Button, Card, Badge, ...)
-    domain/            Raiquid-specific (status badges, invoice stepper)
-    layout/            shells (RoleShell, AdminShell, StandaloneShell)
+    shared/ui/         generic primitives (Button, Card, Badge, ...)
+    shared/domain/     Raiquid-specific (status badges, invoice stepper)
+    shared/layout/     shells (RoleShell, AdminShell, StandaloneShell)
+    business/ buyer/ investor/ admin/ landing/   area-specific components
   lib/                 utils, formatting, nav config, domain display maps
   types/               domain model (single source of truth for enums)
-  data/                mock fixtures -- replace once a real API exists
 ```

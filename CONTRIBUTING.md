@@ -69,13 +69,13 @@ linter says so:
    different color for one, change it there — never hardcode a tone or
    label inline in a page component.
 2. **Nav items live in `src/lib/nav-config.ts`, once.** The desktop
-   sidebar and mobile bottom-tab bar both render from the same array.
-   Adding a nav item to one component and not the other is exactly the
-   drift this file exists to prevent.
+   sidebar and mobile bottom-tab bar both read the same `ROLE_NAV[role]`
+   entry (they take a `role`, not a nav array). Adding a nav item in one
+   component instead of the config is exactly the drift this prevents.
 3. **`src/components/` is `shared/` plus one folder per app area.**
    `src/components/shared/` (`ui/`, `domain/`, `layout/`) is for
    components that appear across multiple roles or are generic —
-   nothing role-specific. `src/components/{business,buyer,investor,admin,marketing}/`
+   nothing role-specific. `src/components/{business,buyer,investor,admin,landing}/`
    each hold components used only within that area. A component
    **starts in its area folder**; it only gets promoted to
    `src/components/shared/` once a _second_ area actually needs it —

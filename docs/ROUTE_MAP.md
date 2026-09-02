@@ -9,7 +9,7 @@ Status legend: **stub** = returns `null` / passes through children only
 (current state of everything, per the Sept 2026 strip-down). Once a
 route is built for real, flip its status here in the same PR.
 
-## Marketing — `(marketing)` route group, `MarketingShell` (header+footer)
+## Landing — `(landing)` route group, `LandingHeader` + `LandingFooter`
 
 | Route             | Screen              | Status |
 | ----------------- | ------------------- | ------ |
@@ -24,7 +24,7 @@ design. Most likely these are in-page anchors on the landing page
 on screen 01 itself), not standalone routes — confirm with design
 before building them as separate pages.
 
-## Standalone — `(standalone)` route group, `StandaloneShell` (centered card, no nav)
+## Shared — `(shared)` route group, `StandaloneShell` (centered card, no nav)
 
 | Route                         | Screen          | Status |
 | ----------------------------- | --------------- | ------ |

@@ -1,9 +1,44 @@
 import type { ReactNode } from "react";
-import type { NavItem } from "@/lib/nav-config";
+import type { UserRole } from "@/types";
 import type { SessionUser } from "@/components/shared/layout/session-user";
+import { Sidebar } from "@/components/shared/layout/sidebar";
+import { BottomTabBar } from "@/components/shared/layout/bottom-tab-bar";
+import { UserSummary } from "@/components/shared/layout/user-summary";
 
-// TODO: implement — composes Sidebar + BottomTabBar for business/buyer/investor.
-// See docs/DESIGN_SYSTEM.md, "RoleShell".
-export function RoleShell(props: { items: NavItem[]; user: SessionUser; children: ReactNode }) {
-  return props.children;
+type RoleWithNav = Exclude<UserRole, "admin">;
+
+/**
+ * The business / buyer / investor shell. Desktop: fixed left <Sidebar>.
+ * Mobile: sidebar hidden, nav moves to <BottomTabBar>, user card moves
+ * to a slim top header. Both nav variants are always mounted; only CSS
+ * toggles them (see docs/DESIGN_SYSTEM.md, "Layout shells").
+ *
+ * Pass the viewer's `role` — the nav items come from ROLE_NAV inside the
+ * nav components, so nothing non-serializable crosses to the client.
+ */
+export function RoleShell({
+  role,
+  user,
+  children,
+}: {
+  role: RoleWithNav;
+  user: SessionUser;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex min-h-screen">
+      <Sidebar role={role} user={user} />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="border-border bg-surface flex h-14 items-center justify-between border-b px-4 md:hidden">
+          <span className="font-display text-foreground text-base font-semibold">Raiquid</span>
+          <UserSummary user={user} />
+        </header>
+
+        <main className="flex-1 px-4 pt-6 pb-24 md:px-8 md:py-8">{children}</main>
+
+        <BottomTabBar role={role} />
+      </div>
+    </div>
+  );
 }
