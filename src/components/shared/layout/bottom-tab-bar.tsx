@@ -8,11 +8,7 @@ import { cn } from "@/lib/utils";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
-/**
- * Mobile-only bottom nav (`flex md:hidden`). Same ROLE_NAV entry as the
- * desktop <Sidebar>. Always in the DOM — visibility is CSS only, no
- * matchMedia. Takes `role` so icon components stay client-side.
- */
+// takes `role`, not a nav array, so the icon components never cross the server→client boundary
 export function BottomTabBar({ role }: { role: RoleWithNav }) {
   const pathname = usePathname();
   const items = ROLE_NAV[role];

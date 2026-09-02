@@ -1,10 +1,6 @@
 import type { SessionUser } from "@/components/shared/layout/session-user";
 import { cn } from "@/lib/utils";
 
-/**
- * Avatar (initials) + name + subtitle. Shared between the desktop
- * sidebar (pinned bottom) and the mobile top header.
- */
 export function UserSummary({ user, className }: { user: SessionUser; className?: string }) {
   return (
     <div className={cn("flex items-center gap-3", className)}>

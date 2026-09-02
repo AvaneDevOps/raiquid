@@ -6,12 +6,7 @@ import { usePathname } from "next/navigation";
 import { ADMIN_NAV } from "@/lib/nav-config";
 import { cn } from "@/lib/utils";
 
-/**
- * The /admin shell: a "Raiquid / platform" breadcrumb over a horizontal
- * tab row (Overview / Reserve pool / Provenance registry / Ledger).
- * Deliberately identical at both breakpoints — on mobile the tab row
- * scrolls horizontally rather than collapsing to a bottom bar.
- */
+// Deliberately identical at both breakpoints — on mobile the tab row scrolls, it does not become a bottom bar.
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 

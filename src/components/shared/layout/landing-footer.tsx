@@ -2,10 +2,6 @@ import Link from "next/link";
 import { Hexagon } from "lucide-react";
 import { LANDING_NAV } from "@/lib/nav-config";
 
-/**
- * Public site footer — wordmark, section links, sandbox disclaimer,
- * copyright. Used by the (landing) route group.
- */
 export function LandingFooter() {
   return (
     <footer className="border-border border-t">

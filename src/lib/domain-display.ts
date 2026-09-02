@@ -1,32 +1,14 @@
 import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } from "@/types";
 
-/**
- * Single place that maps each domain enum to a display label + visual
- * tone. Consumed only by the domain badge components in
- * src/components/shared/domain/status-badges.tsx — never inline a label
- * or a tone in a page.
- *
- * Tone vocabulary (see docs/DESIGN_SYSTEM.md colour tokens):
- *   amber   → in-progress / awaiting action  (minted-gold)
- *   green   → milestone reached / confirmed / trusted (patina-green)
- *   red     → failed / overdue / declined  (rust-red)
- *   neutral → inert / entry-level          (stone)
- *
- * `funded` is GREEN and `tokenized` is AMBER — the repo owner checked
- * both against the exports (09-bizPayout, 07-bizTokenized); the green
- * element on the tokenized screen is the InlineNotice, a separate
- * component with its own tone, not the status badge. Every other
- * status/label in this file is an inference from the written docs, NOT
- * checked against an export — see "Working with screen evidence" in
- * docs/RAIQUID_CONTEXT.md before "correcting" any of them.
- */
 export type BadgeTone = "amber" | "green" | "red" | "neutral";
 
 type Meta<T extends string> = Record<T, { label: string; tone: BadgeTone }>;
 
+// Only funded and tokenized are checked against a screen export; the rest is inferred.
 export const INVOICE_STATUS_META: Meta<InvoiceStatus> = {
   submitted: { label: "Submitted", tone: "amber" },
   awaiting_acceptance: { label: "Awaiting acceptance", tone: "amber" },
+  // amber, not green — a past pass misread this screen's InlineNotice as the badge
   tokenized: { label: "Tokenized", tone: "amber" },
   funding: { label: "Funding", tone: "amber" },
   funded: { label: "Funded", tone: "green" },
@@ -52,12 +34,7 @@ export const ONCHAIN_STATUS_META: Meta<OnChainStatus> = {
   failed: { label: "Failed", tone: "red" },
 };
 
-/**
- * The 5 milestones the invoice-detail stepper walks through (screens
- * 06–09). Labels are the stepper's, not the status enum's — "Buyer
- * review" and "Funded" are milestones; "funding" / "overdue" are
- * statuses that sit between or beside them, shown as a badge.
- */
+// stepper milestones — not 1:1 with the status enum
 export const INVOICE_LIFECYCLE_STEPS: { key: string; label: string }[] = [
   { key: "submitted", label: "Submitted" },
   { key: "buyer_review", label: "Buyer review" },
@@ -66,11 +43,7 @@ export const INVOICE_LIFECYCLE_STEPS: { key: string; label: string }[] = [
   { key: "repaid", label: "Repaid" },
 ];
 
-/**
- * Which INVOICE_LIFECYCLE_STEPS index is "current" for a given status —
- * pass as <Stepper currentIndex>. `repaid` is 5 (past the last index),
- * i.e. every step complete. Derived from screens 03/06-09.
- */
+// currentIndex into INVOICE_LIFECYCLE_STEPS per status; repaid is past the last index so all steps read as done.
 export const INVOICE_STATUS_STEP_INDEX: Record<InvoiceStatus, number> = {
   submitted: 1,
   awaiting_acceptance: 1,
@@ -81,10 +54,7 @@ export const INVOICE_STATUS_STEP_INDEX: Record<InvoiceStatus, number> = {
   overdue: 4,
 };
 
-/**
- * The 3-stage identity / whitelisting flow (screens 03 and 18), reusing
- * the same <Stepper>. Labels not verified against a screen export.
- */
+// Labels not verified against a screen export.
 export const WHITELIST_STEPS: { key: string; label: string }[] = [
   { key: "identity_submitted", label: "Identity" },
   { key: "in_review", label: "Review" },

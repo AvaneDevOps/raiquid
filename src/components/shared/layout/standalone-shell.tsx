@@ -2,11 +2,6 @@ import type { ReactNode } from "react";
 import { Hexagon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * No nav, one centered card on a plain background, a small wordmark
- * above it. Used by the (standalone) route group — auth, verify,
- * magic-link confirm — and reachable before authentication.
- */
 export function StandaloneShell({
   children,
   className,

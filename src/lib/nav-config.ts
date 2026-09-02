@@ -15,16 +15,6 @@ import {
 } from "lucide-react";
 import type { UserRole } from "@/types";
 
-/**
- * Single source of truth for role-based navigation. Drives BOTH the
- * desktop <Sidebar> and the mobile <BottomTabBar> (and the admin
- * top-tab row) so the breakpoints can't drift apart — add or reorder
- * items here, never in a component.
- *
- * Item order and labels are taken from the nav rails on screens 04
- * (business), 15 (buyer), 18 (investor) and 26 (admin); the landing
- * links from screen 01.
- */
 export interface NavItem {
   label: string;
   href: Route;
@@ -60,7 +50,6 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Ledger", href: "/admin/ledger", icon: ScrollText },
 ];
 
-/** Header/footer links on the public (landing) pages (screen 01). */
 export const LANDING_NAV: { label: string; href: Route }[] = [
   { label: "How it works", href: "/how-it-works" },
   { label: "For businesses", href: "/for-businesses" },

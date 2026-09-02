@@ -1,12 +1,3 @@
-/**
- * Formatting helpers. Conventions observed across the approved screens:
- *   - Naira amounts: "₦" prefix, grouped thousands, no decimals
- *     (e.g. "₦4,250,000"). Negative amounts are parenthesised.
- *   - Dates: "30 Oct 2026" (day, short month, full year).
- *   - Percentages: one decimal place by default (e.g. "11.5%").
- *   - On-chain addresses / long ids: middle-truncated ("0x7f3a…c091").
- */
-
 const NAIRA = "₦";
 
 export function formatNaira(amount: number): string {

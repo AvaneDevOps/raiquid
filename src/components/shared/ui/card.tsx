@@ -1,10 +1,6 @@
 import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * The one panel treatment used everywhere: rounded-xl, hairline border,
- * surface fill. Rounded corners — not the chamfered chip shape.
- */
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("border-border bg-surface rounded-xl border", className)} {...props} />;
 }
@@ -24,11 +20,6 @@ export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingEle
   );
 }
 
-/**
- * Label-over-large-figure stat ("Active invoices" / "3"). `emphasize`
- * tints the figure minted-gold — used for money the platform wants the
- * eye drawn to (e.g. "You receive early").
- */
 export function StatCard({
   label,
   value,
