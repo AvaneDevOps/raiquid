@@ -7,10 +7,14 @@ import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } fr
  * or a tone in a page.
  *
  * Tone vocabulary (see docs/DESIGN_SYSTEM.md colour tokens):
- *   amber   → in-progress / needs action  (minted-gold)
- *   green   → settled / confirmed / trusted (patina-green)
+ *   amber   → in-progress / awaiting action  (minted-gold)
+ *   green   → milestone reached / confirmed / trusted (patina-green)
  *   red     → failed / overdue / declined  (rust-red)
  *   neutral → inert / entry-level          (stone)
+ *
+ * Tones cross-checked against the real screen exports (03/04/05/06-09,
+ * 10-bizList). Note "tokenized" and "funded" are GREEN — each marks a
+ * completed on-chain / funding milestone, not an in-progress state.
  */
 export type BadgeTone = "amber" | "green" | "red" | "neutral";
 
@@ -19,17 +23,17 @@ type Meta<T extends string> = Record<T, { label: string; tone: BadgeTone }>;
 export const INVOICE_STATUS_META: Meta<InvoiceStatus> = {
   submitted: { label: "Submitted", tone: "amber" },
   awaiting_acceptance: { label: "Awaiting acceptance", tone: "amber" },
-  tokenized: { label: "Tokenized", tone: "amber" },
+  tokenized: { label: "Tokenized", tone: "green" },
   funding: { label: "Funding", tone: "amber" },
-  funded: { label: "Funded", tone: "amber" },
+  funded: { label: "Funded", tone: "green" },
   repaid: { label: "Repaid", tone: "green" },
   overdue: { label: "Overdue", tone: "red" },
 };
 
 export const PROVENANCE_TIER_META: Meta<ProvenanceTier> = {
-  quarried: { label: "Quarried", tone: "neutral" },
-  carried: { label: "Carried", tone: "amber" },
-  anchored: { label: "Anchored", tone: "green" },
+  quarried: { label: "Quarried tier", tone: "neutral" },
+  carried: { label: "Carried tier", tone: "amber" },
+  anchored: { label: "Anchored tier", tone: "green" },
 };
 
 export const WHITELIST_STATUS_META: Meta<WhitelistStatus> = {
@@ -45,21 +49,37 @@ export const ONCHAIN_STATUS_META: Meta<OnChainStatus> = {
 };
 
 /**
- * The 5-stage lifecycle the invoice-detail stepper walks through
- * (screens 06–09). Sequential and one-directional; "overdue" is a
- * branch off "funded" and is shown as a status badge, not a step.
+ * The 5 milestones the invoice-detail stepper walks through (screens
+ * 06–09). Labels are the stepper's, not the status enum's — "Buyer
+ * review" and "Funded" are milestones; "funding" / "overdue" are
+ * statuses that sit between or beside them, shown as a badge.
  */
 export const INVOICE_LIFECYCLE_STEPS: { key: string; label: string }[] = [
   { key: "submitted", label: "Submitted" },
+  { key: "buyer_review", label: "Buyer review" },
   { key: "tokenized", label: "Tokenized" },
-  { key: "funding", label: "Funding" },
   { key: "funded", label: "Funded" },
   { key: "repaid", label: "Repaid" },
 ];
 
 /**
+ * Which INVOICE_LIFECYCLE_STEPS index is "current" for a given status —
+ * pass as <Stepper currentIndex>. `repaid` is 5 (past the last index),
+ * i.e. every step complete. Derived from screens 03/06-09.
+ */
+export const INVOICE_STATUS_STEP_INDEX: Record<InvoiceStatus, number> = {
+  submitted: 1,
+  awaiting_acceptance: 1,
+  tokenized: 2,
+  funding: 3,
+  funded: 4,
+  repaid: 5,
+  overdue: 4,
+};
+
+/**
  * The 3-stage identity / whitelisting flow (screens 03 and 18), reusing
- * the same <Stepper>.
+ * the same <Stepper>. Labels not verified against a screen export.
  */
 export const WHITELIST_STEPS: { key: string; label: string }[] = [
   { key: "identity_submitted", label: "Identity" },

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Hexagon } from "lucide-react";
 import { ROLE_NAV } from "@/lib/nav-config";
 import type { UserRole } from "@/types";
 import type { SessionUser } from "@/components/shared/layout/session-user";
@@ -24,7 +25,8 @@ export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }
 
   return (
     <aside className="border-border bg-surface hidden w-60 shrink-0 flex-col border-r md:flex">
-      <div className="flex h-16 items-center px-5">
+      <div className="flex h-16 items-center gap-2 px-5">
+        <Hexagon className="text-accent-400 size-5 shrink-0" strokeWidth={1.75} />
         <span className="font-display text-foreground text-lg font-semibold">Raiquid</span>
       </div>
 

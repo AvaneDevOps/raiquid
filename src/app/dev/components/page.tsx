@@ -188,6 +188,7 @@ export default function ComponentGalleryPage() {
       <Section title="Stepper">
         <div className="space-y-8">
           <Stepper steps={INVOICE_LIFECYCLE_STEPS} currentIndex={2} />
+          <Stepper steps={INVOICE_LIFECYCLE_STEPS} currentIndex={INVOICE_LIFECYCLE_STEPS.length} />
           <Stepper steps={WHITELIST_STEPS} currentIndex={1} />
         </div>
       </Section>

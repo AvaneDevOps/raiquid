@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Hexagon } from "lucide-react";
 import type { UserRole } from "@/types";
 import type { SessionUser } from "@/components/shared/layout/session-user";
 import { Sidebar } from "@/components/shared/layout/sidebar";
@@ -31,7 +32,10 @@ export function RoleShell({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="border-border bg-surface flex h-14 items-center justify-between border-b px-4 md:hidden">
-          <span className="font-display text-foreground text-base font-semibold">Raiquid</span>
+          <span className="font-display text-foreground inline-flex items-center gap-2 text-base font-semibold">
+            <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
+            Raiquid
+          </span>
           <UserSummary user={user} />
         </header>
 

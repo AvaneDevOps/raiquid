@@ -10,7 +10,12 @@ import { cn } from "@/lib/utils";
  * stepper.
  *
  * `currentIndex` is the zero-based index of the in-progress step;
- * everything before it renders as complete.
+ * everything before it renders as complete. Pass `steps.length` to
+ * render every step complete.
+ *
+ * Colours match the screen exports: complete = filled patina-green with
+ * a check, current = filled minted-gold with the number, upcoming =
+ * outline.
  */
 export interface StepperStep {
   key: string;
@@ -39,9 +44,8 @@ export function Stepper({
               <span
                 className={cn(
                   "flex size-8 items-center justify-center rounded-full border text-sm font-medium",
-                  state === "complete" && "border-accent-500 bg-accent-500 text-bg",
-                  state === "current" &&
-                    "border-accent-400 text-accent-400 ring-accent-400/30 ring-2",
+                  state === "complete" && "border-success bg-success text-bg",
+                  state === "current" && "border-accent-500 bg-accent-500 text-bg",
                   state === "upcoming" && "border-border-strong text-muted-foreground",
                 )}
               >
@@ -61,7 +65,7 @@ export function Stepper({
                 aria-hidden
                 className={cn(
                   "mt-4 h-px min-w-6 flex-1",
-                  i < currentIndex ? "bg-accent-500" : "bg-border-strong",
+                  i < currentIndex ? "bg-success" : "bg-border-strong",
                 )}
               />
             )}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Hexagon } from "lucide-react";
 import { LANDING_NAV } from "@/lib/nav-config";
 
 /**
@@ -10,7 +11,10 @@ export function LandingFooter() {
     <footer className="border-border border-t">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 md:px-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <span className="font-display text-foreground text-base font-semibold">Raiquid</span>
+          <span className="font-display text-foreground inline-flex items-center gap-2 text-base font-semibold">
+            <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
+            Raiquid
+          </span>
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
             {LANDING_NAV.map((item) => (
               <Link

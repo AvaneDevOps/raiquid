@@ -76,13 +76,14 @@ export function OnChainStatusBadge({
 }
 
 /**
- * Monospace id chip, e.g. `RQ-INV-4471` / `RQ-INV-4471-T1`. Same
- * seal-chip silhouette as the status badges (verify against screen 06),
- * but the id keeps its own casing.
+ * Monospace id chip, e.g. `RQ-INV-4471` / `RQ-INV-4471-T1`. Amber
+ * seal-chip on the invoice-detail header (screens 06–09); the id keeps
+ * its own casing. For a plain inline id inside a table row, render the
+ * string directly instead of this chip.
  */
 export function InvoiceRef({ id, className }: { id: string; className?: string }) {
   return (
-    <Badge tone="neutral" className={cn("tracking-normal normal-case", className)}>
+    <Badge tone="amber" className={cn("tracking-normal normal-case", className)}>
       {id}
     </Badge>
   );
