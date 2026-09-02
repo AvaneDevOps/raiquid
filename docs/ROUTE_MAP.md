@@ -24,7 +24,7 @@ design. Most likely these are in-page anchors on the landing page
 on screen 01 itself), not standalone routes — confirm with design
 before building them as separate pages.
 
-## Shared — `(shared)` route group, `StandaloneShell` (centered card, no nav)
+## Standalone — `(standalone)` route group, `StandaloneShell` (centered card, no nav)
 
 | Route                         | Screen          | Status |
 | ----------------------------- | --------------- | ------ |

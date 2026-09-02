@@ -7,7 +7,7 @@ labels: screen
 
 **Screen reference:** NN-screenName (desktop + mobile in raiquid-screens.zip)
 **Route:** `/...`
-**Role / area:** business / buyer / investor / admin / landing / shared
+**Role / area:** business / buyer / investor / admin / landing / standalone
 
 **Notes / open questions:**
 <!-- Anything ambiguous in the design, or a decision that needs product/design input. -->

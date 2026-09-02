@@ -8,6 +8,29 @@ are your brief. Don't guess at anything covered here; where something
 genuinely isn't covered, say so and ask rather than inventing an answer,
 per "Assumptions to confirm" at the bottom.
 
+## Working with screen evidence
+
+Any claim of the form "screen NN shows X" or "verified against the
+exports" must be backed by an actual file-read/view step in the same
+session, on that specific file. Before making a claim like that:
+
+(a) confirm the screenshot file actually exists at the path you're
+about to cite (`ls` / `find` it first — don't assume from a past
+session or from memory),
+(b) view/read it,
+(c) only then state what it shows.
+
+If screenshots are not available in the workspace, say so explicitly
+("no screenshot available for screen NN, this is inferred from written
+docs / best guess") rather than presenting an inference as an
+observation. A wrong guess that's labeled as a guess is fine and
+expected; a wrong guess presented as verified pixel evidence is not.
+
+_Why this exists: a past session claimed several `domain-display.ts`
+tones were "verified against the exports" with no file-read in its tool
+output, and got `tokenized` wrong (amber, not green) by reading a green
+`InlineNotice` on the same screen as if it were the status badge._
+
 ## What Raiquid is
 
 Tokenized invoice financing for Nigerian SMEs. Three-sided marketplace:

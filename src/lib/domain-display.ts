@@ -12,9 +12,13 @@ import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } fr
  *   red     → failed / overdue / declined  (rust-red)
  *   neutral → inert / entry-level          (stone)
  *
- * Tones cross-checked against the real screen exports (03/04/05/06-09,
- * 10-bizList). Note "tokenized" and "funded" are GREEN — each marks a
- * completed on-chain / funding milestone, not an in-progress state.
+ * `funded` is GREEN and `tokenized` is AMBER — the repo owner checked
+ * both against the exports (09-bizPayout, 07-bizTokenized); the green
+ * element on the tokenized screen is the InlineNotice, a separate
+ * component with its own tone, not the status badge. Every other
+ * status/label in this file is an inference from the written docs, NOT
+ * checked against an export — see "Working with screen evidence" in
+ * docs/RAIQUID_CONTEXT.md before "correcting" any of them.
  */
 export type BadgeTone = "amber" | "green" | "red" | "neutral";
 
@@ -23,7 +27,7 @@ type Meta<T extends string> = Record<T, { label: string; tone: BadgeTone }>;
 export const INVOICE_STATUS_META: Meta<InvoiceStatus> = {
   submitted: { label: "Submitted", tone: "amber" },
   awaiting_acceptance: { label: "Awaiting acceptance", tone: "amber" },
-  tokenized: { label: "Tokenized", tone: "green" },
+  tokenized: { label: "Tokenized", tone: "amber" },
   funding: { label: "Funding", tone: "amber" },
   funded: { label: "Funded", tone: "green" },
   repaid: { label: "Repaid", tone: "green" },

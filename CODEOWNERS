@@ -3,7 +3,7 @@
 #
 # Path                      Owner(s)
 /src/app/(landing)/         @raiquid/frontend-leads
-/src/app/(shared)/          @raiquid/frontend-leads
+/src/app/(standalone)/      @raiquid/frontend-leads
 /src/app/business/          @raiquid/frontend-leads
 /src/app/buyer/             @raiquid/frontend-leads
 /src/app/investor/          @raiquid/frontend-leads
@@ -11,6 +11,6 @@
 /src/components/shared/ui/       @raiquid/frontend-leads
 /src/components/shared/layout/   @raiquid/tech-director
 /src/types/                 @raiquid/tech-director
-/src/middleware.ts          @raiquid/tech-director
+/src/proxy.ts               @raiquid/tech-director
 /.github/                   @raiquid/tech-director
 /docs/                      @raiquid/tech-director

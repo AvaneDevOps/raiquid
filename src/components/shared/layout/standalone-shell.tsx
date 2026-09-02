@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 /**
  * No nav, one centered card on a plain background, a small wordmark
- * above it. Used by the (shared) route group — auth, verify, magic-link
- * confirm — and reachable before authentication.
+ * above it. Used by the (standalone) route group — auth, verify,
+ * magic-link confirm — and reachable before authentication.
  */
 export function StandaloneShell({
   children,

@@ -93,7 +93,7 @@ without a design reason.
    Composed directly by the `(landing)` route group's `layout.tsx` —
    there is no single `LandingShell` component.
 2. **StandaloneShell** — thin header, no nav links, single centered card
-   on a plain background. Used by the `(shared)` route group (auth,
+   on a plain background. Used by the `(standalone)` route group (auth,
    verify, confirm/*). Reachable pre-authentication.
 3. **RoleShell** — desktop: fixed left sidebar (wordmark, nav items,
    user card pinned to the bottom). Mobile: sidebar disappears, nav
@@ -160,11 +160,13 @@ stamped-seal / ticket-stub silhouette. It's a `clip-path` polygon in the
 and every domain wrapper (`InvoiceStatusBadge`, `InvoiceRef`, …) gets it
 automatically.
 
-The cut depth is `--seal-chamfer` (currently `7px`), tuned by eye
-against the chips in screens 03–09 — revisit once the Figma source is
-available. Chips render as a **1px tone-coloured stroke that follows the
+The cut depth is `--seal-chamfer` (currently `7px`) — an unverified
+guess; revisit once the Figma source or an export is on hand. Chips
+currently render as a **1px tone-coloured stroke that follows the
 chamfer** (an `inset` box-shadow, which `clip-path` clips to the
-polygon) plus tone-coloured mono text, no fill — matching the exports.
+polygon) plus tone-coloured mono text, no fill. Whether the real chips
+have a fill has not been checked against an export
+(see "Working with screen evidence" in `docs/RAIQUID_CONTEXT.md`).
 
 ## Domain-specific visual patterns worth naming
 
@@ -174,13 +176,14 @@ polygon) plus tone-coloured mono text, no fill — matching the exports.
   exists in `globals.css` for this.
 - **Provenance tier badges are directional**: Quarried (neutral/gray) →
   Carried (amber) → Anchored (green) — the color intensifies as trust
-  increases; don't assign tier colors arbitrarily. The chip label
-  includes the word "tier" ("Carried tier").
-- **Invoice-status tone is milestone-based, not progress-based**:
-  `tokenized` and `funded` are **green** (a completed on-chain / funding
-  milestone), same as `repaid`. Only genuinely-waiting states
-  (`submitted`, `awaiting_acceptance`, `funding`) are amber; `overdue`
-  is red. Verified against screens 04/06-09/10 — the full map is in
+  increases; don't assign tier colors arbitrarily. The `domain-display`
+  labels currently carry a "tier" suffix ("Carried tier") — not
+  export-checked.
+- **Invoice-status tone**: `funded` and `repaid` are green;
+  `overdue` is red; everything else (`submitted`, `awaiting_acceptance`,
+  `tokenized`, `funding`) is amber. Only `funded` and `tokenized` have
+  been checked against an export (09-bizPayout, 07-bizTokenized, by the
+  repo owner) — the rest is inferred. The full map lives in
   `domain-display.ts`.
 - **Sandbox disclaimers appear on every money-moving action** (repay,
   fund) via `InlineNotice` — these are not optional copy, they're a
