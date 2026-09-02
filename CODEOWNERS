@@ -2,8 +2,8 @@
 # GitHub handles below with real ones once the team is on the repo.
 #
 # Path                      Owner(s)
-/src/app/(marketing)/       @raiquid/frontend-leads
-/src/app/(standalone)/      @raiquid/frontend-leads
+/src/app/(landing)/         @raiquid/frontend-leads
+/src/app/(shared)/          @raiquid/frontend-leads
 /src/app/business/          @raiquid/frontend-leads
 /src/app/buyer/             @raiquid/frontend-leads
 /src/app/investor/          @raiquid/frontend-leads

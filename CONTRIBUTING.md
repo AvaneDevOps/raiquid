@@ -39,11 +39,11 @@ commitlint on every commit:
 
 feat(investor): add marketplace tier filter
 fix(business): correct funded-percentage rounding
-docs(context): update route map after admin restructure
+docs(docs): update route map after admin restructure
 ```
 
 Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `style`.
-Scopes: `business`, `buyer`, `investor`, `admin`, `marketing`, `auth`,
+Scopes: `business`, `buyer`, `investor`, `admin`, `landing`, `auth`,
 `ui`, `types`, `infra`, `docs`, `deps` (see `commitlint.config.js` for
 the enforced list).
 
