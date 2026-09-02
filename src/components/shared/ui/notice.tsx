@@ -1,10 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-/**
- * Centered icon + heading + body + optional CTA. Used for "No invoices
- * yet" and the other zero-data states (screen 31).
- */
 export function EmptyState({
   title,
   description,
@@ -44,11 +40,6 @@ const noticeTone: Record<NoticeTone, { box: string; dot: string }> = {
   },
 };
 
-/**
- * Dot + copy callout. The sandbox / "simulated, no real funds move"
- * disclaimer that sits on every money-moving action is an `info`
- * InlineNotice — see screens 03/05/13/14/16/18/21/31 for real copy.
- */
 export function InlineNotice({
   tone = "info",
   children,

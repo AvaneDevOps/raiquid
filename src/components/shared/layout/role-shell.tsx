@@ -8,15 +8,7 @@ import { UserSummary } from "@/components/shared/layout/user-summary";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
-/**
- * The business / buyer / investor shell. Desktop: fixed left <Sidebar>.
- * Mobile: sidebar hidden, nav moves to <BottomTabBar>, user card moves
- * to a slim top header. Both nav variants are always mounted; only CSS
- * toggles them (see docs/DESIGN_SYSTEM.md, "Layout shells").
- *
- * Pass the viewer's `role` — the nav items come from ROLE_NAV inside the
- * nav components, so nothing non-serializable crosses to the client.
- */
+// Sidebar and BottomTabBar are both always mounted; CSS alone toggles which one shows.
 export function RoleShell({
   role,
   user,

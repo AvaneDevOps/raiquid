@@ -2,26 +2,12 @@ import { Fragment } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-/**
- * Numbered-circles-joined-by-a-line progress tracker. Generic over a
- * `steps` array — the same component renders the 5-stage invoice
- * lifecycle (INVOICE_LIFECYCLE_STEPS) and the 3-stage whitelisting flow
- * (WHITELIST_STEPS) from src/lib/domain-display.ts. Don't build a second
- * stepper.
- *
- * `currentIndex` is the zero-based index of the in-progress step;
- * everything before it renders as complete. Pass `steps.length` to
- * render every step complete.
- *
- * Colours match the screen exports: complete = filled patina-green with
- * a check, current = filled minted-gold with the number, upcoming =
- * outline.
- */
 export interface StepperStep {
   key: string;
   label: string;
 }
 
+// currentIndex is the in-progress step; lower indices render complete. Pass steps.length for all-complete.
 export function Stepper({
   steps,
   currentIndex,

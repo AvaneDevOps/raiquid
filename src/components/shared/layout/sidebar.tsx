@@ -11,14 +11,7 @@ import { cn } from "@/lib/utils";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
-/**
- * Desktop-only left nav rail (`hidden md:flex`). The mobile equivalent
- * is <BottomTabBar>; both read the same ROLE_NAV entry so they can't
- * drift. Kept in the DOM at every breakpoint — visibility is CSS only.
- *
- * Takes `role` (not a nav array) so the icon components never have to
- * cross the server→client boundary.
- */
+// takes `role`, not a nav array, so the icon components never cross the server→client boundary
 export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }) {
   const pathname = usePathname();
   const items = ROLE_NAV[role];

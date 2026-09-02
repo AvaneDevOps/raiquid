@@ -8,13 +8,6 @@ import {
   ONCHAIN_STATUS_META,
 } from "@/lib/domain-display";
 
-/**
- * The ONLY place a domain status / tier is turned into a chip. Every one
- * of these wraps <Badge>, so they all get the seal-chip shape. Never
- * render a raw <Badge tone="…"> for a status in a page — add or change
- * the mapping in src/lib/domain-display.ts instead.
- */
-
 export function InvoiceStatusBadge({
   status,
   className,
@@ -75,12 +68,6 @@ export function OnChainStatusBadge({
   );
 }
 
-/**
- * Monospace id chip, e.g. `RQ-INV-4471` / `RQ-INV-4471-T1`. Amber
- * seal-chip on the invoice-detail header (screens 06–09); the id keeps
- * its own casing. For a plain inline id inside a table row, render the
- * string directly instead of this chip.
- */
 export function InvoiceRef({ id, className }: { id: string; className?: string }) {
   return (
     <Badge tone="amber" className={cn("tracking-normal normal-case", className)}>

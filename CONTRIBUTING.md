@@ -98,6 +98,14 @@ linter says so:
    is a placeholder, the correct PR either replaces the whole file with
    a real implementation, or leaves it untouched — never adds partial
    real content around a leftover placeholder block.
+7. **Comments in `.ts`/`.tsx` are the exception, not the default.**
+   Rename a variable or extract a function before writing a comment to
+   explain what code does. When you do need one — a non-obvious business
+   rule, a workaround, a "why" the code can't carry — use a single-line
+   `//`. No `/** */` blocks, no JSDoc tags, no comment restating the
+   next line, no header explaining a file's purpose or naming the
+   screen/route it serves (that goes in `docs/` or the PR). This is for
+   source only; the Markdown docs keep their full prose.
 
 ## Code review
 

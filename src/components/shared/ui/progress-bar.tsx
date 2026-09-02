@@ -1,9 +1,5 @@
 import { cn } from "@/lib/utils";
 
-/**
- * Minted-gold horizontal fill bar — invoice funding %, reserve-pool
- * coverage, etc. `percent` is clamped to 0–100.
- */
 export function ProgressBar({
   percent,
   className,

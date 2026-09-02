@@ -3,10 +3,6 @@ import { Hexagon } from "lucide-react";
 import { LANDING_NAV } from "@/lib/nav-config";
 import { Button } from "@/components/shared/ui/button";
 
-/**
- * Public site header — wordmark, section links, Sign in / Get started.
- * Used by the (landing) route group. Dark theme like everything else.
- */
 export function LandingHeader() {
   return (
     <header className="border-border border-b">

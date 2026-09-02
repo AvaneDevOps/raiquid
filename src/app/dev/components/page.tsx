@@ -39,9 +39,7 @@ import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } fr
 
 export const metadata: Metadata = { title: "Component gallery (dev)" };
 
-// Local-only preview fixture. getSessionUser() still throws "Not
-// implemented" (auth isn't wired) — this stand-in exists ONLY for this
-// gallery and is intentionally not exported or shared.
+// local-only stand-in while getSessionUser() throws; do not export or reuse
 const PREVIEW_USER: SessionUser = {
   name: "Ada Okonkwo",
   subtitle: "Okonkwo Textiles Ltd",
