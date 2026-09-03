@@ -11,18 +11,15 @@ route is built for real, flip its status here in the same PR.
 
 ## Landing — `(landing)` route group, `LandingHeader` + `LandingFooter`
 
-| Route             | Screen              | Status |
-| ----------------- | ------------------- | ------ |
-| `/`               | 01-landing          | stub   |
-| `/how-it-works`   | _(none — see note)_ | stub   |
-| `/for-businesses` | _(none — see note)_ | stub   |
-| `/for-investors`  | _(none — see note)_ | stub   |
+| Route | Screen     | Status |
+| ----- | ---------- | ------ |
+| `/`   | 01-landing | stub   |
 
-Note: the three sub-pages are nav links on screen 01 with no dedicated
-design. Most likely these are in-page anchors on the landing page
-("How it works", "For businesses", "For investors" sections all exist
-on screen 01 itself), not standalone routes — confirm with design
-before building them as separate pages.
+Note: "How it works", "For businesses" and "For investors" are **not
+routes** — they are in-page anchors on `/`. `LANDING_NAV` links to
+`/#how-it-works`, `/#for-businesses` and `/#for-investors`, so the real
+landing page must give those sections `id="how-it-works"`,
+`id="for-businesses"` and `id="for-investors"`.
 
 ## Shared — `(shared)` route group, `StandaloneShell` (centered card, no nav)
 

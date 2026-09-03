@@ -51,7 +51,7 @@ export const ADMIN_NAV: NavItem[] = [
 ];
 
 export const LANDING_NAV: { label: string; href: Route }[] = [
-  { label: "How it works", href: "/how-it-works" },
-  { label: "For businesses", href: "/for-businesses" },
-  { label: "For investors", href: "/for-investors" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "For businesses", href: "/#for-businesses" },
+  { label: "For investors", href: "/#for-investors" },
 ];

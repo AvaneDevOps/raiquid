@@ -1,8 +1,13 @@
 import type { ReactNode } from "react";
+import { LandingHeader } from "@/components/shared/layout/landing-header";
+import { LandingFooter } from "@/components/shared/layout/landing-footer";
 
-// TODO: implement shell. See docs/DESIGN_SYSTEM.md for the intended
-// layout (sidebar+bottom-tabs / admin top-tabs / standalone-card) and
-// docs/ROUTE_MAP.md for which shell this route group uses.
 export default function Layout({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <div className="flex min-h-screen flex-col">
+      <LandingHeader />
+      <main className="flex-1">{children}</main>
+      <LandingFooter />
+    </div>
+  );
 }
