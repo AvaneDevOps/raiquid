@@ -1,62 +1,25 @@
 @import "tailwindcss";
 
-/**
- * Design tokens — "Ledger of Stone" system.
- *
- * The color values below were sampled directly from the pixels of the
- * approved screen exports (histogram + hue-range extraction across
- * 01-landing, 04-bizDashboard, 10-bizList, 19-invMarketplace,
- * 22-invPortfolio, 29-adminLedger -- see docs/DESIGN_SYSTEM.md for the
- * method), not eyeballed. They are real evidence, but they are still an
- * export of a mock, not the Figma source of truth -- if/when the design
- * team hands over a Figma file or a token export (Figma Tokens / Style
- * Dictionary JSON), reconcile against that and update this block, not the
- * other way around.
- *
- * Team vocabulary (design-session names, kept as comments so the CSS
- * variable names stay stable for now):
- *   --color-bg              → "basalt-950"
- *   --color-surface         → "basalt-900"
- *   --color-surface-raised  → "basalt-850"
- *   --color-border          → "line"
- *   --color-border-strong   → "line-strong"
- *   --color-foreground      → "limestone"
- *   --color-muted-foreground→ "stone"
- *   --color-accent-*        → "minted-gold"
- *   --color-success         → "patina-green"
- *   --color-danger          → "rust-red"
- *
- * Raiquid is dark-theme only, everywhere, including the (landing) pages.
- * There is no light theme — do not add one.
- *
- * Fonts are wired up in src/app/layout.tsx via next/font/google
- * (Fraunces / IBM Plex Sans / IBM Plex Mono) and exposed to Tailwind as
- * the --font-display / --font-sans / --font-mono theme variables below.
- */
-
+/* Colour values are sampled from the approved screen exports (method in docs/DESIGN_SYSTEM.md), not eyeballed. */
 :root {
   color-scheme: dark;
 
-  /* Surfaces */
-  --color-bg: #18150f; /* page background */
-  --color-surface: #1e1a13; /* cards, sidebar, table rows */
-  --color-surface-raised: #241f16; /* hover / raised surface */
-  --color-border: #2b2418; /* default hairline border */
-  --color-border-strong: #3a3020; /* emphasized border, e.g. focused input */
+  --color-bg: #18150f;
+  --color-surface: #1e1a13;
+  --color-surface-raised: #241f16;
+  --color-border: #2b2418;
+  --color-border-strong: #3a3020;
 
-  /* Text */
-  --color-foreground: #e8e1d3; /* headings, primary text */
-  --color-muted-foreground: #948d81; /* secondary/help text */
+  --color-foreground: #e8e1d3;
+  --color-muted-foreground: #948d81;
 
-  /* Accent (minted-gold) -- primary CTAs, links, in-progress state */
   --color-accent-400: #e7b862;
   --color-accent-500: #dcae57;
   --color-accent-600: #d19d43;
 
-  /* Semantic status */
-  --color-success: #7ecbab; /* Repaid, Confirmed, Anchored tier */
+  --color-success: #7ecbab;
   --color-success-muted: #3d5a4b;
-  --color-danger: #e58667; /* Overdue, Failed, Decline */
+  --color-danger: #e58667;
   --color-danger-muted: #6b4433;
 }
 
@@ -78,11 +41,10 @@
   --color-danger: var(--color-danger);
   --color-danger-muted: var(--color-danger-muted);
 
-  /* Defined by next/font on <html> (see src/app/layout.tsx); each
-     next/font call carries its own system fallback stack. */
-  --font-display: var(--font-display);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  /* next/font sets these on <html> (src/app/layout.tsx); the stack here is the fallback if that ever fails to load. */
+  --font-display: var(--font-display, ui-serif, Georgia, serif);
+  --font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-mono, ui-monospace, "SFMono-Regular", monospace);
 }
 
 body {
@@ -92,19 +54,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/**
- * The "seal chip" shape.
- *
- * Every status / tier / token-id chip in Raiquid (NOT buttons, NOT
- * cards) has its top-left and bottom-right corners sliced off at 45°,
- * giving a stamped-seal / ticket-stub silhouette. Applied automatically
- * by <Badge> (and everything that wraps it), so no page ever hand-rolls
- * this.
- *
- * --seal-chamfer is the cut depth. Tuned by eye against the chips in
- * 04-bizDashboard / 28-adminProvenance; revisit once the Figma source
- * is available.
- */
+/* Chamfered top-left + bottom-right corners — the seal-chip silhouette, applied by <Badge>. --seal-chamfer is a by-eye guess. */
 @utility seal-chip {
   --seal-chamfer: 7px;
   clip-path: polygon(
@@ -117,8 +67,6 @@ body {
   );
 }
 
-/* Struck-through "was" amount shown next to a discounted / net / repaid
-   figure (e.g. face value crossed out beside the early-payout amount). */
 .text-strike-muted {
   text-decoration: line-through;
   text-decoration-color: var(--color-muted-foreground);
