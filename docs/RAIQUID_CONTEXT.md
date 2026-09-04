@@ -163,9 +163,10 @@ What's real:
 - `src/types/domain.ts` — the complete domain model (all enums,
   interfaces), reverse-engineered from the actual screen content, not
   invented.
-- `src/app/globals.css` — real, pixel-sampled color tokens (see
-  `docs/DESIGN_SYSTEM.md`, "Method note" for how, and for the caveat
-  that fonts are an assumption, not evidence).
+- `src/app/globals.css` — real, pixel-sampled color tokens; fonts are a
+  visual match, not pixel evidence (see `docs/DESIGN_SYSTEM.md`).
+- `src/components/shared/**` — implemented and reconciled against the
+  exports in `docs/screens/` (2026-09-04 pass).
 - Tooling: ESLint, Prettier, Husky + commitlint (Conventional Commits,
   scoped to route areas), GitHub Actions CI (lint + typecheck + format
   - build), CODEOWNERS, PR/issue templates.
@@ -183,7 +184,7 @@ What's not real (build these next, in roughly this order):
    primitives with Raiquid-specific meaning.
 4. Screens themselves, using `docs/ROUTE_MAP.md` as the checklist —
    replace each stub's `// TODO` comment with the real implementation,
-   referencing the exact screen number in `raiquid-screens.zip`.
+   referencing the matching export in `docs/screens/{desktop,mobile}/`.
 
 ## Open decisions (not made yet — don't assume an answer)
 
@@ -212,21 +213,30 @@ session-user.tsx` defines the `SessionUser` shape every shell needs
 
 ## Assumptions to confirm with design/product before treating as final
 
-- **Fonts** (Fraunces/Inter/JetBrains Mono) — visual match, not sampled
-  evidence. See `docs/DESIGN_SYSTEM.md`.
-- **`/buyer/invoices`** ("Invoices to review") has no dedicated screen
-  export — only a nav item. Built as an inferred table matching
-  `/business/invoices`'s pattern; confirm the real field set.
-- **`/notifications`** shows no shell chrome in the export at either
-  breakpoint, unlike every other authenticated screen. Most likely this
-  is the export isolating the panel content rather than a genuinely
-  chromeless page — decide whether it renders inside the visitor's
-  current role shell before building it either way.
-- **`/how-it-works`, `/for-businesses`, `/for-investors`** are nav
-  links on screen 01 with no separate screen design — probably in-page
-  anchors on the landing page rather than real routes. The folders
-  exist as a placeholder either way; confirm before building them out
-  as full pages.
+- **Fonts** (Fraunces / IBM Plex Sans / IBM Plex Mono) — a considered
+  visual match against the exports, named by the design session. Not
+  pixel-provable. See `docs/DESIGN_SYSTEM.md`.
+- **`/buyer/invoices`** ("Invoices to review") — the nav label is
+  verified (screen 15) but there is still no dedicated export for the
+  list itself. Built as an inferred table matching `/business/invoices`
+  (screen 10); confirm the real field set.
+- **`/auth` and `/verify`** (screens 02, 03) sit under the marketing
+  `LandingHeader` (no footer), not a standalone shell — so they arguably
+  belong in the `(landing)` route group rather than `(shared)`. Left in
+  `(shared)` for now; confirm before building them.
+- **The business verification flow** (screen 03) is a 3-stage stepper —
+  Documents submitted / Under review / Verified — with no enum in
+  `src/types/domain.ts` (only the investor `WhitelistStatus` exists).
+  Add one when that screen is built.
+
+Resolved by the 2026-09-04 export pass:
+
+- **`/notifications`** — the export (screen 30) shows the panel only, no
+  chrome. Treated as the export isolating the panel: build it inside the
+  visitor's current role shell like every other authenticated route.
+- **`/how-it-works`, `/for-businesses`, `/for-investors`** — screen 01
+  has all three as sections on `/`. They are **not routes**; `LANDING_NAV`
+  links to `/#how-it-works` etc. (route folders deleted).
 
 ## Working conventions
 

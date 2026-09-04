@@ -1,9 +1,10 @@
 # Route map
 
 Every route currently scaffolded, its layout group, the screen it's
-built from (in `raiquid-screens.zip`), and its current status. Every
-`page.tsx`/`layout.tsx` file exists on disk already — this table is
-about what's _implemented_ inside each, not whether the route resolves.
+built from (`docs/screens/{desktop,mobile}/NN-*.png`), and its current
+status. Every `page.tsx`/`layout.tsx` file exists on disk already — this
+table is about what's _implemented_ inside each, not whether the route
+resolves.
 
 Status legend: **stub** = returns `null` / passes through children only
 (current state of everything, per the Sept 2026 strip-down). Once a
@@ -21,18 +22,21 @@ routes** — they are in-page anchors on `/`. `LANDING_NAV` links to
 landing page must give those sections `id="how-it-works"`,
 `id="for-businesses"` and `id="for-investors"`.
 
-## Shared — `(shared)` route group, `StandaloneShell` (centered card, no nav)
+## Shared — `(shared)` route group, no shared shell
 
-| Route                         | Screen          | Status |
-| ----------------------------- | --------------- | ------ |
-| `/auth`                       | 02-auth         | stub   |
-| `/verify`                     | 03-verify       | stub   |
-| `/confirm/[invoiceId]`        | 13-buyerRequest | stub   |
-| `/confirm/[invoiceId]/review` | 14-buyerAccept  | stub   |
+| Route                         | Screen          | Chrome                          | Status |
+| ----------------------------- | --------------- | ------------------------------- | ------ |
+| `/auth`                       | 02-auth         | `LandingHeader` + centered card | stub   |
+| `/verify`                     | 03-verify       | `LandingHeader` + wide column   | stub   |
+| `/confirm/[invoiceId]`        | 13-buyerRequest | `StandaloneShell` (no chrome)   | stub   |
+| `/confirm/[invoiceId]/review` | 14-buyerAccept  | `StandaloneShell` (no chrome)   | stub   |
 
-This group is reachable without an authenticated session — `/confirm/*`
-in particular is the magic-link a buyer receives by email/SMS. Do not
-wrap it in an auth check.
+`(shared)/layout.tsx` is a pass-through — the exports show three
+different chrome treatments (see `docs/DESIGN_SYSTEM.md`, "Layout
+shells"), so each page composes its own. Reachable without an
+authenticated session — `/confirm/*` in particular is the magic-link a
+buyer receives by email/SMS. Do not wrap it in an auth check. `/auth`
+and `/verify` may move to `(landing)`.
 
 ## Business — `business/` route group, `RoleShell` (sidebar / bottom-tabs)
 
@@ -57,9 +61,10 @@ wrap it in an auth check.
 | `/buyer/payment-schedule`         | 15-buyerDashboard (table) | stub   |
 | `/buyer/settings`                 | 17-buyerSettings          | stub   |
 
-Note: "Invoices to review" is a nav item on screen 15 with no dedicated
-list-screen export. Build it consistent with `/business/invoices`'
-table pattern, but confirm the exact fields with design first.
+Note: "Invoices to review" — the nav label is verified (screen 15) but
+there is no dedicated list-screen export. Build it consistent with
+`/business/invoices` (screen 10), but confirm the exact fields with
+design first.
 
 ## Investor — `investor/` route group, `RoleShell`
 
@@ -87,12 +92,12 @@ table pattern, but confirm the exact fields with design first.
 
 ## Shared / cross-cutting
 
-| Route              | Screen           | Status | Notes                                                                                                                                                                                                 |
-| ------------------ | ---------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/notifications`   | 30-notifications | stub   | Export shows no nav chrome at either breakpoint — decide whether this renders inside the visitor's current role shell (likely) or is truly standalone before building. See `docs/RAIQUID_CONTEXT.md`. |
-| 404                | —                | stub   | `src/app/not-found.tsx`                                                                                                                                                                               |
-| Error boundary     | —                | stub   | `src/app/error.tsx`                                                                                                                                                                                   |
-| Empty/error states | 31-emptyError    | —      | Not a route — a set of UI states (empty invoice list, delayed-transaction notice) that live inside existing pages. See `docs/DESIGN_SYSTEM.md`, "EmptyState" and "InlineNotice".                      |
+| Route              | Screen           | Status | Notes                                                                                                                                                                                                   |
+| ------------------ | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/notifications`   | 30-notifications | stub   | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
+| 404                | —                | stub   | `src/app/not-found.tsx`                                                                                                                                                                                 |
+| Error boundary     | —                | stub   | `src/app/error.tsx`                                                                                                                                                                                     |
+| Empty/error states | 31-emptyError    | —      | Not a route — a set of UI states (empty invoice list, delayed-transaction notice) that live inside existing pages. See `docs/DESIGN_SYSTEM.md`, "EmptyState" and "InlineNotice".                        |
 
 ## Route-protection
 
