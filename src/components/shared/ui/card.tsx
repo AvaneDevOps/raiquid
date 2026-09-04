@@ -35,7 +35,7 @@ export function StatCard({
 }) {
   return (
     <div className={cn("border-border bg-surface rounded-xl border p-5", className)}>
-      <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">{label}</p>
+      <p className="text-muted-foreground text-sm">{label}</p>
       <p
         className={cn(
           "font-display mt-2 text-3xl leading-none font-medium",

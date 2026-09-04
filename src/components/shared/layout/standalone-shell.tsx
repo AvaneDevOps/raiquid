@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { Hexagon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Chromeless centered card on the plain background — the magic-link
+// confirm screens (13/14). Auth and verify (02/03) instead sit under
+// the marketing <LandingHeader>, so they don't use this.
 export function StandaloneShell({
   children,
   className,
@@ -10,13 +12,9 @@ export function StandaloneShell({
   className?: string;
 }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-4 py-10">
-      <span className="font-display text-foreground inline-flex items-center gap-2 text-base font-semibold">
-        <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
-        Raiquid
-      </span>
+    <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div
-        className={cn("border-border bg-surface w-full max-w-md rounded-xl border p-6", className)}
+        className={cn("border-border bg-surface w-full max-w-lg rounded-xl border p-6", className)}
       >
         {children}
       </div>

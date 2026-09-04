@@ -1,53 +1,42 @@
 import type { Route } from "next";
-import type { LucideIcon } from "lucide-react";
-import {
-  LayoutDashboard,
-  FileText,
-  Wallet,
-  Settings,
-  ClipboardCheck,
-  CalendarClock,
-  Briefcase,
-  Store,
-  ShieldCheck,
-  Landmark,
-  ScrollText,
-} from "lucide-react";
 import type { UserRole } from "@/types";
 
+// The nav in the exports is text-only — no icons in the sidebar or the
+// admin tab row, and the mobile bottom bar uses a small dot per item.
 export interface NavItem {
   label: string;
   href: Route;
-  icon: LucideIcon;
 }
 
+// Order and labels from the nav rails on screens 04 (business), 15
+// (buyer), 18 (investor), 26 (admin); landing links from screen 01.
 export const ROLE_NAV: Record<Exclude<UserRole, "admin">, NavItem[]> = {
   business: [
-    { label: "Dashboard", href: "/business/dashboard", icon: LayoutDashboard },
-    { label: "Invoices", href: "/business/invoices", icon: FileText },
-    { label: "Wallet", href: "/business/wallet", icon: Wallet },
-    { label: "Settings", href: "/business/settings", icon: Settings },
+    { label: "Dashboard", href: "/business/dashboard" },
+    { label: "Invoices", href: "/business/invoices" },
+    { label: "Wallet", href: "/business/wallet" },
+    { label: "Settings", href: "/business/settings" },
   ],
   buyer: [
-    { label: "Dashboard", href: "/buyer/dashboard", icon: LayoutDashboard },
-    { label: "Invoices to review", href: "/buyer/invoices", icon: ClipboardCheck },
-    { label: "Payment schedule", href: "/buyer/payment-schedule", icon: CalendarClock },
-    { label: "Settings", href: "/buyer/settings", icon: Settings },
+    { label: "Dashboard", href: "/buyer/dashboard" },
+    { label: "Invoices to review", href: "/buyer/invoices" },
+    { label: "Payment schedule", href: "/buyer/payment-schedule" },
+    { label: "Settings", href: "/buyer/settings" },
   ],
   investor: [
-    { label: "Portfolio", href: "/investor/portfolio", icon: Briefcase },
-    { label: "Marketplace", href: "/investor/marketplace", icon: Store },
-    { label: "Whitelisting", href: "/investor/whitelisting", icon: ShieldCheck },
-    { label: "Wallet", href: "/investor/wallet", icon: Wallet },
-    { label: "Settings", href: "/investor/settings", icon: Settings },
+    { label: "Portfolio", href: "/investor/portfolio" },
+    { label: "Marketplace", href: "/investor/marketplace" },
+    { label: "Whitelisting", href: "/investor/whitelisting" },
+    { label: "Wallet", href: "/investor/wallet" },
+    { label: "Settings", href: "/investor/settings" },
   ],
 };
 
 export const ADMIN_NAV: NavItem[] = [
-  { label: "Overview", href: "/admin/overview", icon: LayoutDashboard },
-  { label: "Reserve pool", href: "/admin/reserve", icon: Landmark },
-  { label: "Provenance registry", href: "/admin/provenance", icon: ShieldCheck },
-  { label: "Ledger", href: "/admin/ledger", icon: ScrollText },
+  { label: "Overview", href: "/admin/overview" },
+  { label: "Reserve pool", href: "/admin/reserve" },
+  { label: "Provenance registry", href: "/admin/provenance" },
+  { label: "Ledger", href: "/admin/ledger" },
 ];
 
 export const LANDING_NAV: { label: string; href: Route }[] = [

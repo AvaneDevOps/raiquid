@@ -54,9 +54,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Chamfered top-left + bottom-right corners — the seal-chip silhouette, applied by <Badge>. --seal-chamfer is a by-eye guess. */
+/* Chamfered top-left + bottom-right corners — the seal-chip silhouette, applied by <Badge>. ~6px measured off chip crops from screens 04/06. */
 @utility seal-chip {
-  --seal-chamfer: 7px;
+  --seal-chamfer: 6px;
   clip-path: polygon(
     var(--seal-chamfer) 0,
     100% 0,
@@ -65,10 +65,4 @@ body {
     0 100%,
     0 var(--seal-chamfer)
   );
-}
-
-.text-strike-muted {
-  text-decoration: line-through;
-  text-decoration-color: var(--color-muted-foreground);
-  color: var(--color-muted-foreground);
 }

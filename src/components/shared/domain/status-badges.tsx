@@ -1,6 +1,5 @@
 import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } from "@/types";
-import { Badge } from "@/components/shared/ui/badge";
-import { cn } from "@/lib/utils";
+import { Badge, type BadgeTone } from "@/components/shared/ui/badge";
 import {
   INVOICE_STATUS_META,
   PROVENANCE_TIER_META,
@@ -68,9 +67,19 @@ export function OnChainStatusBadge({
   );
 }
 
-export function InvoiceRef({ id, className }: { id: string; className?: string }) {
+// amber on the invoice-detail header (screens 06-09); green once the
+// token is closed/burned (screen 23) — hence the overridable tone.
+export function InvoiceRef({
+  id,
+  tone = "amber",
+  className,
+}: {
+  id: string;
+  tone?: BadgeTone;
+  className?: string;
+}) {
   return (
-    <Badge tone="amber" className={cn("tracking-normal normal-case", className)}>
+    <Badge tone={tone} className={className}>
       {id}
     </Badge>
   );

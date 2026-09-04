@@ -19,7 +19,8 @@ export function Badge({ tone = "neutral", className, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "seal-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-xs leading-none font-medium tracking-wide uppercase",
+        // chips render the label as-written — sentence case, no uppercase (screens 04/06/10/28)
+        "seal-chip inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-xs leading-none font-medium",
         toneClass[tone],
         className,
       )}

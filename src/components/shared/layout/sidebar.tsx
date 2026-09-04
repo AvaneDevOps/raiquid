@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
-// takes `role`, not a nav array, so the icon components never cross the server→client boundary
 export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }) {
   const pathname = usePathname();
   const items = ROLE_NAV[role];
@@ -26,20 +25,18 @@ export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }
       <nav className="flex-1 space-y-1 px-3 py-2">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-          const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                "block rounded-lg px-3 py-2 text-sm transition-colors",
                 active
-                  ? "bg-surface-raised text-foreground font-medium"
+                  ? "bg-surface-raised text-accent-400 font-medium"
                   : "text-muted-foreground hover:bg-surface-raised hover:text-foreground",
               )}
             >
-              <Icon className="size-4 shrink-0" />
               {item.label}
             </Link>
           );

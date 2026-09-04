@@ -4,18 +4,20 @@ export type BadgeTone = "amber" | "green" | "red" | "neutral";
 
 type Meta<T extends string> = Record<T, { label: string; tone: BadgeTone }>;
 
-// Only funded and tokenized are checked against a screen export; the rest is inferred.
+// Tones verified against screens 04/06/07/08/09/10. tokenized, funded and
+// repaid are green (a completed milestone); overdue is red; the rest amber.
 export const INVOICE_STATUS_META: Meta<InvoiceStatus> = {
   submitted: { label: "Submitted", tone: "amber" },
   awaiting_acceptance: { label: "Awaiting acceptance", tone: "amber" },
-  // amber, not green — a past pass misread this screen's InlineNotice as the badge
-  tokenized: { label: "Tokenized", tone: "amber" },
+  tokenized: { label: "Tokenized", tone: "green" },
   funding: { label: "Funding", tone: "amber" },
   funded: { label: "Funded", tone: "green" },
   repaid: { label: "Repaid", tone: "green" },
   overdue: { label: "Overdue", tone: "red" },
 };
 
+// Screens 06/15/20 show "Carried tier"; the registry (28) drops "tier"
+// because that column is already headed "Tier".
 export const PROVENANCE_TIER_META: Meta<ProvenanceTier> = {
   quarried: { label: "Quarried tier", tone: "neutral" },
   carried: { label: "Carried tier", tone: "amber" },
@@ -34,7 +36,7 @@ export const ONCHAIN_STATUS_META: Meta<OnChainStatus> = {
   failed: { label: "Failed", tone: "red" },
 };
 
-// stepper milestones — not 1:1 with the status enum
+// Stepper milestones (screens 06-08), distinct from the status enum.
 export const INVOICE_LIFECYCLE_STEPS: { key: string; label: string }[] = [
   { key: "submitted", label: "Submitted" },
   { key: "buyer_review", label: "Buyer review" },
@@ -43,7 +45,8 @@ export const INVOICE_LIFECYCLE_STEPS: { key: string; label: string }[] = [
   { key: "repaid", label: "Repaid" },
 ];
 
-// currentIndex into INVOICE_LIFECYCLE_STEPS per status; repaid is past the last index so all steps read as done.
+// currentIndex into INVOICE_LIFECYCLE_STEPS per status (screens 06/07/08);
+// repaid is past the last index so every step reads as done.
 export const INVOICE_STATUS_STEP_INDEX: Record<InvoiceStatus, number> = {
   submitted: 1,
   awaiting_acceptance: 1,
@@ -54,9 +57,11 @@ export const INVOICE_STATUS_STEP_INDEX: Record<InvoiceStatus, number> = {
   overdue: 4,
 };
 
-// Labels not verified against a screen export.
+// Investor whitelisting flow (screen 18). The business verification flow
+// (screen 03) is a separate 3-stage stepper — Documents submitted /
+// Under review / Verified — with no domain model yet.
 export const WHITELIST_STEPS: { key: string; label: string }[] = [
-  { key: "identity_submitted", label: "Identity" },
-  { key: "in_review", label: "Review" },
+  { key: "identity_submitted", label: "Identity submitted" },
+  { key: "in_review", label: "In review" },
   { key: "whitelisted", label: "Whitelisted" },
 ];

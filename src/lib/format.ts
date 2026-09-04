@@ -3,14 +3,16 @@ const NAIRA = "₦";
 export function formatNaira(amount: number): string {
   const rounded = Math.round(Math.abs(amount));
   const grouped = rounded.toLocaleString("en-NG");
-  return amount < 0 ? `(${NAIRA}${grouped})` : `${NAIRA}${grouped}`;
+  // screens 01/09/20 show deductions as "−₦60,000", not "(₦60,000)"
+  return amount < 0 ? `−${NAIRA}${grouped}` : `${NAIRA}${grouped}`;
 }
 
 export function formatDate(isoDate: string): string {
   const d = new Date(isoDate);
   if (Number.isNaN(d.getTime())) return isoDate;
+  // "02 Aug 2026" — day is zero-padded (screen 10)
   return d.toLocaleDateString("en-GB", {
-    day: "numeric",
+    day: "2-digit",
     month: "short",
     year: "numeric",
   });
