@@ -91,6 +91,13 @@ linter says so:
    folder under `src/components/` once a second route in that area
    needs it, and only to `src/components/shared/` once a second app
    area needs it. Don't pre-emptively share.
+
+   **Exception: `src/components/landing/`.** Landing's homepage
+   sections (`how-it-works-section.tsx`, `for-businesses-section.tsx`,
+   etc.) go straight into `src/components/landing/`, skipping the
+   `_components/` colocation step — deliberately, not by oversight. See
+   `src/components/landing/README.md` for why.
+
 5. **Route params use `PageProps<'/exact/path/[param]'>`**, the
    Next.js-generated global type (see any `[invoiceId]/page.tsx` for an
    example) — don't hand-type `{ params: { invoiceId: string } }`.
