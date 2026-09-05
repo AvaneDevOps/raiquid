@@ -66,3 +66,9 @@ body {
     0 var(--seal-chamfer)
   );
 }
+
+.text-strike-muted {
+  text-decoration: line-through;
+  text-decoration-color: var(--color-muted-foreground);
+  color: var(--color-muted-foreground);
+}
