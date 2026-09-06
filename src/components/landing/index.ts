@@ -2,3 +2,5 @@
 // these, promote it to src/components/shared/ instead of duplicating it.
 export * from "./how-it-works-section";
 export * from "./for-businesses-section";
+export * from "./for-investor";
+export * from "./provenanceSection";
