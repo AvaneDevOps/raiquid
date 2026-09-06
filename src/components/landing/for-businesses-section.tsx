@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 
 import { Button } from "@/components/shared/ui/button";
+import { computeFinancingBreakdown } from "@/lib/finance";
 import { formatNaira, formatPercent } from "@/lib/format";
 import type { Invoice } from "@/types";
 import { useRevealOnScroll } from "./use-reveal";
@@ -42,23 +43,16 @@ const EXAMPLE_ESTIMATE: FinancingEstimateInput = {
   reserveContributionPct: 1,
 };
 
-function computeFinancingEstimate({
-  amount,
-  platformFeePct,
-  reserveContributionPct,
-}: FinancingEstimateInput) {
-  const platformFee = (amount * platformFeePct) / 100;
-  const reserveContribution = (amount * reserveContributionPct) / 100;
-  const netAmount = amount - platformFee - reserveContribution;
-  return { platformFee, reserveContribution, netAmount };
-}
-
 interface ForBusinessesSectionProps {
   estimate?: FinancingEstimateInput;
 }
 
 export function ForBusinessesSection({ estimate = EXAMPLE_ESTIMATE }: ForBusinessesSectionProps) {
-  const { platformFee, reserveContribution, netAmount } = computeFinancingEstimate(estimate);
+  const { platformFee, reserveContribution, netAmount } = computeFinancingBreakdown(
+    estimate.amount,
+    estimate.platformFeePct,
+    estimate.reserveContributionPct,
+  );
   const { ref: textRef, isVisible: textVisible } = useRevealOnScroll<HTMLDivElement>();
   const { ref: cardRef, isVisible: cardVisible } = useRevealOnScroll<HTMLDivElement>();
 

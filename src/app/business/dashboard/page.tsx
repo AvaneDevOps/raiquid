@@ -3,9 +3,9 @@ import Link from "next/link";
 import { getSessionUser } from "@/components/shared/layout/session-user";
 import { Button } from "@/components/shared/ui/button";
 import { StatCard } from "@/components/shared/ui/card";
+import { BUSINESS_INVOICES, BUSINESS_STATS } from "@/components/business/fixtures";
 import { formatNaira } from "@/lib/format";
 
-import { DASHBOARD_STATS, RECENT_INVOICES } from "./_components/fixtures";
 import { RecentInvoicesCard } from "./_components/recent-invoices-card";
 
 /**
@@ -19,8 +19,9 @@ function getDaypartGreeting(date: Date = new Date()): string {
   return "Good evening";
 }
 
-// Screen 04-bizDashboard. Data below is dummy (see _components/fixtures.ts)
-// until a real API exists — see docs/RAIQUID_CONTEXT.md, "Open decisions".
+// Screen 04-bizDashboard. Data below is dummy (see
+// src/components/business/fixtures.ts) until a real API exists — see
+// docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default async function Page() {
   const user = await getSessionUser("business");
   const firstName = user.name.split(" ")[0];
@@ -42,23 +43,24 @@ export default async function Page() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Active invoices"
-          value={String(DASHBOARD_STATS.activeInvoices)}
-          caption={`${formatNaira(DASHBOARD_STATS.activeInvoicesAmountInProgress)} in progress`}
+          value={String(BUSINESS_STATS.activeInvoicesCount)}
+          caption={`${formatNaira(BUSINESS_STATS.activeInvoicesAmountInProgress)} in progress`}
         />
         <StatCard
           label="Total financed"
-          value={formatNaira(DASHBOARD_STATS.totalFinanced)}
-          caption={`since ${DASHBOARD_STATS.totalFinancedSince}`}
+          value={formatNaira(BUSINESS_STATS.totalFinanced)}
+          caption={`since ${BUSINESS_STATS.totalFinancedSince}`}
           emphasize
         />
         <StatCard
           label="Avg. time to cash"
-          value={`${DASHBOARD_STATS.avgDaysToCash} days`}
+          value={`${BUSINESS_STATS.avgDaysToCash} days`}
           caption="from buyer acceptance"
         />
       </div>
 
-      <RecentInvoicesCard invoices={RECENT_INVOICES} />
+      {/* BUSINESS_INVOICES is ordered most-recent-first — see fixtures.ts */}
+      <RecentInvoicesCard invoices={BUSINESS_INVOICES.slice(0, 3)} />
     </div>
   );
 }
