@@ -124,6 +124,28 @@ export interface Holding {
 
 export type WalletTransactionType = "deposit" | "withdrawal" | "invested" | "repayment";
 
+export type PayoutStatus = "received" | "pending" | "failed";
+
+export interface BusinessPayout {
+  id: string;
+  date: string;
+  invoiceId: string;
+  amount: number;
+  status: PayoutStatus;
+}
+
+export interface PendingBusinessPayout extends BusinessPayout {
+  status: "pending";
+  invoiceStatus: InvoiceStatus;
+}
+
+export interface BusinessWallet {
+  totalReceived: number;
+  pendingPayout?: PendingBusinessPayout;
+  payoutAccount: BankAccount;
+  payoutHistory: BusinessPayout[];
+}
+
 export interface WalletTransaction {
   id: string;
   date: string; // ISO date

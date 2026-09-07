@@ -1,4 +1,10 @@
-import type { InvoiceStatus, ProvenanceTier, WhitelistStatus, OnChainStatus } from "@/types";
+import type {
+  InvoiceStatus,
+  OnChainStatus,
+  PayoutStatus,
+  ProvenanceTier,
+  WhitelistStatus,
+} from "@/types";
 
 export type BadgeTone = "amber" | "green" | "red" | "neutral";
 
@@ -32,6 +38,12 @@ export const WHITELIST_STATUS_META: Meta<WhitelistStatus> = {
 
 export const ONCHAIN_STATUS_META: Meta<OnChainStatus> = {
   confirmed: { label: "Confirmed", tone: "green" },
+  pending: { label: "Pending", tone: "amber" },
+  failed: { label: "Failed", tone: "red" },
+};
+
+export const PAYOUT_STATUS_META: Meta<PayoutStatus> = {
+  received: { label: "Received", tone: "green" },
   pending: { label: "Pending", tone: "amber" },
   failed: { label: "Failed", tone: "red" },
 };
