@@ -1,10 +1,10 @@
 "use client";
 
-import { opportunities, investorBenefits } from "@/types/investor";
 import { motion, type Variants } from "framer-motion";
 import { InvestmentCard } from "./investorCard";
 import { Button } from "@/components/shared/ui/button";
 
+import { InvestmentOpportunity } from "@/types/investor";
 const container: Variants = {
   hidden: {},
   show: {
@@ -12,7 +12,34 @@ const container: Variants = {
   },
 };
 
-export default function InvestorSection() {
+const opportunities: InvestmentOpportunity[] = [
+  {
+    company: "Distify Distribution Ltd",
+    tier: "Carried tier",
+    available: "₦650,000",
+    returnRate: "6.5%",
+    due: "42 days",
+    tierColor: "gold",
+    tierType: "carried",
+  },
+  {
+    company: "MTN Retail Partners",
+    tier: "Anchored tier",
+    available: "₦200,000",
+    returnRate: "5.8%",
+    due: "28 days",
+    tierColor: "green",
+    tierType: "anchored",
+  },
+];
+const investorBenefits: string[] = [
+  "Start with as little as ₦10,000",
+  "Invest in invoices accepted by verified buyers",
+  "Clear return before you invest",
+  "Track repayment in real time",
+];
+
+export function InvestorSection() {
   return (
     <section
       id="for-investors"
@@ -43,7 +70,7 @@ export default function InvestorSection() {
           </h2>
 
           <p className="text-muted-foreground mt-6 text-base leading-7 md:text-lg">
-            Every opportunity on Rayquid is backed by an invoice the buyer has formally confirmed
+            Every opportunity on Raiquid is backed by an invoice the buyer has formally confirmed
             they owe. You&apos;re not speculating on price — you&apos;re participating in verified
             economic activity.
           </p>

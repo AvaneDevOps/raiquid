@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/shared/ui/badge";
 import type { InvestmentOpportunity } from "@/types/investor";
 import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
 import type { Variants } from "framer-motion";
+import { ProvenanceTierBadge } from "../shared/domain";
+import { Badge, BadgeTone } from "../shared/ui";
 
 const cardVariant: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -29,12 +30,8 @@ export function InvestmentCard({ investment, className }: InvestmentCardProps) {
           <div className="flex items-start justify-between">
             <div>
               <CardTitle className="text-sm md:text-base">{investment.company}</CardTitle>
-
-              <Badge tone={investment.tierType === "carried" ? "amber" : "green"} className="-mt-1">
-                {investment.tier}
-              </Badge>
+              <ProvenanceTierBadge tier={investment.tierType} className="-mt-1" />
             </div>
-
             <Badge tone="green" className="mt-1">
               Strong
             </Badge>
