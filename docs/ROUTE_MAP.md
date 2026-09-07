@@ -43,12 +43,12 @@ and `/verify` may move to `(landing)`.
 | Route                                | Screen                                                                                        | Status |
 | ------------------------------------ | --------------------------------------------------------------------------------------------- | ------ |
 | `/business` (redirects to dashboard) | —                                                                                             | done   |
-| `/business/dashboard`                | 04-bizDashboard                                                                               | stub   |
-| `/business/invoices`                 | 10-bizList                                                                                    | stub   |
-| `/business/invoices/new`             | 05-bizUpload                                                                                  | stub   |
-| `/business/invoices/[invoiceId]`     | 06/07/08/09 (bizPending/Tokenized/Funding/Payout — one page, 5 status states via the stepper) | stub   |
+| `/business/dashboard`                | 04-bizDashboard                                                                               | done   |
+| `/business/invoices`                 | 10-bizList                                                                                    | done   |
+| `/business/invoices/new`             | 05-bizUpload                                                                                  | done   |
+| `/business/invoices/[invoiceId]`     | 06/07/08/09 (bizPending/Tokenized/Funding/Payout — one page, 5 status states via the stepper) | done   |
 | `/business/wallet`                   | 11-bizWallet                                                                                  | done   |
-| `/business/settings`                 | 12-bizSettings                                                                                | stub   |
+| `/business/settings`                 | 12-bizSettings                                                                                | done   |
 
 ## Buyer — `buyer/` route group, `RoleShell`
 
