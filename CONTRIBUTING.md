@@ -39,11 +39,11 @@ commitlint on every commit:
 
 feat(investor): add marketplace tier filter
 fix(business): correct funded-percentage rounding
-docs(context): update route map after admin restructure
+docs(docs): update route map after admin restructure
 ```
 
 Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, `style`.
-Scopes: `business`, `buyer`, `investor`, `admin`, `marketing`, `auth`,
+Scopes: `business`, `buyer`, `investor`, `admin`, `landing`, `auth`,
 `ui`, `types`, `infra`, `docs`, `deps` (see `commitlint.config.js` for
 the enforced list).
 
@@ -69,13 +69,13 @@ linter says so:
    different color for one, change it there — never hardcode a tone or
    label inline in a page component.
 2. **Nav items live in `src/lib/nav-config.ts`, once.** The desktop
-   sidebar and mobile bottom-tab bar both render from the same array.
-   Adding a nav item to one component and not the other is exactly the
-   drift this file exists to prevent.
+   sidebar and mobile bottom-tab bar both read the same `ROLE_NAV[role]`
+   entry (they take a `role`, not a nav array). Adding a nav item in one
+   component instead of the config is exactly the drift this prevents.
 3. **`src/components/` is `shared/` plus one folder per app area.**
    `src/components/shared/` (`ui/`, `domain/`, `layout/`) is for
    components that appear across multiple roles or are generic —
-   nothing role-specific. `src/components/{business,buyer,investor,admin,marketing}/`
+   nothing role-specific. `src/components/{business,buyer,investor,admin,landing}/`
    each hold components used only within that area. A component
    **starts in its area folder**; it only gets promoted to
    `src/components/shared/` once a _second_ area actually needs it —
@@ -91,6 +91,13 @@ linter says so:
    folder under `src/components/` once a second route in that area
    needs it, and only to `src/components/shared/` once a second app
    area needs it. Don't pre-emptively share.
+
+   **Exception: `src/components/landing/`.** Landing's homepage
+   sections (`how-it-works-section.tsx`, `for-businesses-section.tsx`,
+   etc.) go straight into `src/components/landing/`, skipping the
+   `_components/` colocation step — deliberately, not by oversight. See
+   `src/components/landing/README.md` for why.
+
 5. **Route params use `PageProps<'/exact/path/[param]'>`**, the
    Next.js-generated global type (see any `[invoiceId]/page.tsx` for an
    example) — don't hand-type `{ params: { invoiceId: string } }`.
@@ -98,6 +105,14 @@ linter says so:
    is a placeholder, the correct PR either replaces the whole file with
    a real implementation, or leaves it untouched — never adds partial
    real content around a leftover placeholder block.
+7. **Comments in `.ts`/`.tsx` are the exception, not the default.**
+   Rename a variable or extract a function before writing a comment to
+   explain what code does. When you do need one — a non-obvious business
+   rule, a workaround, a "why" the code can't carry — use a single-line
+   `//`. No `/** */` blocks, no JSDoc tags, no comment restating the
+   next line, no header explaining a file's purpose or naming the
+   screen/route it serves (that goes in `docs/` or the PR). This is for
+   source only; the Markdown docs keep their full prose.
 
 ## Code review
 

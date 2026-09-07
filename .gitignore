@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# lint / format caches (speed up the pre-commit hook on repeat runs)
+.eslintcache
+
 # next.js
 /.next/
 /out/

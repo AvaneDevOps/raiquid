@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
-// TODO: implement shell. See docs/DESIGN_SYSTEM.md for the intended
-// layout (sidebar+bottom-tabs / admin top-tabs / standalone-card) and
-// docs/ROUTE_MAP.md for which shell this route group uses.
+// No shared chrome: the exports show /confirm/* (13,14) as a chromeless
+// centered <StandaloneShell> card, while /auth and /verify (02,03) sit
+// under the marketing <LandingHeader> (no footer). Each page composes
+// its own — see docs/DESIGN_SYSTEM.md, "Layout shells".
 export default function Layout({ children }: { children: ReactNode }) {
   return children;
 }

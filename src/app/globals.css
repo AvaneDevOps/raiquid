@@ -1,52 +1,26 @@
 @import "tailwindcss";
 
-/**
- * Design tokens.
- *
- * The color values below were sampled directly from the pixels of the
- * approved screen exports (histogram + hue-range extraction across
- * 01-landing, 04-bizDashboard, 10-bizList, 19-invMarketplace,
- * 22-invPortfolio, 29-adminLedger -- see docs/DESIGN_SYSTEM.md for the
- * method), not eyeballed. They are real evidence, but they are still an
- * export of a mock, not the Figma source of truth -- if/when the design
- * team hands over a Figma file or a token export (Figma Tokens / Style
- * Dictionary JSON), reconcile against that and update this block, not the
- * other way around.
- *
- * Fonts are a considered assumption, not sampled (you cannot recover a
- * font family from pixels). They match the visual character of the mocks
- * -- a serif display face with an italic accent weight, a warm sans body,
- * and a monospace for ids/badges/data -- but must be confirmed against the
- * design source before this ships. See docs/DESIGN_SYSTEM.md, Typography.
- */
-
+/* Colour values are sampled from the approved screen exports (method in docs/DESIGN_SYSTEM.md), not eyeballed. */
 :root {
-  /* Surfaces */
-  --color-bg: #18150f; /* page background */
-  --color-surface: #1e1a13; /* cards, sidebar, table rows */
-  --color-surface-raised: #241f16; /* hover / raised surface */
-  --color-border: #2b2418; /* default hairline border */
-  --color-border-strong: #3a3020; /* emphasized border, e.g. focused input */
+  color-scheme: dark;
 
-  /* Text */
-  --color-foreground: #e8e1d3; /* headings, primary text */
-  --color-muted-foreground: #948d81; /* secondary/help text */
+  --color-bg: #18150f;
+  --color-surface: #1e1a13;
+  --color-surface-raised: #241f16;
+  --color-border: #2b2418;
+  --color-border-strong: #3a3020;
 
-  /* Accent (amber/gold) -- primary CTAs, links, in-progress state */
+  --color-foreground: #e8e1d3;
+  --color-muted-foreground: #948d81;
+
   --color-accent-400: #e7b862;
   --color-accent-500: #dcae57;
   --color-accent-600: #d19d43;
 
-  /* Semantic status */
-  --color-success: #7ecbab; /* Repaid, Confirmed, Anchored tier */
+  --color-success: #7ecbab;
   --color-success-muted: #3d5a4b;
-  --color-danger: #e58667; /* Overdue, Failed, Decline */
+  --color-danger: #e58667;
   --color-danger-muted: #6b4433;
-
-  /* Fonts */
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
 @theme inline {
@@ -67,20 +41,32 @@
   --color-danger: var(--color-danger);
   --color-danger-muted: var(--color-danger-muted);
 
-  --font-display: var(--font-display);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  /* next/font sets these on <html> (src/app/layout.tsx); the stack here is the fallback if that ever fails to load. */
+  --font-display: var(--font-display, ui-serif, Georgia, serif);
+  --font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-mono, ui-monospace, "SFMono-Regular", monospace);
 }
 
 body {
   background: var(--color-bg);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Utility for the struck-through "was" amount seen next to discounted/paid
-   figures across the app (e.g. a naira amount shown crossed out once
-   repaid or once fees are deducted). */
+/* Chamfered top-left + bottom-right corners — the seal-chip silhouette, applied by <Badge>. ~6px measured off chip crops from screens 04/06. */
+@utility seal-chip {
+  --seal-chamfer: 6px;
+  clip-path: polygon(
+    var(--seal-chamfer) 0,
+    100% 0,
+    100% calc(100% - var(--seal-chamfer)),
+    calc(100% - var(--seal-chamfer)) 100%,
+    0 100%,
+    0 var(--seal-chamfer)
+  );
+}
+
 .text-strike-muted {
   text-decoration: line-through;
   text-decoration-color: var(--color-muted-foreground);

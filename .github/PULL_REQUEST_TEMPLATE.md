@@ -4,7 +4,7 @@
 
 ## Screen(s) implemented
 
-<!-- Reference the screen number(s) from raiquid-screens.zip, e.g. "Screen 20 (invDetail)". -->
+<!-- Reference the screen number(s) from docs/screens/, e.g. "Screen 20 (invDetail)". -->
 
 ## Checklist
 

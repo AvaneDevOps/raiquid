@@ -4,8 +4,11 @@
  * Example: feat(investor): add marketplace tier filter
  *
  * Scopes map to the top-level route groups so `git log --oneline` reads
- * as a changelog: business | buyer | investor | admin | marketing | ui |
+ * as a changelog: business | buyer | investor | admin | landing | ui |
  * auth | infra | docs.
+ *
+ * Keep this list and the one in CONTRIBUTING.md ("Commits" section)
+ * identical — if one changes, change the other in the same commit.
  */
 const config = {
   extends: ["@commitlint/config-conventional"],
@@ -18,7 +21,7 @@ const config = {
         "buyer",
         "investor",
         "admin",
-        "marketing",
+        "landing",
         "auth",
         "ui",
         "types",

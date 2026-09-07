@@ -1,29 +1,41 @@
-/**
- * Formatting helpers (currency, date, percent, etc.) go here.
- * TODO: implement. See docs/RAIQUID_CONTEXT.md for the conventions
- * observed in the designs (e.g. Naira with no decimals, "30 Oct 2026"
- * date format).
- */
+const NAIRA = "₦";
+
 export function formatNaira(amount: number): string {
-  return String(amount);
+  const rounded = Math.round(Math.abs(amount));
+  const grouped = rounded.toLocaleString("en-NG");
+  // screens 01/09/20 show deductions as "−₦60,000", not "(₦60,000)"
+  return amount < 0 ? `−${NAIRA}${grouped}` : `${NAIRA}${grouped}`;
 }
 
 export function formatDate(isoDate: string): string {
-  return isoDate;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  // "02 Aug 2026" — day is zero-padded (screen 10)
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function formatPercent(value: number, fractionDigits = 1): string {
-  return String(value);
+  return `${value.toFixed(fractionDigits)}%`;
 }
 
 export function formatNumber(value: number): string {
-  return String(value);
+  return value.toLocaleString("en-NG");
 }
 
 export function truncateMiddle(value: string, head = 6, tail = 4): string {
-  return value;
+  if (value.length <= head + tail + 1) return value;
+  return `${value.slice(0, head)}…${value.slice(-tail)}`;
 }
 
 export function daysUntil(isoDate: string, from: Date = new Date()): number {
-  return 0;
+  const target = new Date(isoDate);
+  if (Number.isNaN(target.getTime())) return 0;
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const start = Date.UTC(from.getFullYear(), from.getMonth(), from.getDate());
+  const end = Date.UTC(target.getFullYear(), target.getMonth(), target.getDate());
+  return Math.round((end - start) / msPerDay);
 }
