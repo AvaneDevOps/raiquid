@@ -132,8 +132,8 @@ abstraction wasn't worth the indirection.
 **Single source of truth, enforced by file layout, not convention
 alone**:
 
-- Every enum (invoice status, provenance tier, whitelist status,
-  on-chain status) lives once in `src/types/domain.ts`.
+- Every enum (invoice status, provenance tier, whitelist status, on-chain
+  status, payout status) lives once in `src/types/domain.ts`.
 - Every enum's display label + color lives once in
   `src/lib/domain-display.ts`, consumed only by the domain badge
   components in `src/components/shared/domain/status-badges.tsx`.
@@ -146,45 +146,36 @@ alone**:
 
 ## What's real vs. what's a stub right now
 
-**As of this handover, every route and every component is a stub** —
-`page.tsx` files return `null`, `layout.tsx` files pass through
-`children`, UI components render nothing or a bare unstyled element.
-This was a deliberate strip-down: an earlier pass in this same session
-fully implemented ~20 screens with real Tailwind styling and mock data,
-and that was more than was asked for ("set up a project structure," not
-"build the screens"). That implementation was thrown away on purpose,
-not lost by accident — don't go looking for it.
+This is an incremental screen build. The shared foundation is implemented,
+and individual routes are marked done in `docs/ROUTE_MAP.md` as their approved
+screens are implemented.
 
 What's real:
 
-- The full route tree (every folder/file for all 31 screens' routes
-  exists and resolves — confirmed via `npm run build`, all ~34 routes
-  compile clean).
-- `src/types/domain.ts` — the complete domain model (all enums,
-  interfaces), reverse-engineered from the actual screen content, not
-  invented.
-- `src/app/globals.css` — real, pixel-sampled color tokens; fonts are a
-  visual match, not pixel evidence (see `docs/DESIGN_SYSTEM.md`).
-- `src/components/shared/**` — implemented and reconciled against the
-  exports in `docs/screens/` (2026-09-04 pass).
-- Tooling: ESLint, Prettier, Husky + commitlint (Conventional Commits,
-  scoped to route areas), GitHub Actions CI (lint + typecheck + format
-  - build), CODEOWNERS, PR/issue templates.
-- `npm run build`, `npm run typecheck`, `npm run lint` all pass clean
-  (0 errors) against this stub state today — confirm they still do
-  after your changes before opening a PR (`npm run validate`).
+- The full route tree exists and resolves.
+- `src/types/domain.ts` is the domain source of truth for the implemented
+  and planned screen data model.
+- `src/app/globals.css` contains the pixel-sampled design tokens.
+- `src/components/shared/**` contains the shared UI, domain, and layout
+  primitives reconciled against the approved exports.
+- `src/lib/domain-display.ts` contains the single display mapping for every
+  domain status used by the shared domain badge components.
+- Business Wallet (`/business/wallet`, screen 11) is implemented with typed
+  local fixtures. The fixture mirrors the screen-facing domain contract so
+  the data source can later be replaced by an API without changing the
+  presentation components.
+- Tooling includes ESLint, Prettier, Husky + commitlint, CI, CODEOWNERS,
+  and the repository templates.
 
-What's not real (build these next, in roughly this order):
+What's still a stub:
 
-1. The four layout shells (`docs/DESIGN_SYSTEM.md`, "Layout shells") —
-   nothing else looks right until these exist.
-2. The `ui/` primitives (Button, Badge, Card, ProgressBar, EmptyState,
-   InlineNotice) — everything else composes from these.
-3. The domain components (status badges, Stepper) that wrap the
-   primitives with Raiquid-specific meaning.
-4. Screens themselves, using `docs/ROUTE_MAP.md` as the checklist —
-   replace each stub's `// TODO` comment with the real implementation,
-   referencing the matching export in `docs/screens/{desktop,mobile}/`.
+- Routes still marked `stub` in `docs/ROUTE_MAP.md`.
+- Authentication, backend/data fetching, and on-chain integration remain
+  open decisions and are not wired into the Wallet screen.
+
+When a screen is built, replace its stub implementation, update its status in
+`docs/ROUTE_MAP.md` in the same change, and update this section when the
+implementation state materially changes.
 
 ## Open decisions (not made yet — don't assume an answer)
 
@@ -194,12 +185,11 @@ session-user.tsx` defines the `SessionUser` shape every shell needs
   the route-protection seam. Pick a provider (NextAuth/Auth.js, Clerk,
   a custom JWT flow, whatever fits) and wire both without changing
   their public shape if you can help it.
-- **Data fetching / backend.** No API layer, no database decided.
-  Mock data was deliberately deleted along with the screen
-  implementations (see above) — recreate fixtures locally as needed
-  while building, but know that whatever you create is temporary
-  scaffolding for your own use, not a shared `src/data/` convention
-  (that folder doesn't exist right now on purpose).
+- **Data fetching / backend.** No API layer or database is decided. The
+  business Wallet currently uses typed local fixtures in
+  `src/components/business/fixtures.ts`. Keep temporary screen data shaped
+  like the domain contracts and replace the fixture source when the backend
+  contract is defined; do not introduce a shared `src/data/` convention.
 - **On-chain integration.** Screens reference Base Sepolia mint/
   transfer/burn events and a Brickken sandbox. No SDK/library choice
   has been made for actually calling Brickken or reading on-chain

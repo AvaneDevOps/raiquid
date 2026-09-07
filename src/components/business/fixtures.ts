@@ -1,4 +1,4 @@
-import type { Invoice, ProvenanceTier } from "@/types";
+import type { BusinessWallet, Invoice, ProvenanceTier } from "@/types";
 
 /**
  * Dummy data for the business area, until a real API exists (see
@@ -139,4 +139,37 @@ export const BUYER_SUMMARIES: Record<
   buyer_1: { tier: "carried", acceptedOnTime: 14, totalSent: 15 },
   buyer_2: { tier: "quarried", acceptedOnTime: 2, totalSent: 3 },
   buyer_3: { tier: "carried", acceptedOnTime: 6, totalSent: 7 },
+};
+
+export const BUSINESS_WALLET: BusinessWallet = {
+  totalReceived: BUSINESS_STATS.totalFinanced,
+  pendingPayout: {
+    id: "payout_pending_1",
+    date: "2026-08-25",
+    invoiceId: "RQ-INV-4471",
+    amount: 1_240_000,
+    status: "pending",
+    invoiceStatus: "funding",
+  },
+  payoutAccount: {
+    bankName: "GTBank",
+    accountNumberLast4: "4021",
+    accountHolderName: "Adaeze Okonkwo",
+  },
+  payoutHistory: [
+    {
+      id: "payout_1",
+      date: "2026-08-02",
+      invoiceId: "RQ-INV-4266",
+      amount: 1_406_500,
+      status: "received",
+    },
+    {
+      id: "payout_2",
+      date: "2026-07-03",
+      invoiceId: "RQ-INV-4091",
+      amount: 950_600,
+      status: "received",
+    },
+  ],
 };

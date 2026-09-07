@@ -47,7 +47,7 @@ and `/verify` may move to `(landing)`.
 | `/business/invoices`                 | 10-bizList                                                                                    | stub   |
 | `/business/invoices/new`             | 05-bizUpload                                                                                  | stub   |
 | `/business/invoices/[invoiceId]`     | 06/07/08/09 (bizPending/Tokenized/Funding/Payout — one page, 5 status states via the stepper) | stub   |
-| `/business/wallet`                   | 11-bizWallet                                                                                  | stub   |
+| `/business/wallet`                   | 11-bizWallet                                                                                  | done   |
 | `/business/settings`                 | 12-bizSettings                                                                                | stub   |
 
 ## Buyer — `buyer/` route group, `RoleShell`
