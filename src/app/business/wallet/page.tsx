@@ -1,5 +1,4 @@
 import { BUSINESS_WALLET } from "@/components/business/fixtures";
-import { PayoutStatusBadge } from "@/components/shared/domain/status-badges";
 import { Button } from "@/components/shared/ui/button";
 import { Card, StatCard } from "@/components/shared/ui/card";
 import { formatNaira } from "@/lib/format";
