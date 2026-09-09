@@ -39,3 +39,17 @@ export function daysUntil(isoDate: string, from: Date = new Date()): number {
   const end = Date.UTC(target.getFullYear(), target.getMonth(), target.getDate());
   return Math.round((end - start) / msPerDay);
 }
+
+export function formatMonthShort(isoDate: string): string {
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  // "Apr" — screen 27's balance-growth range ("Apr — Aug 2026")
+  return d.toLocaleDateString("en-GB", { month: "short" });
+}
+
+export function formatMonthYear(isoDate: string): string {
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  // "Mar 2026" — screen 28's provenance registry "Since" column
+  return d.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+}

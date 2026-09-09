@@ -31,15 +31,20 @@ export function InvoiceStatusBadge({
 
 export function ProvenanceTierBadge({
   tier,
+  hideSuffix,
   className,
 }: {
   tier: ProvenanceTier;
+  hideSuffix?: boolean;
   className?: string;
 }) {
   const meta = PROVENANCE_TIER_META[tier];
+  // "Carried tier" -> "Carried" for the registry table (screen 28), where
+  // the column header already says "Tier" — see domain-display.ts's comment.
+  const label = hideSuffix ? meta.label.replace(/ tier$/i, "") : meta.label;
   return (
     <Badge tone={meta.tone} className={className}>
-      {meta.label}
+      {label}
     </Badge>
   );
 }
