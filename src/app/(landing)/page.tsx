@@ -1,7 +1,7 @@
 import { ForBusinessesSection, HowItWorksSection } from "@/components/landing";
-import InvestorSection from "@/components/landing/for-investor";
-import ProvenanceSection from "@/components/landing/provenanceSection";
 import FAQ from "@/components/landing/faq-section";
+import { InvestorSection } from "@/components/landing/for-investor";
+import { ProvenanceSection } from "@/components/landing/provenanceSection";
 
 // Screen 01-landing, top to bottom. Only "How it works" and "For
 // businesses" are implemented so far (scoped work) — the remaining

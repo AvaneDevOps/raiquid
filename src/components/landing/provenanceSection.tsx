@@ -1,6 +1,5 @@
 "use client";
 
-import { provenanceItems } from "@/types/provenance";
 import { Check, CircleDot, type LucideIcon } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -19,7 +18,28 @@ const cardVariant: Variants = {
   show: { opacity: 1, x: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-export default function ProvenanceSection() {
+const provenanceItems: ProvenanceItem[] = [
+  {
+    title: "Acceptance history",
+    description:
+      "Every invoice a buyer accepts is recorded. Investors can see exactly how many invoices a buyer has confirmed.",
+    icon: "check",
+  },
+  {
+    title: "Payment reliability",
+    description:
+      "On-time payment rates are tracked and visible. A buyer with a strong record represents lower risk.",
+    emoji: "🕑",
+  },
+  {
+    title: "Progressive trust",
+    description:
+      "Buyers move from Quarried to Carried to Anchored as they pay on time, unlocking higher limits and lower reserve requirements.",
+    icon: "trust",
+  },
+];
+
+export function ProvenanceSection() {
   return (
     <section className="border-border relative overflow-hidden border-t px-6 py-16 md:px-12 lg:px-16">
       {/* Centered glow */}
