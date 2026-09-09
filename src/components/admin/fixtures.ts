@@ -1,6 +1,7 @@
 import type {
   OnChainAction,
   OnChainStatus,
+  OnChainEvent,
   PlatformOverview,
   ReservePoolSnapshot,
   ProvenanceRegistryEntry,
@@ -109,5 +110,51 @@ export const ADMIN_PROVENANCE_REGISTRY: ProvenanceRegistryEntry[] = [
     onTimeRatePct: 60,
     invoicesFinanced: 3,
     memberSince: "2026-05-01",
+  },
+];
+
+// Screen 29-adminLedger. OnChainEvent already existed in domain.ts, shaped
+// exactly for this screen (tokenAddressShort, single-value network) — no
+// new type needed here, unlike the overview's RecentActivityItem above.
+export const ADMIN_LEDGER_EVENTS: OnChainEvent[] = [
+  {
+    id: "evt_1",
+    timestamp: "2026-08-27T14:02:00Z",
+    action: "mint",
+    tokenAddressShort: "0x7f3a...c091",
+    network: "Base Sepolia",
+    status: "confirmed",
+  },
+  {
+    id: "evt_2",
+    timestamp: "2026-08-27T14:03:00Z",
+    action: "whitelist",
+    tokenAddressShort: "0x22b1...44de",
+    network: "Base Sepolia",
+    status: "confirmed",
+  },
+  {
+    id: "evt_3",
+    timestamp: "2026-08-27T16:41:00Z",
+    action: "transfer",
+    tokenAddressShort: "0x7f3a...c091",
+    network: "Base Sepolia",
+    status: "pending",
+  },
+  {
+    id: "evt_4",
+    timestamp: "2026-08-27T16:41:00Z",
+    action: "transfer",
+    tokenAddressShort: "0x9a04...7e12",
+    network: "Base Sepolia",
+    status: "failed",
+  },
+  {
+    id: "evt_5",
+    timestamp: "2026-08-21T09:15:00Z",
+    action: "burn",
+    tokenAddressShort: "0x5c88...1a3f",
+    network: "Base Sepolia",
+    status: "confirmed",
   },
 ];

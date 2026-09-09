@@ -4,8 +4,8 @@ import { ADMIN_RESERVE_BALANCE_GROWTH, ADMIN_RESERVE_SNAPSHOT } from "@/componen
 import { StatCard } from "@/components/shared/ui/card";
 import { formatNaira, formatPercent } from "@/lib/format";
 
-import { BalanceGrowthCard } from "./_components/balance-growth-card";
-import { ClaimsPaidCard } from "./_components/claims-paid-card";
+import { BalanceGrowthCard } from "../../../components/admin/balance-growth-card";
+import { ClaimsPaidCard } from "../../../components/admin/claims-paid-card";
 
 // Screen 27-adminReserve. Data below is dummy (see
 // src/components/admin/fixtures.ts) until a real API exists — see

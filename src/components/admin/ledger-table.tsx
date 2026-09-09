@@ -1,9 +1,12 @@
-import { OnChainActionBadge, OnChainStatusBadge } from "@/components/shared/domain/status-badges";
+"use client";
+
+import { OnChainStatusBadge } from "@/components/shared/domain/status-badges";
 import { Card } from "@/components/shared/ui/card";
 import { EmptyState } from "@/components/shared/ui/notice";
 import type { OnChainEvent } from "@/types";
 
 import { formatTimestamp } from "@/lib/format-timestamp";
+import { OnChainActionBadge } from "./on-chain-action-badge";
 
 /**
  * Screen 29-adminLedger. Same responsive pattern as InvoiceListTable and
