@@ -58,7 +58,7 @@ export function ProvenanceRegistryTable({ entries }: { entries: ProvenanceRegist
       </table>
 
       {/* Mobile */}
-      <div className="divide-border divide-y md:hidden">
+      <div className="divide-border w-60 divide-y md:hidden">
         {entries.map((entry) => (
           <dl key={entry.buyerId} className="space-y-2 px-5 py-4">
             <div className="flex items-center justify-between gap-4">

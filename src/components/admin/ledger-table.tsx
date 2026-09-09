@@ -76,7 +76,7 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
       </table>
 
       {/* Mobile */}
-      <div className="divide-border divide-y md:hidden">
+      <div className="divide-border w-60 divide-y md:hidden">
         {events.map((event) => (
           <dl key={event.id} className="space-y-2 px-5 py-4">
             <div className="flex items-center justify-between gap-4">
