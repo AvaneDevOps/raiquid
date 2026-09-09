@@ -77,3 +77,6 @@ export const WHITELIST_STEPS: { key: string; label: string }[] = [
   { key: "in_review", label: "In review" },
   { key: "whitelisted", label: "Whitelisted" },
 ];
+
+// Screens 06/15/20 show "Carried tier"; the registry (28) drops "tier"
+// because that column is already headed "Tier" — shortLabel covers that.
