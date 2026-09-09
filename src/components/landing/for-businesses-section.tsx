@@ -122,7 +122,7 @@ export function ForBusinessesSection({ estimate = EXAMPLE_ESTIMATE }: ForBusines
           <dl className="mt-6 space-y-4">
             <div className="border-border flex items-baseline justify-between border-b pb-4">
               <dt className="text-muted-foreground text-sm">Invoice value</dt>
-              <dd className="text-strike-muted text-lg">{formatNaira(estimate.amount)}</dd>
+              <dd className="text-foreground text-lg">{formatNaira(estimate.amount)}</dd>
             </div>
             <div className="border-border flex items-baseline justify-between border-b pb-4">
               <dt className="text-muted-foreground text-sm">
