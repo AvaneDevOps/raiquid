@@ -4,3 +4,4 @@ export * from "./how-it-works-section";
 export * from "./for-businesses-section";
 export * from "./for-investor";
 export * from "./provenanceSection";
+export * from "./faq-section";

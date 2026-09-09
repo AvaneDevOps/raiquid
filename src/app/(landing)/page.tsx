@@ -1,6 +1,7 @@
 import { ForBusinessesSection, HowItWorksSection } from "@/components/landing";
 import InvestorSection from "@/components/landing/for-investor";
 import ProvenanceSection from "@/components/landing/provenanceSection";
+import FAQ from "@/components/landing/faq-section";
 
 // Screen 01-landing, top to bottom. Only "How it works" and "For
 // businesses" are implemented so far (scoped work) — the remaining
@@ -22,6 +23,7 @@ export default function Page() {
       <ForBusinessesSection />
       <InvestorSection />
       <ProvenanceSection />
+      <FAQ />
       {/* TODO: For investors, Why provenance matters, FAQ, final CTA —
           not yet built. */}
     </>
