@@ -1,4 +1,5 @@
 import { ForBusinessesSection, HowItWorksSection } from "@/components/landing";
+import FAQ from "@/components/landing/faq-section";
 import { InvestorSection } from "@/components/landing/for-investor";
 import { ProvenanceSection } from "@/components/landing/provenanceSection";
 
@@ -22,6 +23,7 @@ export default function Page() {
       <ForBusinessesSection />
       <InvestorSection />
       <ProvenanceSection />
+      <FAQ />
       {/* TODO: For investors, Why provenance matters, FAQ, final CTA —
           not yet built. */}
     </>

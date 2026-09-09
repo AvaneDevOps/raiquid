@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant hover (&:hover);
+
 /* Colour values are sampled from the approved screen exports (method in docs/DESIGN_SYSTEM.md), not eyeballed. */
 :root {
   color-scheme: dark;
