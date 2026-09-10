@@ -1,3 +1,9 @@
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+
+import { findDemoAccount } from "@/lib/demo-accounts";
+import type { UserRole } from "@/types";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
 
