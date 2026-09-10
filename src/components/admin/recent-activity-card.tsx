@@ -1,7 +1,7 @@
 import { OnChainStatusBadge } from "@/components/shared/domain/status-badges";
 import { ONCHAIN_ACTION_META } from "@/lib/domain-display";
 import type { RecentActivityItem } from "@/components/admin/fixtures";
-import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
+import { Card, CardTitle } from "@/components/shared/ui/card";
 
 export function RecentActivityCard({ items }: { items: RecentActivityItem[] }) {
   return (
