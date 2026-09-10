@@ -1,6 +1,6 @@
 export interface ProvenanceItem {
   title: string;
   description: string;
-  icon?: "check" | "trust";
+  icon?: "check" | "clock" | "trust";
   emoji?: string;
 }

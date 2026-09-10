@@ -15,20 +15,16 @@ const container: Variants = {
 const opportunities: InvestmentOpportunity[] = [
   {
     company: "Distify Distribution Ltd",
-    tier: "Carried tier",
     available: "₦650,000",
     returnRate: "6.5%",
     due: "42 days",
-    tierColor: "gold",
     tierType: "carried",
   },
   {
     company: "MTN Retail Partners",
-    tier: "Anchored tier",
     available: "₦200,000",
     returnRate: "5.8%",
     due: "28 days",
-    tierColor: "green",
     tierType: "anchored",
   },
 ];
