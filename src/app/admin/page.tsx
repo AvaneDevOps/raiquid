@@ -1,5 +1,7 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
+import { redirect } from "next/navigation";
+
+// /admin has no screen of its own — it just sends the user to the
+// overview, same as business/buyer/investor's role-root pages are meant to.
 export default function Page() {
-  return null;
+  redirect("/admin/overview");
 }

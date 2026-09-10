@@ -1,8 +1,6 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
 import { ADMIN_PROVENANCE_REGISTRY } from "@/components/admin/fixtures";
 
-import { ProvenanceRegistryTable } from "../../../components/admin/provenance-registry-table";
+import { ProvenanceRegistryTable } from "@/components/admin/provenance-registry-table";
 
 // Screen 28-adminProvenance. Data below is dummy (see
 // src/components/admin/fixtures.ts) until a real API exists — see

@@ -2,19 +2,6 @@
 
 import { useRevealOnScroll } from "./use-reveal";
 
-/**
- * "How it works" section of the homepage (screen 01-landing).
- *
- * Lives in src/components/landing/ per CONTRIBUTING.md #3 — see
- * for-businesses-section.tsx for why this isn't route-colocated.
- *
- * "use client" is needed for the scroll-reveal effect below (this is
- * otherwise static copy with no interactivity). Visual embellishment
- * only — no new colors, just existing accent/success tokens at low
- * opacity — and every animated element still renders its final state
- * immediately for reduced-motion users (see use-reveal.ts).
- */
-
 interface Step {
   number: string;
   title: string;

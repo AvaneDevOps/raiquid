@@ -168,7 +168,7 @@ paths.
 
 ## The seal-chip shape
 
-Every status / tier / token-id **chip** (never a button, never a card)
+Every status / tier / token-id **chip** (never a button, never a card). Approved screen-specific interactive filters and toggles may reuse the seal-chip silhouette when the reference screen explicitly calls for it; ordinary action buttons still use `Button`.
 has its **top-left and bottom-right corners sliced at 45°** (verified
 against chip crops from screens 04/06/10/28), giving a stamped-seal /
 ticket-stub silhouette. It's a `clip-path` polygon in the `seal-chip`
@@ -185,10 +185,18 @@ mono text, **no fill** — the chip interior is the page/card background
 ## Domain-specific visual patterns worth naming
 
 - **Deductions are shown in `--color-danger` with a "−₦" prefix**, not
-  a strikethrough (invoice payout breakdown screen 09, the financing
-  estimate on screen 01, invoice detail screen 20). No strikethrough
-  pattern appears in any export (checked 09/16/20/23); there is no
-  `.text-strike-muted` utility.
+  a strikethrough (invoice payout breakdown screen 09, invoice detail
+  screen 20). No strikethrough pattern appears on a _deduction_ line in
+  any export checked (09/16/20/23).
+- **The original/pre-deduction amount is a separate pattern**: on the
+  financing estimate (screen 01) and the payout breakdown (screen 09),
+  the pre-deduction total — "Invoice value" / "Invoice amount", the
+  amount being reduced, not a deduction itself — is shown struck
+  through in full foreground color (`text-foreground line-through`),
+  distinct from the danger-colored deduction rows below it and from the
+  final settled amount (plain, no strike). Don't conflate the two:
+  deductions never get a strike, but the original total they're being
+  subtracted from does, on both screens.
 - **Provenance tier badges are directional**: Quarried (neutral/gray) →
   Carried (amber) → Anchored (green) — the color intensifies as trust
   increases. The `domain-display` labels carry a "tier" suffix

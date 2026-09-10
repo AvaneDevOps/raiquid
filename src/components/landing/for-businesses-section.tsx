@@ -9,18 +9,6 @@ import { formatNaira, formatPercent } from "@/lib/format";
 import type { Invoice } from "@/types";
 import { useRevealOnScroll } from "./use-reveal";
 
-/**
- * "For businesses" section of the homepage (screen 01-landing).
- *
- * Lives in src/components/landing/ per CONTRIBUTING.md #3 — landing-
- * area component, not route-colocated, since (landing)/page.tsx
- * composes the whole continuous homepage from sections like this one.
- *
- * "use client" is needed for the scroll-reveal effect (see
- * how-it-works-section.tsx for the same note). Visual embellishment
- * only — no new colors, existing accent/success tokens at low opacity.
- */
-
 const CHECKLIST = [
   "Upload invoices and have buyers accept them digitally",
   "Receive most of the invoice value before the due date",
@@ -122,7 +110,9 @@ export function ForBusinessesSection({ estimate = EXAMPLE_ESTIMATE }: ForBusines
           <dl className="mt-6 space-y-4">
             <div className="border-border flex items-baseline justify-between border-b pb-4">
               <dt className="text-muted-foreground text-sm">Invoice value</dt>
-              <dd className="text-foreground text-lg">{formatNaira(estimate.amount)}</dd>
+              <dd className="text-foreground text-lg line-through">
+                {formatNaira(estimate.amount)}
+              </dd>
             </div>
             <div className="border-border flex items-baseline justify-between border-b pb-4">
               <dt className="text-muted-foreground text-sm">

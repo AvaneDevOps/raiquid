@@ -1,5 +1,3 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
 "use client";
 
 import { useState, useActionState } from "react";
@@ -144,9 +142,6 @@ export default function AuthPage() {
                   ))}
                 </motion.div>
 
-                {/* Disabled per product decision: no backend to persist real
-              accounts yet — see README-AUTH-NAV.md. Fields match the
-              export but the form doesn't submit. */}
                 <form className="mt-6 space-y-4">
                   {[
                     { id: "fullName", label: "Full name", placeholder: "Kennedy Okonkwo" },

@@ -1,5 +1,3 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
 import {
   ADMIN_OVERVIEW,
   ADMIN_RECENT_ACTIVITY,
@@ -8,7 +6,7 @@ import {
 import { Card, CardHeader, CardTitle, StatCard } from "@/components/shared/ui/card";
 import { formatNaira, formatNumber, formatPercent } from "@/lib/format";
 
-import { RecentActivityCard } from "../../../components/admin/recent-activity-card";
+import { RecentActivityCard } from "@/components/admin/recent-activity-card";
 
 // Screen 26-adminOverview. Data below is dummy (see
 // src/components/admin/fixtures.ts) until a real API exists — see

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CircleDot, type LucideIcon } from "lucide-react";
+import { Check, CircleDot, Clock, type LucideIcon } from "lucide-react";
 import { motion, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
@@ -29,7 +29,7 @@ const provenanceItems: ProvenanceItem[] = [
     title: "Payment reliability",
     description:
       "On-time payment rates are tracked and visible. A buyer with a strong record represents lower risk.",
-    emoji: "🕑",
+    icon: "clock",
   },
   {
     title: "Progressive trust",
@@ -82,6 +82,7 @@ interface ProvenanceCardProps {
 const icons: Record<string, LucideIcon> = {
   check: Check,
   trust: CircleDot,
+  clock: Clock,
 };
 
 export function ProvenanceCard({ item, className }: ProvenanceCardProps) {
@@ -89,12 +90,7 @@ export function ProvenanceCard({ item, className }: ProvenanceCardProps) {
 
   return (
     <motion.div variants={cardVariant} className="h-full">
-      <Card
-        className={cn(
-          "flex h-full flex-col p-5 shadow-[0_0_12px_rgba(212,169,79,0.15)]",
-          className,
-        )}
-      >
+      <Card className={cn("flex h-full flex-col p-5", className)}>
         <CardHeader className="border-0 p-0">
           <div className="bg-surface-raised flex h-8 w-8 items-center justify-center rounded-md">
             {item.emoji ? (

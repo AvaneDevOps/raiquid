@@ -12,5 +12,8 @@
 /src/components/shared/layout/   @raiquid/tech-director
 /src/types/                 @raiquid/tech-director
 /src/proxy.ts               @raiquid/tech-director
+/src/auth.ts                @raiquid/tech-director
+/src/app/api/               @raiquid/tech-director
+/src/lib/                   @raiquid/tech-director
 /.github/                   @raiquid/tech-director
 /docs/                      @raiquid/tech-director

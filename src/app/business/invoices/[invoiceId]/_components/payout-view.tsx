@@ -38,7 +38,7 @@ export function PayoutView({ invoice }: { invoice: Invoice }) {
         <dl className="mt-4 space-y-4">
           <div className="border-border flex items-baseline justify-between border-b pb-4">
             <dt className="text-muted-foreground text-sm">Invoice amount</dt>
-            <dd className="text-foreground">{formatNaira(invoice.amount)}</dd>
+            <dd className="text-foreground line-through">{formatNaira(invoice.amount)}</dd>
           </div>
           <div className="border-border flex items-baseline justify-between border-b pb-4">
             <dt className="text-muted-foreground text-sm">

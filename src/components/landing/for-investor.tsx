@@ -4,7 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import { InvestmentCard } from "./investorCard";
 import { Button } from "@/components/shared/ui/button";
 
-import { InvestmentOpportunity } from "@/types/investor";
+import type { InvestmentOpportunity } from "@/types/investor";
 const container: Variants = {
   hidden: {},
   show: {

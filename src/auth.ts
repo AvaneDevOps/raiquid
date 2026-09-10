@@ -1,21 +1,3 @@
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { findDemoAccount } from "@/lib/demo-accounts";
-import type { UserRole } from "@/types";
-
-/**
- * Auth.js v5 configuration using JWT sessions with no database.
- *
- * Credentials are currently validated against the demo accounts defined
- * in src/lib/demo-accounts.ts. Those accounts are seeded for development
- * only; see that file for details.
- *
- * The current setup keeps authentication independent of a backend decision.
- * When a real backend is introduced, the `authorize()` function can be
- * updated to query the user store and validate hashed passwords without
- * changing the provider configuration, session strategy, or consumers of
- * `auth()`.
- */
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
 

@@ -1,8 +1,6 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
 import { ADMIN_LEDGER_EVENTS } from "@/components/admin/fixtures";
 
-import { LedgerTable } from "../../../components/admin/ledger-table";
+import { LedgerTable } from "@/components/admin/ledger-table";
 
 // Screen 29-adminLedger. Data below is dummy (see
 // src/components/admin/fixtures.ts) until a real API exists — see

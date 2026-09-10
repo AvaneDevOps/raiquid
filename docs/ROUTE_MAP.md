@@ -14,7 +14,7 @@ route is built for real, flip its status here in the same PR.
 
 | Route | Screen     | Status |
 | ----- | ---------- | ------ |
-| `/`   | 01-landing | stub   |
+| `/`   | 01-landing | done   |
 
 Note: "How it works", "For businesses" and "For investors" are **not
 routes** — they are in-page anchors on `/`. `LANDING_NAV` links to
@@ -26,7 +26,7 @@ landing page must give those sections `id="how-it-works"`,
 
 | Route                         | Screen          | Chrome                          | Status |
 | ----------------------------- | --------------- | ------------------------------- | ------ |
-| `/auth`                       | 02-auth         | `LandingHeader` + centered card | stub   |
+| `/auth`                       | 02-auth         | `LandingHeader` + centered card | done   |
 | `/verify`                     | 03-verify       | `LandingHeader` + wide column   | stub   |
 | `/confirm/[invoiceId]`        | 13-buyerRequest | `StandaloneShell` (no chrome)   | stub   |
 | `/confirm/[invoiceId]/review` | 14-buyerAccept  | `StandaloneShell` (no chrome)   | stub   |
@@ -85,10 +85,10 @@ design first.
 | Route                | Screen             | Status |
 | -------------------- | ------------------ | ------ |
 | `/admin` (redirects) | —                  | done   |
-| `/admin/overview`    | 26-adminOverview   | stub   |
-| `/admin/reserve`     | 27-adminReserve    | stub   |
-| `/admin/provenance`  | 28-adminProvenance | stub   |
-| `/admin/ledger`      | 29-adminLedger     | stub   |
+| `/admin/overview`    | 26-adminOverview   | done   |
+| `/admin/reserve`     | 27-adminReserve    | done   |
+| `/admin/provenance`  | 28-adminProvenance | done   |
+| `/admin/ledger`      | 29-adminLedger     | done   |
 
 ## Shared / cross-cutting
 
@@ -101,7 +101,7 @@ design first.
 
 ## Route-protection
 
-`src/proxy.ts` gates `/business/*`, `/buyer/*`, `/investor/*`, `/admin/*`
-by role, per the `ROLE_PREFIXES` map in that file. It's a stub today
-(passes every request through) — see the file's own comments for what
-"thin proxy" means before wiring real auth into it.
+`src/proxy.ts` performs the current thin session-cookie check for
+`/business/*`, `/buyer/*`, `/investor/*`, `/admin/*`, while the authoritative
+role check remains in each role layout. Replace this seam when the live auth
+provider is reconciled with the backend integration guide.

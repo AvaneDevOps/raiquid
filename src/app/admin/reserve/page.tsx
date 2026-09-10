@@ -1,11 +1,9 @@
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
 import { ADMIN_RESERVE_BALANCE_GROWTH, ADMIN_RESERVE_SNAPSHOT } from "@/components/admin/fixtures";
 import { StatCard } from "@/components/shared/ui/card";
 import { formatNaira, formatPercent } from "@/lib/format";
 
-import { BalanceGrowthCard } from "../../../components/admin/balance-growth-card";
-import { ClaimsPaidCard } from "../../../components/admin/claims-paid-card";
+import { BalanceGrowthCard } from "@/components/admin/balance-growth-card";
+import { ClaimsPaidCard } from "@/components/admin/claims-paid-card";
 
 // Screen 27-adminReserve. Data below is dummy (see
 // src/components/admin/fixtures.ts) until a real API exists — see

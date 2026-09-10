@@ -80,3 +80,10 @@ export const WHITELIST_STEPS: { key: string; label: string }[] = [
 
 // Screens 06/15/20 show "Carried tier"; the registry (28) drops "tier"
 // because that column is already headed "Tier" — shortLabel covers that.
+
+export const ONCHAIN_ACTION_META = {
+  mint: { label: "Mint", tone: "amber" },
+  whitelist: { label: "Whitelist", tone: "amber" },
+  transfer: { label: "Transfer", tone: "amber" },
+  burn: { label: "Burn", tone: "amber" },
+} as const;

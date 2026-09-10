@@ -10,9 +10,6 @@ export function UserSummary({
   user: SessionUser;
   className?: string;
 
-  /** Optional trailing slot, e.g. <SignOutButton />. Omitted by default, so
-   *  every existing call site (RoleShell's mobile header included) renders
-   *  exactly as it did before. */
   action?: ReactNode;
 }) {
   return (
@@ -24,7 +21,7 @@ export function UserSummary({
         <span className="text-foreground block truncate text-sm font-medium">{user.name}</span>
         <span className="text-muted-foreground block truncate text-xs">{user.subtitle}</span>
       </span>
-      <span className="text-muted-foreground block text-xs">{action}</span>
+      <div className="ml-auto shrink-0">{action}</div>
     </div>
   );
 }

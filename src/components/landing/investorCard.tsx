@@ -6,7 +6,7 @@ import type { InvestmentOpportunity } from "@/types/investor";
 import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
 import type { Variants } from "framer-motion";
 import { ProvenanceTierBadge } from "../shared/domain";
-import { Badge, BadgeTone } from "../shared/ui";
+import { Badge } from "../shared/ui";
 
 const cardVariant: Variants = {
   hidden: { opacity: 0, y: 24 },

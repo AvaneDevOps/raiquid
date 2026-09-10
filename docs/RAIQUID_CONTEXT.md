@@ -160,18 +160,33 @@ What's real:
   primitives reconciled against the approved exports.
 - `src/lib/domain-display.ts` contains the single display mapping for every
   domain status used by the shared domain badge components.
-- Business Wallet (`/business/wallet`, screen 11) is implemented with typed
-  local fixtures. The fixture mirrors the screen-facing domain contract so
-  the data source can later be replaced by an API without changing the
-  presentation components.
+- The full Business role area — dashboard, invoices list, invoice upload,
+  invoice detail (screens 04–09), wallet, and settings (screens 04–12) — is
+  implemented with typed local fixtures in
+  `src/components/business/fixtures.ts`. Fixtures mirror the screen-facing
+  domain contract so the data source can later be replaced by an API
+  without changing the presentation components.
+- The full Admin role area — overview, reserve, provenance, and ledger
+  (screens 26–29) — is implemented the same way, with typed local fixtures
+  in `src/components/admin/fixtures.ts`.
+- Landing's "How it works" and "For businesses" sections (`/#how-it-works`,
+  `/#for-businesses`) are implemented against the screen 01 exports on
+  both breakpoints. "For investors", "Why provenance matters" and FAQ
+  are implemented, including the final CTA band.
+- Auth.js demo authentication is wired up for the current sandbox. Live API
+  authentication remains pending the Clerk/Auth.js reconciliation described
+  under "Auth provider" below.
 - Tooling includes ESLint, Prettier, Husky + commitlint, CI, CODEOWNERS,
   and the repository templates.
 
 What's still a stub:
 
-- Routes still marked `stub` in `docs/ROUTE_MAP.md`.
-- Authentication, backend/data fetching, and on-chain integration remain
-  open decisions and are not wired into the Wallet screen.
+- Routes still marked `stub` in `docs/ROUTE_MAP.md` (Buyer and Investor
+  role areas, `/verify`, `/confirm/*`, `/notifications`).
+- The frontend/backend integration is being wired through `src/services/` using the
+  live API contract described in `docs/Frontend_Backend_Integration_Guide.pdf`.
+  Business and Admin screens still use fixtures until their service calls are
+  migrated screen-by-screen.
 
 When a screen is built, replace its stub implementation, update its status in
 `docs/ROUTE_MAP.md` in the same change, and update this section when the
@@ -179,17 +194,20 @@ implementation state materially changes.
 
 ## Open decisions (not made yet — don't assume an answer)
 
-- **Auth provider.** Nothing is wired up. `src/components/shared/layout/
-session-user.tsx` defines the `SessionUser` shape every shell needs
-  and throws `Not implemented` — that's the seam. `src/proxy.ts` has
-  the route-protection seam. Pick a provider (NextAuth/Auth.js, Clerk,
-  a custom JWT flow, whatever fits) and wire both without changing
-  their public shape if you can help it.
-- **Data fetching / backend.** No API layer or database is decided. The
-  business Wallet currently uses typed local fixtures in
-  `src/components/business/fixtures.ts`. Keep temporary screen data shaped
-  like the domain contracts and replace the fixture source when the backend
-  contract is defined; do not introduce a shared `src/data/` convention.
+- **Auth provider — currently Auth.js v5, but integration guide requires Clerk.**
+  The frontend currently uses Auth.js v5 with demo Credentials and JWT sessions.
+  The live integration guide describes Clerk-issued bearer tokens and Clerk
+  signup metadata. These are not interchangeable: the API token provider must
+  be wired to the final auth decision before authenticated live requests are
+  enabled. `src/services/client.ts` exposes the token-provider seam for that
+  integration.
+- **Data fetching / backend.** The live API contract is documented in
+  `docs/Frontend_Backend_Integration_Guide.pdf`. All backend communication
+  belongs in `src/services/`, with `src/services/client.ts` responsible for
+  the base URL, authentication header, JSON handling, and API errors.
+  Generated OpenAPI types belong in `src/types/api-generated.ts` and must not
+  be edited by hand. Screen fixtures remain in place until each screen is
+  migrated to its service.
 - **On-chain integration.** Screens reference Base Sepolia mint/
   transfer/burn events and a Brickken sandbox. No SDK/library choice
   has been made for actually calling Brickken or reading on-chain

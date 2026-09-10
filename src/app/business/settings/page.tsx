@@ -78,7 +78,7 @@ export default function Page() {
           {NOTIFICATION_PREFERENCES.map((pref) => (
             <div
               key={pref.key}
-              className="flex items-center justify-between py-4 first:pt-0 last:pb-0"
+              className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
             >
               <span className="text-foreground">{pref.label}</span>
               <NotificationToggle
@@ -93,15 +93,13 @@ export default function Page() {
         </div>
       </Card>
 
-      <Card className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <Card className="flex items-center justify-between gap-4 p-6">
         <div>
           <h3 className="text-foreground font-semibold">Security</h3>
           <p className="text-muted-foreground mt-1 text-sm">
             Password last changed {PASSWORD_LAST_CHANGED_LABEL}
           </p>
         </div>
-        {/* No password-change flow exists yet — disabled rather than a
-            button that looks actionable but silently does nothing. */}
         <Button variant="secondary" disabled title="Not available yet">
           Change password
         </Button>

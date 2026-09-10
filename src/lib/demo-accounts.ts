@@ -1,19 +1,5 @@
-/**
- * Seeded demo accounts for the Credentials auth provider.
- *
- * TEMPORARY: there is no backend/database yet (see docs/RAIQUID_CONTEXT.md,
- * "Open decisions"). This mirrors the same "typed fixture until a real data
- * source exists" pattern used by src/components/business/fixtures.ts. When a
- * real user store exists, replace findDemoAccount's lookup with a real query
- * and this file goes away — nothing outside src/auth.ts and the /auth page
- * should import it.
- *
- * DEV-ONLY: passwords are plaintext for demo simplicity. Do not carry this
- * comparison pattern past the sandbox — a real account store needs hashed
- * passwords (bcrypt/argon2) and a timing-safe comparison.
- */
 import type { UserRole } from "@/types";
-import { Route } from "next";
+import type { Route } from "next";
 
 export interface DemoAccount {
   email: string;
@@ -24,16 +10,13 @@ export interface DemoAccount {
   initials: string;
 }
 
-// One seeded account per role. Investor persona matches the diaspora
-// investor sample named in docs/RAIQUID_CONTEXT.md ("Emeka Nwosu ·
-// Diaspora investor · London").
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     email: "business@raiquid.dev",
     password: "raiquid-demo",
     role: "business",
-    name: "Adaeze Okafor",
-    subtitle: "Lagos Textiles Ltd.",
+    name: "Adaeze Okonkwo",
+    subtitle: "Okonkwo Textiles & Supplies",
     initials: "AO",
   },
   {

@@ -4,5 +4,4 @@ export * from "./ledger-table";
 export * from "./balance-growth-card";
 export * from "./on-chain-action-badge";
 export * from "./provenance-registry-table";
-export * from "./balance-growth-card";
 export * from "./recent-activity-card";
