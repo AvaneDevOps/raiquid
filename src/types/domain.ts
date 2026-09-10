@@ -209,3 +209,23 @@ export interface AppNotification {
   occurredAt: string; // ISO datetime
   readAt?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Business verification
+// ---------------------------------------------------------------------------
+
+export type BusinessVerificationStatus = "documents_submitted" | "under_review" | "verified";
+
+/** Per-document status on the verification checklist (screen 03). */
+export type DocumentCheckStatus = "received" | "in_review";
+
+export interface DocumentCheck {
+  label: string;
+  status: DocumentCheckStatus;
+}
+
+export interface BusinessVerification {
+  businessName: string;
+  status: BusinessVerificationStatus;
+  documentChecks: DocumentCheck[];
+}
