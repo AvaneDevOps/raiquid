@@ -1,10 +1,10 @@
-import { apiClient } from "./client";
+import { apiClient, type ApiToken } from "./client";
 
 export const buyerService = {
-  get<TResponse>(path: string) {
-    return apiClient.get<TResponse>(path);
+  get<TResponse>(path: string, token: ApiToken) {
+    return apiClient.get<TResponse>(path, token);
   },
-  post<TResponse>(path: string, data: unknown) {
-    return apiClient.post<TResponse>(path, data);
+  post<TResponse>(path: string, data: unknown, token: ApiToken) {
+    return apiClient.post<TResponse>(path, data, token);
   },
 };

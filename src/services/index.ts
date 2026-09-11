@@ -1,4 +1,12 @@
-export { apiClient, ApiError, configureApiTokenProvider } from "./client";
+export { apiClient, ApiError, type ApiToken } from "./client";
+export {
+  NOT_PROVISIONED_MESSAGE,
+  isUnauthorizedError,
+  isNotProvisionedError,
+  withProvisioningRetry,
+  getSignInUrl,
+  type ProvisioningRetryOptions,
+} from "./handle-api-error";
 export { createInvoice } from "./business";
 export { buyerService } from "./buyer";
 export { investorService } from "./investor";
