@@ -20,6 +20,8 @@ import { motion, AnimatePresence } from "framer-motion";
 // "Continuing as" role picker (Business/Investor/Buyer — no Admin, which
 // tracks: admin isn't self-serve), Full name + role-specific second field +
 // Email + Password, "Create account", and a sandbox-terms footer line.
+// The email-verification step below has no screen export to match against
+// — styled to fit the same card, not to any specific screen.
 //
 // NOT verified: the Investor/Buyer field sets below — I only have the
 // Business-selected export. "Country of residence" (investor) and
@@ -60,9 +62,19 @@ export default function AuthPage() {
   const [signupRole, setSignupRole] = useState<SignupRole>("business");
   const [signupPending, setSignupPending] = useState(false);
   const [signupError, setSignupError] = useState<string>();
-  const [signupNotice, setSignupNotice] = useState<string>();
   const [loginPending, setLoginPending] = useState(false);
   const [loginError, setLoginError] = useState<string>();
+
+  // Reactive off the signUp signal, not separate state: true exactly when
+  // create() left the attempt needing an email code and nothing else —
+  // see docs/guides/development/custom-flows/authentication/email-password.
+  const needsEmailVerification =
+    !!signUp &&
+    signUp.status === "missing_requirements" &&
+    signUp.unverifiedFields.includes("email_address") &&
+    signUp.missingFields.length === 0;
+
+  const view: "signup" | "login" | "verify-email" = needsEmailVerification ? "verify-email" : mode;
 
   // Shared by both flows: once finalize() actually activates a session,
   // useUser() reflects it — redirect to that role's home from one place
@@ -79,7 +91,6 @@ export default function AuthPage() {
 
     setSignupPending(true);
     setSignupError(undefined);
-    setSignupNotice(undefined);
 
     const data = new FormData(event.currentTarget);
     const { firstName, lastName } = splitName(String(data.get("fullName") ?? ""));
@@ -98,12 +109,60 @@ export default function AuthPage() {
       return;
     }
 
+    if (signUp.status === "complete") {
+      const { error: finalizeError } = await signUp.finalize();
+      if (finalizeError) {
+        setSignupError(finalizeError.longMessage ?? finalizeError.message);
+        setSignupPending(false);
+      }
+      // On success the useEffect above redirects once useUser() sees the new session.
+      return;
+    }
+
+    if (
+      signUp.status === "missing_requirements" &&
+      signUp.unverifiedFields.includes("email_address") &&
+      signUp.missingFields.length === 0
+    ) {
+      const { error: sendError } = await signUp.verifications.sendEmailCode();
+      if (sendError) {
+        setSignupError(sendError.longMessage ?? sendError.message);
+      }
+      // Either way, `needsEmailVerification` above now flips the view to
+      // the code-entry step — nothing else to do here.
+      setSignupPending(false);
+      return;
+    }
+
+    // A missing_requirements/abandoned case other than email verification
+    // (e.g. a field this form doesn't collect). Don't fake success.
+    setSignupError(
+      "Your account needs a step this form doesn't support yet. Contact support to finish setting it up.",
+    );
+    setSignupPending(false);
+  }
+
+  async function handleVerifyEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!signUp) return;
+
+    setSignupPending(true);
+    setSignupError(undefined);
+
+    const data = new FormData(event.currentTarget);
+    const { error } = await signUp.verifications.verifyEmailCode({
+      code: String(data.get("code") ?? ""),
+    });
+
+    if (error) {
+      setSignupError(error.longMessage ?? error.message);
+      setSignupPending(false);
+      return;
+    }
+
     if (signUp.status !== "complete") {
-      // This Clerk instance needs another step (e.g. email verification)
-      // before the account is usable — not yet implemented. Don't fake
-      // success; say so.
-      setSignupNotice(
-        "Your account needs one more verification step that this form doesn't handle yet. Contact support to finish setting it up.",
+      setSignupError(
+        "That code didn't finish setting up your account. Double-check it, or request a new one.",
       );
       setSignupPending(false);
       return;
@@ -114,7 +173,14 @@ export default function AuthPage() {
       setSignupError(finalizeError.longMessage ?? finalizeError.message);
       setSignupPending(false);
     }
-    // On success the useEffect above handles the redirect once useUser() sees the new session.
+    // On success the useEffect above redirects once useUser() sees the new session.
+  }
+
+  async function handleResendCode() {
+    if (!signUp) return;
+    setSignupError(undefined);
+    const { error } = await signUp.verifications.sendEmailCode();
+    if (error) setSignupError(error.longMessage ?? error.message);
   }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -161,50 +227,52 @@ export default function AuthPage() {
           layout
           className="border-border bg-surface w-full max-w-md rounded-xl border p-8"
         >
-          {/* Sign up / Log in segmented tab with sliding pill */}
-          <div className="bg-surface-raised relative flex rounded-lg p-1">
-            <button
-              type="button"
-              onClick={() => setMode("signup")}
-              className={cn(
-                "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
-                mode === "signup"
-                  ? "text-accent-400"
-                  : "hover:text-foreground text-muted-foreground",
-              )}
-            >
-              {mode === "signup" && (
-                <motion.span
-                  layoutId="authTabPill"
-                  className="bg-surface absolute inset-0 -z-10 rounded-md shadow-sm"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                />
-              )}
-              Sign up
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("login")}
-              className={cn(
-                "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
-                mode === "login"
-                  ? "text-accent-400"
-                  : "hover:text-foreground text-muted-foreground",
-              )}
-            >
-              {mode === "login" && (
-                <motion.span
-                  layoutId="authTabPill"
-                  className="bg-surface absolute inset-0 -z-10 rounded-md shadow-sm"
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                />
-              )}
-              Log in
-            </button>
-          </div>
+          {view !== "verify-email" && (
+            // Sign up / Log in segmented tab with sliding pill
+            <div className="bg-surface-raised relative flex rounded-lg p-1">
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className={cn(
+                  "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
+                  mode === "signup"
+                    ? "text-accent-400"
+                    : "hover:text-foreground text-muted-foreground",
+                )}
+              >
+                {mode === "signup" && (
+                  <motion.span
+                    layoutId="authTabPill"
+                    className="bg-surface absolute inset-0 -z-10 rounded-md shadow-sm"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                Sign up
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                className={cn(
+                  "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
+                  mode === "login"
+                    ? "text-accent-400"
+                    : "hover:text-foreground text-muted-foreground",
+                )}
+              >
+                {mode === "login" && (
+                  <motion.span
+                    layoutId="authTabPill"
+                    className="bg-surface absolute inset-0 -z-10 rounded-md shadow-sm"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                Log in
+              </button>
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
-            {mode === "signup" ? (
+            {view === "signup" ? (
               <motion.div
                 key="signup"
                 initial={{ opacity: 0, x: 16 }}
@@ -290,16 +358,6 @@ export default function AuthPage() {
                         <InlineNotice tone="danger">{signupError}</InlineNotice>
                       </motion.div>
                     ) : null}
-                    {signupNotice ? (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <InlineNotice tone="info">{signupNotice}</InlineNotice>
-                      </motion.div>
-                    ) : null}
                   </AnimatePresence>
 
                   <motion.div
@@ -317,11 +375,82 @@ export default function AuthPage() {
                       {signupPending ? "Creating account…" : "Create account"}
                     </Button>
                   </motion.div>
+
+                  {/* Clerk's bot sign-up protection widget. Must exist in the
+                      DOM before signUp.create() is called — normally invisible,
+                      only shows a challenge for traffic Clerk flags as risky.
+                      https://clerk.com/docs/guides/development/custom-flows/authentication/bot-sign-up-protection */}
+                  <div id="clerk-captcha" data-cl-theme="dark" data-cl-size="flexible" />
                 </form>
 
                 <p className="text-muted-foreground mt-4 text-center text-xs">
                   By continuing you agree to Raiquid&apos;s sandbox terms.
                 </p>
+              </motion.div>
+            ) : view === "verify-email" ? (
+              <motion.div
+                key="verify-email"
+                initial={{ opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -16 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="mt-6"
+              >
+                <p className="text-foreground text-lg font-semibold">Check your email</p>
+                <p className="text-muted-foreground mt-1.5 text-sm">
+                  We sent a code to <span className="text-foreground">{signUp?.emailAddress}</span>.
+                  Enter it below to finish creating your account.
+                </p>
+
+                <form className="mt-6 space-y-4" onSubmit={handleVerifyEmail}>
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                    <label htmlFor="code" className="text-foreground mb-1.5 block text-sm">
+                      Verification code
+                    </label>
+                    <Input
+                      id="code"
+                      name="code"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      placeholder="123456"
+                      required
+                    />
+                  </motion.div>
+
+                  <AnimatePresence>
+                    {signupError ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <InlineNotice tone="danger">{signupError}</InlineNotice>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
+
+                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full"
+                      disabled={signupPending}
+                    >
+                      {signupPending ? "Verifying…" : "Verify email"}
+                    </Button>
+                  </motion.div>
+                </form>
+
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  className="text-accent-400 mt-4 block text-center text-xs hover:underline"
+                >
+                  I didn&apos;t get a code — send it again
+                </button>
               </motion.div>
             ) : (
               <motion.div
