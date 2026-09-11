@@ -1,6 +1,13 @@
 import { env } from "@/lib/env";
 
-export type ApiTokenProvider = () => Promise<string | null>;
+// The Clerk session token for this call, or null for an unauthenticated
+// request. There is no shared/ambient fallback — every call site must
+// supply its own, fetched fresh at call time (client components:
+// useAuth().getToken(); server components/actions/route handlers:
+// (await auth()).getToken()). A module-level token would be shared across
+// every concurrent request this server process handles, so one user's
+// token could end up on another user's request.
+export type ApiToken = string | null;
 
 export class ApiError extends Error {
   constructor(
@@ -13,17 +20,10 @@ export class ApiError extends Error {
   }
 }
 
-let tokenProvider: ApiTokenProvider = async () => null;
-
-export function configureApiTokenProvider(provider: ApiTokenProvider) {
-  tokenProvider = provider;
-}
-
 class ApiClient {
   constructor(private readonly baseUrl: string) {}
 
-  private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
-    const token = await tokenProvider();
+  private async request<T>(path: string, token: ApiToken, init: RequestInit = {}): Promise<T> {
     const headers = new Headers(init.headers);
 
     headers.set("Accept", "application/json");
@@ -56,36 +56,36 @@ class ApiClient {
     return payload as T;
   }
 
-  get<T>(path: string, init?: RequestInit) {
-    return this.request<T>(path, { ...init, method: "GET" });
+  get<T>(path: string, token: ApiToken, init?: RequestInit) {
+    return this.request<T>(path, token, { ...init, method: "GET" });
   }
 
-  post<T>(path: string, body: unknown, init?: RequestInit) {
-    return this.request<T>(path, {
+  post<T>(path: string, body: unknown, token: ApiToken, init?: RequestInit) {
+    return this.request<T>(path, token, {
       ...init,
       method: "POST",
       body: JSON.stringify(body),
     });
   }
 
-  put<T>(path: string, body: unknown, init?: RequestInit) {
-    return this.request<T>(path, {
+  put<T>(path: string, body: unknown, token: ApiToken, init?: RequestInit) {
+    return this.request<T>(path, token, {
       ...init,
       method: "PUT",
       body: JSON.stringify(body),
     });
   }
 
-  patch<T>(path: string, body: unknown, init?: RequestInit) {
-    return this.request<T>(path, {
+  patch<T>(path: string, body: unknown, token: ApiToken, init?: RequestInit) {
+    return this.request<T>(path, token, {
       ...init,
       method: "PATCH",
       body: JSON.stringify(body),
     });
   }
 
-  delete<T>(path: string, init?: RequestInit) {
-    return this.request<T>(path, { ...init, method: "DELETE" });
+  delete<T>(path: string, token: ApiToken, init?: RequestInit) {
+    return this.request<T>(path, token, { ...init, method: "DELETE" });
   }
 }
 

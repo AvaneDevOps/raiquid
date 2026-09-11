@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
-import { ROLE_HOME } from "@/lib/demo-accounts";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { ROLE_HOME } from "@/lib/role-home";
+import { isUserRole } from "@/lib/user-role";
 import type { UserRole } from "@/types";
 
 export interface SessionUser {
@@ -10,39 +11,54 @@ export interface SessionUser {
   initials: string;
 }
 
-/**
- * The authoritative session + role check for a route group's layout.
- *
- * src/proxy.ts only does an optimistic cookie-presence check (see its
- * comments) — this is the real check, meant to be called once at the top
- * of each role's layout.tsx, same as before auth was wired up:
- *
- *   const user = await getSessionUser("business");
- *
- * Behavior:
- *  - no session at all -> redirect to /auth
- *  - session present but wrong role (e.g. a buyer hitting /business/*)
- *    -> redirect to that user's own home, not an error page — don't leak
- *       that the route exists, just bounce them somewhere valid.
- *  - session present and role matches -> return the SessionUser, same
- *    shape as always, so RoleShell/AdminShell/Sidebar/BottomTabBar need
- *    no changes.
- */
-export async function getSessionUser(role: UserRole): Promise<SessionUser> {
-  const session = await auth();
+function initialsFrom(first: string | null, last: string | null, fallback: string): string {
+  const fromName = [first?.[0], last?.[0]].filter(Boolean).join("").toUpperCase();
+  return fromName || fallback.slice(0, 2).toUpperCase();
+}
 
-  if (!session?.user) {
+// The authoritative session + role check for a route group's layout, same
+// call shape as before Clerk: const user = await getSessionUser("business").
+//
+//  - no session at all -> redirect to /auth
+//  - session present but role metadata missing -> redirect to /auth (the
+//    signup->provisioning webhook may not have caught up yet; see Part 6's
+//    401/403 handling for the equivalent case on API calls)
+//  - session present but wrong role (e.g. a buyer hitting /business/*)
+//    -> redirect to that user's own home, not an error page
+//  - session present and role matches -> return the SessionUser
+export async function getSessionUser(role: UserRole): Promise<SessionUser> {
+  const { userId } = await auth();
+  if (!userId) {
     redirect("/auth");
   }
 
-  if (session.user.role !== role) {
-    redirect(ROLE_HOME[session.user.role]);
+  const user = await currentUser();
+  if (!user) {
+    redirect("/auth");
   }
 
+  const sessionRole = user.unsafeMetadata.role;
+  if (!isUserRole(sessionRole)) {
+    redirect("/auth");
+  }
+
+  if (sessionRole !== role) {
+    redirect(ROLE_HOME[sessionRole]);
+  }
+
+  const name =
+    [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+    user.username ||
+    user.primaryEmailAddress?.emailAddress ||
+    "Account";
+
   return {
-    name: session.user.name ?? "Unknown",
-    subtitle: session.user.subtitle as string,
-    role: session.user.role as UserRole,
-    initials: session.user.initials as string,
+    name,
+    // No backend profile endpoint exists yet to source a real subtitle
+    // (business name / buyer company / investor location) from — see
+    // docs/COMPLIANCE_AUDIT.md. Falls back to the account's email.
+    subtitle: user.primaryEmailAddress?.emailAddress ?? "",
+    role: sessionRole,
+    initials: initialsFrom(user.firstName, user.lastName, name),
   };
 }
