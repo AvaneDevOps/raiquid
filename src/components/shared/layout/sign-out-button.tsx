@@ -1,16 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { handleSignOut } from "@/app/(shared)/auth/actions";
+import { useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/shared/ui/button";
 import { SquareArrowRightExit } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function SignOutButton() {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const { signOut } = useClerk();
 
   async function handleConfirmSignOut() {
-    await handleSignOut();
+    await signOut({ redirectUrl: "/auth" });
   }
 
   return (

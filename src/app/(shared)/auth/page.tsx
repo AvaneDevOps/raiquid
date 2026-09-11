@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { authenticate } from "./actions";
-import { DEMO_ACCOUNTS } from "@/lib/demo-accounts";
-import { LandingHeader } from "@/components/shared/layout";
+import { useEffect, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useSignUp, useSignIn, useUser } from "@clerk/nextjs";
+// Direct path, not the shared/layout barrel: that barrel also re-exports
+// session-user.tsx, which imports @clerk/nextjs/server (marked
+// server-only) — pulling it into this Client Component's bundle breaks
+// the build. See the barrel's own file for the full export list.
+import { LandingHeader } from "@/components/shared/layout/landing-header";
 import { Button, Input, InlineNotice } from "@/components/shared/ui";
 import { cn } from "@/lib/utils";
+import { ROLE_HOME } from "@/lib/role-home";
+import { isUserRole } from "@/lib/user-role";
 import type { UserRole } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,10 +24,12 @@ import { motion, AnimatePresence } from "framer-motion";
 // NOT verified: the Investor/Buyer field sets below — I only have the
 // Business-selected export. "Country of residence" (investor) and
 // "Company name" (buyer) are inferred from the Investor/Buyer shapes in
-// domain.ts, not confirmed against an export. Swap these if the real
-// Investor/Buyer states differ. Button/Input/InlineNotice prop names are
-// still inferred from the DESIGN_SYSTEM.md component table, not from
-// viewing their source.
+// domain.ts, not confirmed against an export.
+//
+// The second field's value (business name / country / company name) is
+// collected here but not yet sent anywhere — there's no backend profile
+// endpoint for it yet and the integration guide's unsafeMetadata example
+// only documents `{ role }`. See docs/COMPLIANCE_AUDIT.md.
 
 type SignupRole = Extract<UserRole, "business" | "investor" | "buyer">;
 
@@ -38,25 +45,113 @@ const SECOND_FIELD: Record<SignupRole, { label: string; placeholder: string }> =
   buyer: { label: "Company name", placeholder: "e.g. Bakare Distribution Co." },
 };
 
-function LoginSubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      variant="primary"
-      size="lg"
-      className="w-full hover:cursor-pointer"
-      disabled={pending}
-    >
-      {pending ? "Signing in…" : "Sign in"}
-    </Button>
-  );
+function splitName(fullName: string): { firstName: string; lastName?: string } {
+  const [firstName, ...rest] = fullName.trim().split(/\s+/);
+  return rest.length ? { firstName, lastName: rest.join(" ") } : { firstName };
 }
 
 export default function AuthPage() {
+  const router = useRouter();
+  const { isSignedIn, user } = useUser();
+  const { signUp } = useSignUp();
+  const { signIn } = useSignIn();
+
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [signupRole, setSignupRole] = useState<SignupRole>("business");
-  const [loginError, loginAction] = useActionState(authenticate, undefined);
+  const [signupPending, setSignupPending] = useState(false);
+  const [signupError, setSignupError] = useState<string>();
+  const [signupNotice, setSignupNotice] = useState<string>();
+  const [loginPending, setLoginPending] = useState(false);
+  const [loginError, setLoginError] = useState<string>();
+
+  // Shared by both flows: once finalize() actually activates a session,
+  // useUser() reflects it — redirect to that role's home from one place
+  // rather than duplicating the redirect after both signUp and signIn.
+  useEffect(() => {
+    if (!isSignedIn || !user) return;
+    const role = user.unsafeMetadata.role;
+    router.replace(isUserRole(role) ? ROLE_HOME[role] : "/");
+  }, [isSignedIn, user, router]);
+
+  async function handleSignup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!signUp) return;
+
+    setSignupPending(true);
+    setSignupError(undefined);
+    setSignupNotice(undefined);
+
+    const data = new FormData(event.currentTarget);
+    const { firstName, lastName } = splitName(String(data.get("fullName") ?? ""));
+
+    const { error } = await signUp.create({
+      emailAddress: String(data.get("email") ?? ""),
+      password: String(data.get("password") ?? ""),
+      firstName,
+      lastName,
+      unsafeMetadata: { role: signupRole },
+    });
+
+    if (error) {
+      setSignupError(error.longMessage ?? error.message);
+      setSignupPending(false);
+      return;
+    }
+
+    if (signUp.status !== "complete") {
+      // This Clerk instance needs another step (e.g. email verification)
+      // before the account is usable — not yet implemented. Don't fake
+      // success; say so.
+      setSignupNotice(
+        "Your account needs one more verification step that this form doesn't handle yet. Contact support to finish setting it up.",
+      );
+      setSignupPending(false);
+      return;
+    }
+
+    const { error: finalizeError } = await signUp.finalize();
+    if (finalizeError) {
+      setSignupError(finalizeError.longMessage ?? finalizeError.message);
+      setSignupPending(false);
+    }
+    // On success the useEffect above handles the redirect once useUser() sees the new session.
+  }
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!signIn) return;
+
+    setLoginPending(true);
+    setLoginError(undefined);
+
+    const data = new FormData(event.currentTarget);
+
+    const { error } = await signIn.password({
+      identifier: String(data.get("email") ?? ""),
+      password: String(data.get("password") ?? ""),
+    });
+
+    if (error) {
+      setLoginError(error.longMessage ?? error.message);
+      setLoginPending(false);
+      return;
+    }
+
+    if (signIn.status !== "complete") {
+      setLoginError(
+        "This account needs an extra verification step that this form doesn't handle yet.",
+      );
+      setLoginPending(false);
+      return;
+    }
+
+    const { error: finalizeError } = await signIn.finalize();
+    if (finalizeError) {
+      setLoginError(finalizeError.longMessage ?? finalizeError.message);
+      setLoginPending(false);
+    }
+    // On success the useEffect above handles the redirect once useUser() sees the new session.
+  }
 
   return (
     <>
@@ -142,7 +237,7 @@ export default function AuthPage() {
                   ))}
                 </motion.div>
 
-                <form className="mt-6 space-y-4">
+                <form className="mt-6 space-y-4" onSubmit={handleSignup}>
                   {[
                     { id: "fullName", label: "Full name", placeholder: "Kennedy Okonkwo" },
                     {
@@ -179,39 +274,50 @@ export default function AuthPage() {
                         name={field.name ?? field.id}
                         type={field.type ?? "text"}
                         placeholder={field.placeholder}
-                        disabled
+                        required={field.id !== "secondField"}
                       />
                     </motion.div>
                   ))}
+
+                  <AnimatePresence>
+                    {signupError ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <InlineNotice tone="danger">{signupError}</InlineNotice>
+                      </motion.div>
+                    ) : null}
+                    {signupNotice ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <InlineNotice tone="info">{signupNotice}</InlineNotice>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
 
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35, duration: 0.2 }}
                   >
-                    <Button type="submit" variant="primary" size="lg" className="w-full" disabled>
-                      Create account
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full"
+                      disabled={signupPending || !signUp}
+                    >
+                      {signupPending ? "Creating account…" : "Create account"}
                     </Button>
                   </motion.div>
                 </form>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <InlineNotice tone="info" className="mt-4">
-                    Sandbox demo — account creation isn&apos;t wired up yet.{" "}
-                    <button
-                      type="button"
-                      onClick={() => setMode("login")}
-                      className="text-accent-400 font-medium hover:underline"
-                    >
-                      Use a demo account
-                    </button>{" "}
-                    instead.
-                  </InlineNotice>
-                </motion.div>
 
                 <p className="text-muted-foreground mt-4 text-center text-xs">
                   By continuing you agree to Raiquid&apos;s sandbox terms.
@@ -226,7 +332,7 @@ export default function AuthPage() {
                 transition={{ duration: 0.22, ease: "easeOut" }}
                 className="mt-6"
               >
-                <form action={loginAction} className="space-y-4">
+                <form className="space-y-4" onSubmit={handleLogin}>
                   {[
                     {
                       id: "email",
@@ -277,30 +383,17 @@ export default function AuthPage() {
                   </AnimatePresence>
 
                   <motion.div whileTap={{ scale: 0.98 }}>
-                    <LoginSubmitButton />
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full hover:cursor-pointer"
+                      disabled={loginPending || !signIn}
+                    >
+                      {loginPending ? "Signing in…" : "Sign in"}
+                    </Button>
                   </motion.div>
                 </form>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="border-border mt-6 border-t pt-4"
-                >
-                  <p className="text-muted-foreground text-xs">Demo accounts (sandbox only):</p>
-                  <ul className="text-muted-foreground mt-2 space-y-1 font-mono text-xs">
-                    {DEMO_ACCOUNTS.map((account, i) => (
-                      <motion.li
-                        key={account.email}
-                        initial={{ opacity: 0, x: -6 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.05 }}
-                      >
-                        {account.role}: {account.email} / {account.password}
-                      </motion.li>
-                    ))}
-                  </ul>
-                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
