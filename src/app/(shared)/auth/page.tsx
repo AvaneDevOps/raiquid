@@ -1,28 +1,23 @@
 "use client";
 
-import { useState, useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { authenticate } from "./actions";
-import { DEMO_ACCOUNTS } from "@/lib/demo-accounts";
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useSignUp, useSignIn } from "@clerk/nextjs/legacy";
 import { LandingHeader } from "@/components/shared/layout";
 import { Button, Input, InlineNotice } from "@/components/shared/ui";
 import { cn } from "@/lib/utils";
+import { ROLE_HOME } from "@/lib/demo-accounts";
 import type { UserRole } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Verified against docs/screens/mobile/02-auth.png (Business role state):
+// Screen 02-auth (docs/screens/mobile/02-auth.png, Business role state):
 // segmented Sign up / Log in tab (Sign up active by default), a
 // "Continuing as" role picker (Business/Investor/Buyer — no Admin, which
 // tracks: admin isn't self-serve), Full name + role-specific second field +
 // Email + Password, "Create account", and a sandbox-terms footer line.
-//
-// NOT verified: the Investor/Buyer field sets below — I only have the
-// Business-selected export. "Country of residence" (investor) and
-// "Company name" (buyer) are inferred from the Investor/Buyer shapes in
-// domain.ts, not confirmed against an export. Swap these if the real
-// Investor/Buyer states differ. Button/Input/InlineNotice prop names are
-// still inferred from the DESIGN_SYSTEM.md component table, not from
-// viewing their source.
+// Auth provider is Clerk: sign-up stores `role` (+ display subtitle) in
+// unsafeMetadata, then /auth/complete-role promotes it to publicMetadata
+// server-side so getSessionUser() can route-guard by role.
 
 type SignupRole = Extract<UserRole, "business" | "investor" | "buyer">;
 
@@ -38,25 +33,138 @@ const SECOND_FIELD: Record<SignupRole, { label: string; placeholder: string }> =
   buyer: { label: "Company name", placeholder: "e.g. Bakare Distribution Co." },
 };
 
-function LoginSubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button
-      type="submit"
-      variant="primary"
-      size="lg"
-      className="w-full hover:cursor-pointer"
-      disabled={pending}
-    >
-      {pending ? "Signing in…" : "Sign in"}
-    </Button>
-  );
+function clerkErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === "object" && error !== null && "errors" in error) {
+    const errors = (error as { errors?: { longMessage?: string; message?: string }[] }).errors;
+    const first = errors?.[0];
+    if (first?.longMessage) return first.longMessage;
+    if (first?.message) return first.message;
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return fallback;
 }
 
 export default function AuthPage() {
+  const router = useRouter();
+  const { isLoaded: signUpLoaded, signUp, setActive: setSignUpActive } = useSignUp();
+  const { isLoaded: signInLoaded, signIn, setActive: setSignInActive } = useSignIn();
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [signupRole, setSignupRole] = useState<SignupRole>("business");
-  const [loginError, loginAction] = useActionState(authenticate, undefined);
+  const [signupError, setSignupError] = useState<string | undefined>();
+  const [signupPending, setSignupPending] = useState(false);
+  const [loginError, setLoginError] = useState<string | undefined>();
+  const [loginPending, setLoginPending] = useState(false);
+
+  async function handleSignUp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!signUpLoaded || !signUp) {
+      setSignupError("Secure sign-up is still loading. Wait a moment, then try again.");
+      return;
+    }
+    setSignupError(undefined);
+    setSignupPending(true);
+
+    const formData = new FormData(event.currentTarget);
+    const fullName = String(formData.get("fullName") ?? "").trim();
+    const secondField = String(formData.get("secondField") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+
+    if (!fullName || !email || !password) {
+      setSignupError("Enter your name, email, and password.");
+      setSignupPending(false);
+      return;
+    }
+
+    try {
+      const [firstName, ...rest] = fullName.split(" ").filter(Boolean);
+      const result = await signUp.create({
+        firstName: firstName ?? fullName,
+        lastName: rest.length > 0 ? rest.join(" ") : undefined,
+        emailAddress: email,
+        password,
+        unsafeMetadata: { role: signupRole, subtitle: secondField },
+      });
+
+      if (result.status === "complete") {
+        if (!result.createdSessionId) {
+          setSignupError("Account created — please sign in to continue.");
+          setSignupPending(false);
+          return;
+        }
+        await setSignUpActive({ session: result.createdSessionId });
+        const response = await fetch("/auth/complete-role", { method: "POST" });
+        if (!response.ok) {
+          setSignupError("Account created, but saving your role failed. Try signing in.");
+          setSignupPending(false);
+          return;
+        }
+        router.push(ROLE_HOME[signupRole]);
+        router.refresh();
+        return;
+      }
+
+      // Email verification required — trigger the code email, then hand off
+      // to the verify page. prepare is best-effort: even if it throws (e.g.
+      // already prepared), the verify page offers a resend, so still route.
+      try {
+        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      } catch (prepareError) {
+        console.error("prepareEmailAddressVerification failed:", prepareError);
+      }
+      setSignupPending(false);
+      router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+    } catch (error) {
+      console.error("signUp.create failed:", error);
+      setSignupError(clerkErrorMessage(error, "Could not create your account."));
+      setSignupPending(false);
+    }
+  }
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!signInLoaded || !signIn) {
+      setLoginError("Secure sign-in is still loading. Wait a moment, then try again.");
+      return;
+    }
+    setLoginError(undefined);
+    setLoginPending(true);
+
+    const formData = new FormData(event.currentTarget);
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+
+    if (!email || !password) {
+      setLoginError("Enter an email and password.");
+      setLoginPending(false);
+      return;
+    }
+
+    try {
+      const result = await signIn.create({ identifier: email, password });
+
+      if (result.status === "complete") {
+        if (!result.createdSessionId) {
+          setLoginError("Signed in — please continue to your workspace.");
+          setLoginPending(false);
+          router.push("/post-auth");
+          router.refresh();
+          return;
+        }
+        await setSignInActive({ session: result.createdSessionId });
+        router.push("/post-auth");
+        router.refresh();
+        return;
+      }
+
+      // MFA / verification needed — hand off to Clerk's factor page.
+      router.push("/auth/verify-factor");
+    } catch (error) {
+      console.error("signIn.create failed:", error);
+      setLoginError(clerkErrorMessage(error, "Incorrect email or password."));
+      setLoginPending(false);
+    }
+  }
 
   return (
     <>
@@ -142,13 +250,19 @@ export default function AuthPage() {
                   ))}
                 </motion.div>
 
-                <form className="mt-6 space-y-4">
+                <form onSubmit={handleSignUp} className="mt-6 space-y-4">
                   {[
-                    { id: "fullName", label: "Full name", placeholder: "Kennedy Okonkwo" },
+                    {
+                      id: "fullName",
+                      label: "Full name",
+                      placeholder: "Kennedy Okonkwo",
+                      autoComplete: "name",
+                    },
                     {
                       id: "secondField",
                       label: SECOND_FIELD[signupRole].label,
                       placeholder: SECOND_FIELD[signupRole].placeholder,
+                      autoComplete: "organization",
                     },
                     {
                       id: "signupEmail",
@@ -156,6 +270,7 @@ export default function AuthPage() {
                       placeholder: "kennedy@okonkwotextiles.com",
                       type: "email",
                       name: "email",
+                      autoComplete: "email",
                     },
                     {
                       id: "signupPassword",
@@ -163,6 +278,7 @@ export default function AuthPage() {
                       placeholder: "******************",
                       type: "password",
                       name: "password",
+                      autoComplete: "new-password",
                     },
                   ].map((field, i) => (
                     <motion.div
@@ -179,39 +295,42 @@ export default function AuthPage() {
                         name={field.name ?? field.id}
                         type={field.type ?? "text"}
                         placeholder={field.placeholder}
-                        disabled
+                        required
+                        autoComplete={field.autoComplete}
                       />
                     </motion.div>
                   ))}
+
+                  <AnimatePresence>
+                    {signupError ? (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto", x: [0, -4, 4, -4, 4, 0] }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <InlineNotice tone="danger">{signupError}</InlineNotice>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
 
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35, duration: 0.2 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Button type="submit" variant="primary" size="lg" className="w-full" disabled>
-                      Create account
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full hover:cursor-pointer"
+                      disabled={signupPending}
+                    >
+                      {signupPending ? "Creating account…" : "Create account"}
                     </Button>
                   </motion.div>
                 </form>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <InlineNotice tone="info" className="mt-4">
-                    Sandbox demo — account creation isn&apos;t wired up yet.{" "}
-                    <button
-                      type="button"
-                      onClick={() => setMode("login")}
-                      className="text-accent-400 font-medium hover:underline"
-                    >
-                      Use a demo account
-                    </button>{" "}
-                    instead.
-                  </InlineNotice>
-                </motion.div>
 
                 <p className="text-muted-foreground mt-4 text-center text-xs">
                   By continuing you agree to Raiquid&apos;s sandbox terms.
@@ -226,7 +345,7 @@ export default function AuthPage() {
                 transition={{ duration: 0.22, ease: "easeOut" }}
                 className="mt-6"
               >
-                <form action={loginAction} className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4">
                   {[
                     {
                       id: "email",
@@ -277,30 +396,17 @@ export default function AuthPage() {
                   </AnimatePresence>
 
                   <motion.div whileTap={{ scale: 0.98 }}>
-                    <LoginSubmitButton />
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="lg"
+                      className="w-full hover:cursor-pointer"
+                      disabled={loginPending}
+                    >
+                      {loginPending ? "Signing in…" : "Sign in"}
+                    </Button>
                   </motion.div>
                 </form>
-
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.25 }}
-                  className="border-border mt-6 border-t pt-4"
-                >
-                  <p className="text-muted-foreground text-xs">Demo accounts (sandbox only):</p>
-                  <ul className="text-muted-foreground mt-2 space-y-1 font-mono text-xs">
-                    {DEMO_ACCOUNTS.map((account, i) => (
-                      <motion.li
-                        key={account.email}
-                        initial={{ opacity: 0, x: -6 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 + i * 0.05 }}
-                      >
-                        {account.role}: {account.email} / {account.password}
-                      </motion.li>
-                    ))}
-                  </ul>
-                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>

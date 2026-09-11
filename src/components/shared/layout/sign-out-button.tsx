@@ -1,17 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { handleSignOut } from "@/app/(shared)/auth/actions";
+import { SignOutButton as ClerkSignOutButton } from "@clerk/nextjs";
 import { Button } from "@/components/shared/ui/button";
 import { SquareArrowRightExit } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
 
 export function SignOutButton() {
   const [showConfirmation, setShowConfirmation] = useState(false);
-
-  async function handleConfirmSignOut() {
-    await handleSignOut();
-  }
 
   return (
     <>
@@ -20,7 +16,7 @@ export function SignOutButton() {
         variant="ghost"
         size="sm"
         onClick={() => setShowConfirmation(true)}
-        className="text-muted-foreground hover:text-foreground shrink-0"
+        className="w-fill seal-chip text-muted-foreground border-border-strong hover:border-danger hover:bg-surface-raised hover:text-foreground flex h-8 max-w-xs shrink-0 items-center justify-between gap-1 border px-1 whitespace-nowrap transition-colors hover:cursor-pointer"
       >
         <SquareArrowRightExit strokeWidth={1.5} />
         Sign out
@@ -89,13 +85,21 @@ export function SignOutButton() {
                   type="button"
                   variant="ghost"
                   size="sm"
+                  className="text-muted-foreground hover:bg-surface hover:text-foreground px-4 py-2 font-medium transition-colors hover:cursor-pointer"
                   onClick={() => setShowConfirmation(false)}
                 >
                   Stay signed in
                 </Button>
-                <Button type="button" variant="danger" size="sm" onClick={handleConfirmSignOut}>
-                  Sign out
-                </Button>
+                <ClerkSignOutButton redirectUrl="/auth">
+                  <Button
+                    type="button"
+                    className="seal-chip bg-danger text-bg hover:bg-danger/90 px-5 py-2 font-semibold transition-colors hover:cursor-pointer"
+                    variant="danger"
+                    size="sm"
+                  >
+                    Sign out
+                  </Button>
+                </ClerkSignOutButton>
               </div>
             </motion.div>
           </motion.div>

@@ -6,4 +6,6 @@ export * from "./admin-shell";
 export * from "./standalone-shell";
 export * from "./landing-header";
 export * from "./landing-footer";
-export * from "./session-user";
+// NOTE: ./session-user is server-only (Clerk auth()/currentUser) — import it
+// directly, never re-export it here, or client pages pulling this barrel get
+// server-only in their bundle and the build fails.

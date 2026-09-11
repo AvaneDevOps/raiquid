@@ -101,7 +101,7 @@ design first.
 
 ## Route-protection
 
-`src/proxy.ts` performs the current thin session-cookie check for
-`/business/*`, `/buyer/*`, `/investor/*`, `/admin/*`, while the authoritative
-role check remains in each role layout. Replace this seam when the live auth
-provider is reconciled with the backend integration guide.
+`src/proxy.ts` (Clerk `clerkMiddleware`) bounces unauthenticated requests
+on `/business/*`, `/buyer/*`, `/investor/*`, `/admin/*` to `/auth`, while
+the authoritative role check remains in each role layout via
+`getSessionUser()`, which reads the role from Clerk `publicMetadata`.
