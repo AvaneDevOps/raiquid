@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <ClerkProvider signInUrl="/auth" signUpUrl="/auth">
+    <ClerkProvider>
       <html lang="en" className={`${fraunces.variable} ${plexSans.variable} ${plexMono.variable}`}>
         <body>{children}</body>
       </html>

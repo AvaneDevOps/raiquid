@@ -1,12 +1,13 @@
 "use client";
 
 import { SignOutButton as ClerkSignOutButton } from "@clerk/nextjs";
-import { Button } from "@/components/shared/ui/button";
+import { Button } from "./button";
 import { SquareArrowRightExit } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
-export function SignOutButton() {
+export function SignOutButton({ className }: { className?: string }) {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   return (
@@ -16,7 +17,10 @@ export function SignOutButton() {
         variant="ghost"
         size="sm"
         onClick={() => setShowConfirmation(true)}
-        className="w-fill seal-chip text-muted-foreground border-border-strong hover:border-danger hover:bg-surface-raised hover:text-foreground flex h-8 max-w-xs shrink-0 items-center justify-between gap-1 border px-1 whitespace-nowrap transition-colors hover:cursor-pointer"
+        className={cn(
+          "w-fill seal-chip text-muted-foreground border-border-strong hover:border-danger hover:bg-surface-raised hover:text-foreground flex h-8 max-w-xs shrink-0 items-center justify-between gap-1 border px-1 whitespace-nowrap transition-colors hover:cursor-pointer",
+          className,
+        )}
       >
         <SquareArrowRightExit strokeWidth={1.5} />
         Sign out

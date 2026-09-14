@@ -71,14 +71,14 @@ design first.
 | Route                                    | Screen            | Status |
 | ---------------------------------------- | ----------------- | ------ |
 | `/investor` (redirects to portfolio)     | —                 | done   |
-| `/investor/portfolio`                    | 22-invPortfolio   | stub   |
-| `/investor/portfolio/[invoiceId]`        | 23-invRepay       | stub   |
-| `/investor/marketplace`                  | 19-invMarketplace | stub   |
-| `/investor/marketplace/[invoiceId]`      | 20-invDetail      | stub   |
-| `/investor/marketplace/[invoiceId]/fund` | 21-invFund        | stub   |
-| `/investor/whitelisting`                 | 18-invWhitelist   | stub   |
-| `/investor/wallet`                       | 24-invWallet      | stub   |
-| `/investor/settings`                     | 25-invSettings    | stub   |
+| `/investor/portfolio`                    | 22-invPortfolio   | done   |
+| `/investor/portfolio/[invoiceId]`        | 23-invRepay       | done   |
+| `/investor/marketplace`                  | 19-invMarketplace | done   |
+| `/investor/marketplace/[invoiceId]`      | 20-invDetail      | done   |
+| `/investor/marketplace/[invoiceId]/fund` | 21-invFund        | done   |
+| `/investor/whitelisting`                 | 18-invWhitelist   | done   |
+| `/investor/wallet`                       | 24-invWallet      | done   |
+| `/investor/settings`                     | 25-invSettings    | done   |
 
 ## Admin — `admin/` route group, `AdminShell` (top tabs, same on mobile)
 

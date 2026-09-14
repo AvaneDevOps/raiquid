@@ -5,3 +5,5 @@ export * from "./progress-bar";
 export * from "./notice";
 export * from "./input";
 export * from "./textarea";
+export * from "./toggle";
+export * from "./password-input";

@@ -34,7 +34,7 @@ const DOCUMENTS: SubmittedDocument[] = [
 
 export default function WhitelistPage() {
   return (
-    <div className="mx-auto w-full max-w-xl space-y-8">
+    <div className="w-full max-w-xl space-y-8">
       <div>
         <h1 className="font-display text-foreground text-3xl font-semibold">
           Getting you whitelisted

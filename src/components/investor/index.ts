@@ -1,4 +1,4 @@
-import type { Invoice, ProvenanceTier } from "@/types";
+import type { Holding, Invoice, ProvenanceTier, WalletTransaction } from "@/types";
 
 // Components used only within the investor area — if a second area needs one of
 // these, promote it to src/components/shared/ instead of duplicating it.
@@ -103,3 +103,119 @@ export const INVESTOR_MARKETPLACE_LISTINGS: MarketplaceListing[] = [
 export const INVESTOR_MARKETPLACE_STATS = {
   openInvoicesCount: 12,
 };
+
+export const INVESTOR_PORTFOLIO_STATS = {
+  totalInvested: 1_420_000,
+  totalReturned: 186_400,
+  activeHoldingsCount: 4,
+  avgReturnPct: 12.1,
+  invoicesCount: 11,
+  since: "April 2026",
+};
+
+export const INVESTOR_HOLDINGS: Holding[] = [
+  {
+    tokenId: "RQ-INV-4471-T1",
+    invoiceId: "RQ-INV-4471",
+    buyerName: "Distify Distribution Ltd",
+    investedAmount: 150_000,
+    status: "funding",
+    dueDate: "2026-10-30",
+  },
+  {
+    tokenId: "RQ-INV-4502-T1",
+    invoiceId: "RQ-INV-4502",
+    buyerName: "MTN Retail Partners",
+    investedAmount: 300_000,
+    status: "funding",
+    dueDate: "2026-11-20",
+  },
+  {
+    tokenId: "RQ-INV-4180-T1",
+    invoiceId: "RQ-INV-4180",
+    buyerName: "Portharcourt Retailers",
+    investedAmount: 90_000,
+    status: "overdue",
+    dueDate: "2026-07-19",
+  },
+  {
+    tokenId: "RQ-INV-4091-T1",
+    invoiceId: "RQ-INV-4091",
+    buyerName: "Distify Distribution Ltd",
+    investedAmount: 120_000,
+    status: "repaid",
+    dueDate: "2026-07-03",
+    returnAmount: 18_000,
+    closedAt: "2026-08-21",
+  },
+];
+
+export const INVESTOR_WALLET_TRANSACTIONS: WalletTransaction[] = [
+  {
+    id: "tx_inv_1",
+    date: "2026-08-27",
+    type: "invested",
+    amount: -150_000,
+    reference: "RQ-INV-4471",
+  },
+  {
+    id: "tx_inv_2",
+    date: "2026-08-21",
+    type: "repayment",
+    amount: 138_000,
+    reference: "RQ-INV-4091",
+  },
+  {
+    id: "tx_inv_3",
+    date: "2026-08-14",
+    type: "deposit",
+    amount: 500_000,
+    reference: "Bank transfer",
+  },
+];
+
+export const INVESTOR_BUYER_PROVENANCE: Record<
+  string,
+  {
+    acceptanceRatePct: number;
+    onTimeRatePct: number | null;
+    invoicesFinanced: number;
+    memberSince: string;
+  }
+> = {
+  buyer_1: {
+    acceptanceRatePct: 100,
+    onTimeRatePct: 92,
+    invoicesFinanced: 15,
+    memberSince: "2026-03-01",
+  },
+  buyer_2: {
+    acceptanceRatePct: 100,
+    onTimeRatePct: 99,
+    invoicesFinanced: 41,
+    memberSince: "2026-01-01",
+  },
+  buyer_3: {
+    acceptanceRatePct: 100,
+    onTimeRatePct: null,
+    invoicesFinanced: 1,
+    memberSince: "2026-08-01",
+  },
+};
+
+export const INVESTOR_INVOICE_GOODS: Record<string, string> = {
+  "RQ-INV-4471": "400 units, woven fabric",
+  "RQ-INV-4502": "Retail airtime and device supply",
+  "RQ-INV-4390": "Freight and logistics services",
+};
+
+export const INVESTOR_PROFILE = {
+  fullName: "Emeka Nwosu",
+  email: "emeka@email.com",
+  countryOfResidence: "United Kingdom",
+};
+
+export const INVESTOR_NOTIFICATION_PREFS = [
+  { key: "newInvoices", label: "New invoices matching your filters", defaultOn: true },
+  { key: "repaymentReceived", label: "Repayment received", defaultOn: true },
+] as const;

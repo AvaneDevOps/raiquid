@@ -43,7 +43,7 @@ export default function Page() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-xl">
+    <div className="w-full max-w-xl">
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="font-display text-foreground text-3xl font-semibold">Fund</h1>
         <InvoiceRef id={invoice.id} />
