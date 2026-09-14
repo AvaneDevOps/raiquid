@@ -52,7 +52,7 @@ export function ForBusinessesSection({ estimate = EXAMPLE_ESTIMATE }: ForBusines
       {/* Ambient background glow — decorative only, sits behind all content. */}
       <div
         aria-hidden
-        className="bg-accent-500/10 pointer-events-none absolute -top-24 right-[8%] -z-10 size-[30rem] rounded-full blur-3xl"
+        className="bg-accent-500/10 pointer-events-none absolute -top-24 right-[8%] -z-10 size-120 rounded-full blur-3xl"
       />
 
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2 lg:items-start">
