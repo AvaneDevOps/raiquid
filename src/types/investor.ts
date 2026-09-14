@@ -1,9 +1,11 @@
+import type { ProvenanceTier } from "@/types";
+
+export type InvestorTier = Exclude<ProvenanceTier, "quarried">;
+
 export interface InvestmentOpportunity {
   company: string;
-  tier: string;
   available: string;
   returnRate: string;
   due: string;
-  tierColor: "gold" | "green";
-  tierType: "anchored" | "carried";
+  tierType: InvestorTier;
 }

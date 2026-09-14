@@ -3,7 +3,7 @@ import {
   ADMIN_RECENT_ACTIVITY,
   ADMIN_RESERVE_SNAPSHOT,
 } from "@/components/admin/fixtures";
-import { Card, CardHeader, CardTitle, StatCard } from "@/components/shared/ui/card";
+import { Card, CardTitle, StatCard } from "@/components/shared/ui/card";
 import { formatNaira, formatNumber, formatPercent } from "@/lib/format";
 
 import { RecentActivityCard } from "@/components/admin/recent-activity-card";

@@ -181,8 +181,8 @@ What's real:
 
 What's still a stub:
 
-- Routes still marked `stub` in `docs/ROUTE_MAP.md` (Buyer and Investor
-  role areas, `/verify`, `/confirm/*`, `/notifications`).
+- Routes still marked `stub` in `docs/ROUTE_MAP.md` (Investor role area, `/verify`,
+  and `/notifications`). Buyer and `/confirm/*` flows are now implemented.
 - The frontend/backend integration is being wired through `src/services/` using the
   live API contract described in `docs/Frontend_Backend_Integration_Guide.pdf`.
   Business and Admin screens still use fixtures until their service calls are
@@ -229,10 +229,10 @@ implementation state materially changes.
 - **Fonts** (Fraunces / IBM Plex Sans / IBM Plex Mono) — a considered
   visual match against the exports, named by the design session. Not
   pixel-provable. See `docs/DESIGN_SYSTEM.md`.
-- **`/buyer/invoices`** ("Invoices to review") — the nav label is
-  verified (screen 15) but there is still no dedicated export for the
-  list itself. Built as an inferred table matching `/business/invoices`
-  (screen 10); confirm the real field set.
+- **`/buyer/invoices`** ("Invoices to review") — no dedicated list export exists.
+  The implemented table uses the invoice, supplier, amount, due date, status,
+  and review action fields inferred from the buyer dashboard and the business
+  invoice list. Confirm the final field set with design/product.
 - **`/auth` and `/verify`** (screens 02, 03) sit under the marketing
   `LandingHeader` (no footer), not a standalone shell — so they arguably
   belong in the `(landing)` route group rather than `(shared)`. Left in

@@ -28,8 +28,8 @@ landing page must give those sections `id="how-it-works"`,
 | ----------------------------- | --------------- | ------------------------------- | ------ |
 | `/auth`                       | 02-auth         | `LandingHeader` + centered card | done   |
 | `/verify`                     | 03-verify       | `LandingHeader` + wide column   | stub   |
-| `/confirm/[invoiceId]`        | 13-buyerRequest | `StandaloneShell` (no chrome)   | stub   |
-| `/confirm/[invoiceId]/review` | 14-buyerAccept  | `StandaloneShell` (no chrome)   | stub   |
+| `/confirm/[invoiceId]`        | 13-buyerRequest | `StandaloneShell` (no chrome)   | done   |
+| `/confirm/[invoiceId]/review` | 14-buyerAccept  | `StandaloneShell` (no chrome)   | done   |
 
 `(shared)/layout.tsx` is a pass-through — the exports show three
 different chrome treatments (see `docs/DESIGN_SYSTEM.md`, "Layout
@@ -55,11 +55,11 @@ and `/verify` may move to `(landing)`.
 | Route                             | Screen                    | Status |
 | --------------------------------- | ------------------------- | ------ |
 | `/buyer` (redirects to dashboard) | —                         | done   |
-| `/buyer/dashboard`                | 15-buyerDashboard         | stub   |
-| `/buyer/invoices`                 | _(inferred — see note)_   | stub   |
-| `/buyer/invoices/[invoiceId]/pay` | 16-buyerRepay             | stub   |
-| `/buyer/payment-schedule`         | 15-buyerDashboard (table) | stub   |
-| `/buyer/settings`                 | 17-buyerSettings          | stub   |
+| `/buyer/dashboard`                | 15-buyerDashboard         | done   |
+| `/buyer/invoices`                 | _(inferred — see note)_   | done   |
+| `/buyer/invoices/[invoiceId]/pay` | 16-buyerRepay             | done   |
+| `/buyer/payment-schedule`         | 15-buyerDashboard (table) | done   |
+| `/buyer/settings`                 | 17-buyerSettings          | done   |
 
 Note: "Invoices to review" — the nav label is verified (screen 15) but
 there is no dedicated list-screen export. Build it consistent with
