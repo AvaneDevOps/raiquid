@@ -218,6 +218,41 @@ implementation state materially changes.
 - **Error reporting.** `src/app/error.tsx` has a `console.error` with a
   comment marking where a real reporter (Sentry, etc.) would go.
 - **Charting library.** The reserve-pool balance-growth chart (screen 27) and any future chart need a real library — none is installed.
+- **Manual verification for the 401/403 wiring in `src/services/client.ts`.**
+  No automated test exists for this yet, and none is landing tonight —
+  verify both cases by hand before the walkthrough video. Nothing in
+  `src/app/` calls into `src/services/` yet (every screen still runs on
+  local fixtures), so there's no page to click through for this — exercise
+  `apiClient` directly, e.g. from the browser console on any signed-in
+  page (`import("@/services/client")` or just call it from a scratch
+  component):
+  - **401** — call `apiClient.get("/buyer/dashboard", "not-a-real-token")`
+    (any real path, a garbage/expired token string). Expect the browser to
+    navigate to `/auth?callbackUrl=...` and the call to reject with an
+    `ApiError` (status 401) — check the Network tab, not just the redirect.
+  - **403, "not provisioned yet"** — sign up a brand-new account and, in
+    the few seconds before the Clerk-webhook-driven backend provisioning
+    finishes, call `apiClient.get(...)` against any authenticated endpoint
+    using that fresh session's real token (`await window.Clerk.session
+.getToken()`). Expect no redirect and no immediate rejection — the
+    call should retry silently (~1s, 2s, 4s) and either succeed once
+    provisioning catches up or reject after 4 attempts (~7s total) if it
+    doesn't.
+- **"Total financed to date" has no backing endpoint.** `/business/invoices`
+  list header used to show "X total · ₦Y financed to date" from
+  `BUSINESS_STATS` fixture data. `X` is now the real `total` GET
+  `/business/invoices` already returns; "financed to date" was removed
+  outright — no stats endpoint exists anywhere on the backend to back it.
+  Build one (or derive it client-side from the invoice list, which is
+  paginated so that's lossy) before bringing that number back.
+- **No buyer-lookup/reputation endpoint exists.** The invoice-creation
+  form (`/business/invoices/new`) used to show a provenance-tier badge
+  and on-time-payment count under the Buyer field, sourced from
+  `BUYER_SUMMARIES` fixture data keyed on typing the exact demo buyer
+  name. Removed — there's no endpoint to look up a buyer's reputation by
+  name/email while filling out this form (only `POST /business/invoices`
+  itself creates-or-matches a buyer by contact email, server-side, after
+  submit). Add a buyer lookup/autocomplete endpoint before restoring this.
 
 ## Assumptions to confirm with design/product before treating as final
 

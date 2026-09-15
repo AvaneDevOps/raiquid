@@ -1,26 +1,31 @@
 import { notFound } from "next/navigation";
 
-import { BUYER_INVOICES } from "@/components/buyer/fixtures";
 import { InvoiceRef } from "@/components/shared/domain/status-badges";
 import { StandaloneShell } from "@/components/shared/layout/standalone-shell";
-import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { InlineNotice } from "@/components/shared/ui/notice";
 import { formatDate, formatNaira } from "@/lib/format";
+import { ApiError } from "@/services";
+
+import { getConfirmation, type Confirmation } from "../_lib/confirmation";
+import { ReviewActions } from "./_components/review-actions";
 
 export default async function Page({ params }: PageProps<"/confirm/[invoiceId]/review">) {
   const { invoiceId } = await params;
-  const invoice = BUYER_INVOICES.find((item) => item.id === invoiceId);
 
-  if (!invoice) {
-    notFound();
+  let invoice: Confirmation;
+  try {
+    invoice = await getConfirmation(invoiceId);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
 
   return (
     <StandaloneShell>
       <div className="space-y-6">
         <h1 className="font-display text-foreground flex flex-wrap items-center gap-2 text-2xl font-semibold">
-          Confirm <InvoiceRef id={invoice.id} />
+          Confirm <InvoiceRef id={invoiceId} />
         </h1>
 
         <Card className="p-5">
@@ -40,24 +45,12 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]/r
           </div>
         </Card>
 
-        <label className="flex items-start gap-3 text-sm leading-6">
-          <input type="checkbox" defaultChecked className="accent-accent-400 mt-1 size-4" />
-          <span>
-            I confirm {invoice.supplierName} delivered the goods described, and that{" "}
-            {formatNaira(invoice.amount)} is genuinely owed, payable by{" "}
-            {formatDate(invoice.dueDate)}.
-          </span>
-        </label>
-
         <InlineNotice>
           Your supplier has already been paid early by investors. On the due date, your payment goes
           to them instead — the amount and date don&apos;t change.
         </InlineNotice>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Button variant="danger">Decline</Button>
-          <Button>Confirm &amp; accept</Button>
-        </div>
+        <ReviewActions invoiceId={invoiceId} supplierName={invoice.supplierName} />
       </div>
     </StandaloneShell>
   );

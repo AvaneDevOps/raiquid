@@ -7,7 +7,7 @@ export {
   getSignInUrl,
   type ProvisioningRetryOptions,
 } from "./handle-api-error";
-export { createInvoice } from "./business";
+export { createInvoice, businessService, type CreateInvoiceDto } from "./business";
 export { buyerService } from "./buyer";
 export { investorService } from "./investor";
 export { adminService } from "./admin";

@@ -223,3 +223,9 @@ export interface DocumentCheck {
   label: string;
   status: DocumentCheckStatus;
 }
+
+export interface BusinessVerification {
+  businessName: string;
+  status: BusinessVerificationStatus;
+  documentChecks: DocumentCheck[];
+}
