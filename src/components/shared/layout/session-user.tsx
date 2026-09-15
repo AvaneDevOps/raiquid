@@ -52,12 +52,15 @@ export async function getSessionUser(role: UserRole): Promise<SessionUser> {
     user.primaryEmailAddress?.emailAddress ||
     "Account";
 
+  // Subtitle is written to unsafeMetadata at signup (business name / "Diaspora
+  // Investor · {country}" / buyer company name). Admins don't sign up, so they
+  // keep the email fallback. No backend profile endpoint exists yet to source
+  // a refreshed subtitle from — see docs/COMPLIANCE_AUDIT.md.
+  const subtitle = user.unsafeMetadata.subtitle || user.primaryEmailAddress?.emailAddress || "";
+
   return {
     name,
-    // No backend profile endpoint exists yet to source a real subtitle
-    // (business name / buyer company / investor location) from — see
-    // docs/COMPLIANCE_AUDIT.md. Falls back to the account's email.
-    subtitle: user.primaryEmailAddress?.emailAddress ?? "",
+    subtitle,
     role: sessionRole,
     initials: initialsFrom(user.firstName, user.lastName, name),
   };

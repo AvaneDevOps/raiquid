@@ -194,13 +194,18 @@ implementation state materially changes.
 
 ## Open decisions (not made yet — don't assume an answer)
 
-- **Auth provider — currently Auth.js v5, but integration guide requires Clerk.**
-  The frontend currently uses Auth.js v5 with demo Credentials and JWT sessions.
-  The live integration guide describes Clerk-issued bearer tokens and Clerk
-  signup metadata. These are not interchangeable: the API token provider must
-  be wired to the final auth decision before authenticated live requests are
-  enabled. `src/services/client.ts` exposes the token-provider seam for that
-  integration.
+- **Auth provider — Clerk.** The frontend uses Clerk (`@clerk/nextjs`)
+  with a custom `/auth` screen (email + password sign-up/sign-in, "Continuing
+  as" role picker). The user's Raiquid role lives in Clerk
+  `publicMetadata.role` (promoted server-side from `unsafeMetadata` at
+  sign-up via `POST /auth/complete-role`); `getSessionUser()` in
+  `src/components/shared/layout/session-user.tsx` is the authoritative
+  server-side session + role guard, and `src/proxy.ts` (clerkMiddleware)
+  bounces unauthenticated hits on protected routes to `/auth`. The live
+  integration guide describes Clerk-issued bearer tokens and Clerk signup
+  metadata — `ClerkApiTokenProvider` in `src/services/auth-token.ts` wires
+  the Clerk session token into `src/services/client.ts`'s token-provider
+  seam for authenticated backend requests.
 - **Data fetching / backend.** The live API contract is documented in
   `docs/Frontend_Backend_Integration_Guide.pdf`. All backend communication
   belongs in `src/services/`, with `src/services/client.ts` responsible for
