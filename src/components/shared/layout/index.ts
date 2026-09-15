@@ -1,6 +1,7 @@
 export * from "./sidebar";
 export * from "./bottom-tab-bar";
 export * from "./user-summary";
+export * from "../ui/user-account-menu";
 export * from "./role-shell";
 export * from "./admin-shell";
 export * from "./standalone-shell";

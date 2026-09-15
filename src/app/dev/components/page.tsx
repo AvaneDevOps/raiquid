@@ -10,6 +10,8 @@ import { Badge } from "@/components/shared/ui/badge";
 import { Card, CardHeader, CardTitle, StatCard } from "@/components/shared/ui/card";
 import { ProgressBar } from "@/components/shared/ui/progress-bar";
 import { EmptyState, InlineNotice } from "@/components/shared/ui/notice";
+import { Input } from "@/components/shared/ui/input";
+import { PasswordInput } from "@/components/shared/ui/password-input";
 import {
   InvoiceStatusBadge,
   ProvenanceTierBadge,
@@ -159,6 +161,13 @@ export default function ComponentGalleryPage() {
           <ProgressBar percent={12} />
           <ProgressBar percent={64} />
           <ProgressBar percent={100} />
+        </div>
+      </Section>
+
+      <Section title="Input / PasswordInput">
+        <div className="max-w-md space-y-3">
+          <Input placeholder="Business name" aria-label="Business name preview" />
+          <PasswordInput placeholder="******************" aria-label="Password preview" />
         </div>
       </Section>
 

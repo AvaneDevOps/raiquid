@@ -1,99 +1,117 @@
 import { auth } from "@clerk/nextjs/server";
-import Link from "next/link";
 
-import { InvoiceStatusBadge } from "@/components/shared/domain/status-badges";
-import { Button } from "@/components/shared/ui/button";
-import { Card } from "@/components/shared/ui/card";
+import { PROVENANCE_TIER_ORDER } from "@/types";
+import type { MarketplaceListing } from "@/components/investor";
 import { EmptyState, InlineNotice } from "@/components/shared/ui/notice";
-import { formatDate, formatNaira } from "@/lib/format";
 import { investorService } from "@/services";
-import type { InvoiceStatus } from "@/types";
 
-// Screen not built yet (stub) — wired directly to GET /investor/marketplace
-// instead of a fixture, since none existed. Response shape confirmed
-// against the backend source (raiquid-api's InvestorService.listMarketplace),
-// not guessed: { data, page, pageSize, total }, each row a Prisma Invoice
-// with `include: { buyer: true }` — buyer name is the nested
-// raw.buyer.legalName, not a flat buyerName/buyerLegalName field. Minimal
-// on purpose: no pagination UI, no styling beyond the existing shared
-// primitives — see docs/RAIQUID_CONTEXT.md, "Open decisions".
-interface MarketplaceListing {
-  id: string;
-  buyerName: string;
-  amount: number;
-  dueDate: string;
-  status: InvoiceStatus;
+import { MarketplaceCard } from "./_components/marketplace-card";
+import { MarketplaceSortTabs, type MarketplaceSort } from "./_components/marketplace-sort-tabs";
+
+const VALID_SORTS: MarketplaceSort[] = ["return", "due-date", "buyer-tier"];
+
+function isMarketplaceSort(value: unknown): value is MarketplaceSort {
+  return typeof value === "string" && VALID_SORTS.includes(value as MarketplaceSort);
 }
 
+// Screen 19-invMarketplace, wired to GET /investor/marketplace. Response
+// shape confirmed against the backend source (raiquid-api's
+// InvestorService.listMarketplace), not guessed: { data, page, pageSize,
+// total }, each row a Prisma Invoice with `include: { buyer: true }` — buyer
+// name and provenance tier both come off the nested raw.buyer object
+// (legalName, provenanceTier), not flat fields. amount, dueDate, status,
+// fundedAmount, platformFeePct, reserveContributionPct and description are
+// all real fields too. expectedReturnPct and fundingInvestorCount have no
+// backing field anywhere on the real schema yet — placeholder 0 below,
+// same gap as the other yield/fee fields noted in
+// docs/RAIQUID_CONTEXT.md, "Open decisions".
 interface BuyerRef {
   legalName?: string;
+  provenanceTier?: MarketplaceListing["provenanceTier"];
 }
 
 function toListing(raw: Record<string, unknown>): MarketplaceListing {
   const buyer = raw.buyer as BuyerRef | undefined;
   return {
     id: String(raw.id ?? ""),
+    businessId: String(raw.businessId ?? ""),
+    buyerId: String(raw.buyerId ?? ""),
     buyerName: buyer?.legalName ?? "—",
     amount: Number(raw.amount ?? 0),
     dueDate: String(raw.dueDate ?? ""),
-    status: (raw.status as InvoiceStatus) ?? "tokenized",
+    submittedAt: String(raw.createdAt ?? ""),
+    description: String(raw.description ?? ""),
+    status: (raw.status as MarketplaceListing["status"]) ?? "tokenized",
+    expectedReturnPct: 0,
+    fundedAmount: Number(raw.fundedAmount ?? 0),
+    fundingInvestorCount: 0,
+    platformFeePct: Number(raw.platformFeePct ?? 0),
+    reserveContributionPct: Number(raw.reserveContributionPct ?? 0),
+    provenanceTier: buyer?.provenanceTier ?? "quarried",
   };
 }
 
-export default async function Page() {
+export default async function Page({ searchParams }: PageProps<"/investor/marketplace">) {
+  const { sort } = await searchParams;
+  const activeSort: MarketplaceSort = isMarketplaceSort(sort) ? sort : "return";
+
   const { getToken } = await auth();
   const token = await getToken();
 
   let listings: MarketplaceListing[] = [];
+  let total = 0;
   let loadError: string | null = null;
   try {
-    const response = await investorService.get<{ data: Record<string, unknown>[] }>(
-      "/investor/marketplace",
-      token,
-    );
+    const response = await investorService.get<{
+      data: Record<string, unknown>[];
+      total: number;
+    }>("/investor/marketplace", token);
     listings = response.data.map(toListing);
+    total = response.total;
   } catch (error) {
     loadError = error instanceof Error ? error.message : "Couldn't load the marketplace.";
   }
 
+  const sorted = [...listings].sort((a, b) => {
+    switch (activeSort) {
+      case "due-date":
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      case "buyer-tier":
+        return (
+          PROVENANCE_TIER_ORDER.indexOf(b.provenanceTier) -
+          PROVENANCE_TIER_ORDER.indexOf(a.provenanceTier)
+        );
+      case "return":
+      default:
+        return b.expectedReturnPct - a.expectedReturnPct;
+    }
+  });
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-foreground text-3xl font-semibold">Marketplace</h1>
-        <p className="text-muted-foreground mt-1">Invoices open for investment right now.</p>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="font-display text-foreground text-3xl font-semibold">Marketplace</h1>
+          {!loadError && (
+            <p className="text-muted-foreground mt-1">{total} invoices open for funding</p>
+          )}
+        </div>
+        <MarketplaceSortTabs active={activeSort} />
       </div>
 
       {loadError ? (
         <InlineNotice tone="danger">{loadError}</InlineNotice>
-      ) : listings.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <EmptyState
-          title="Nothing open for investment right now"
-          description="Check back once a business's invoice has been confirmed by its buyer and listed."
+          title="No invoices open for funding"
+          description="Check back once more invoices are tokenized and listed."
         />
       ) : (
-        <Card>
-          <div className="divide-border divide-y">
-            {listings.map((listing) => (
-              <div
-                key={listing.id}
-                className="flex flex-wrap items-center justify-between gap-4 px-5 py-4"
-              >
-                <div>
-                  <p className="text-foreground font-mono text-sm">{listing.id}</p>
-                  <p className="text-muted-foreground text-sm">{listing.buyerName}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-foreground text-sm">{formatNaira(listing.amount)}</p>
-                  <p className="text-muted-foreground text-sm">Due {formatDate(listing.dueDate)}</p>
-                </div>
-                <InvoiceStatusBadge status={listing.status} />
-                <Button asChild size="sm">
-                  <Link href={`/investor/marketplace/${listing.id}/fund`}>Invest</Link>
-                </Button>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {sorted.map((listing) => (
+            <MarketplaceCard key={listing.id} listing={listing} />
+          ))}
+        </div>
       )}
     </div>
   );
