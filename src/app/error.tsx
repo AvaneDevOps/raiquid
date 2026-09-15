@@ -8,7 +8,7 @@ export default function GlobalError({ reset }: { reset: () => void }) {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-lg p-8 text-center md:p-10">
-        <p className="font-mono text-xs tracking-[0.2em] text-muted-foreground">ERROR</p>
+        <p className="text-muted-foreground font-mono text-xs tracking-[0.2em]">ERROR</p>
         <h1 className="font-display text-foreground mt-3 text-3xl font-semibold">
           Something went wrong
         </h1>

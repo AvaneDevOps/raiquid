@@ -17,11 +17,11 @@ export function TransactionDelayedState({
       <h2 className="text-foreground text-base font-semibold">Transaction delayed</h2>
 
       <InlineNotice tone="danger" className="mt-4">
-        We&apos;re still waiting on network confirmation for <strong>{invoiceId}&apos;s</strong> mint
-        transaction. This can take a few minutes on the sandbox testnet.
+        We&apos;re still waiting on network confirmation for <strong>{invoiceId}&apos;s</strong>{" "}
+        mint transaction. This can take a few minutes on the sandbox testnet.
       </InlineNotice>
 
-      <dl className="mt-6 divide-y divide-border text-sm">
+      <dl className="divide-border mt-6 divide-y text-sm">
         <div className="flex items-center justify-between gap-6 py-4 first:pt-0">
           <dt className="text-foreground">Transaction</dt>
           <dd className="text-muted-foreground font-mono">{transactionId}</dd>

@@ -44,7 +44,7 @@ function NotificationMessage({ message }: { message: string }) {
     <p className="text-foreground text-sm leading-6">
       {parts.map((part, index) =>
         /^RQ-INV-\d+$/.test(part) ? (
-          <span key={`${part}-${index}`} className="font-mono text-muted-foreground">
+          <span key={`${part}-${index}`} className="text-muted-foreground font-mono">
             {part}
           </span>
         ) : (
@@ -63,9 +63,7 @@ export function NotificationList({ notifications }: { notifications: AppNotifica
       {notifications.map((notification) => (
         <article
           key={notification.id}
-          className={cn(
-            "border-border flex gap-4 border-b py-5 last:border-b-0",
-          )}
+          className={cn("border-border flex gap-4 border-b py-5 last:border-b-0")}
         >
           <span
             aria-hidden="true"

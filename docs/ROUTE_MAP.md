@@ -92,8 +92,8 @@ design first.
 
 ## Shared / cross-cutting
 
-| Route              | Screen           | Status | Notes                                                                                                                                                                                                   |
-| ------------------ | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route              | Screen           | Status      | Notes                                                                                                                                                                                                   |
+| ------------------ | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/notifications`   | 30-notifications | implemented | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
 | 404                | —                | implemented | `src/app/not-found.tsx`                                                                                                                                                                                 |
 | Error boundary     | —                | implemented | `src/app/error.tsx`                                                                                                                                                                                     |
