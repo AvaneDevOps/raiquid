@@ -1,0 +1,19 @@
+# Auto-requests review from the right people. Replace the placeholder
+# GitHub handles below with real ones once the team is on the repo.
+#
+# Path                      Owner(s)
+/src/app/(landing)/         @raiquid/frontend-leads
+/src/app/(shared)/          @raiquid/frontend-leads
+/src/app/business/          @raiquid/frontend-leads
+/src/app/buyer/             @raiquid/frontend-leads
+/src/app/investor/          @raiquid/frontend-leads
+/src/app/admin/             @raiquid/tech-director
+/src/components/shared/ui/       @raiquid/frontend-leads
+/src/components/shared/layout/   @raiquid/tech-director
+/src/types/                 @raiquid/tech-director
+/src/proxy.ts               @raiquid/tech-director
+/src/auth.ts                @raiquid/tech-director
+/src/app/api/               @raiquid/tech-director
+/src/lib/                   @raiquid/tech-director
+/.github/                   @raiquid/tech-director
+/docs/                      @raiquid/tech-director
