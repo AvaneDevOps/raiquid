@@ -1,46 +1,26 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 
-import { BUYER_DASHBOARD_COPY, BUYER_INVOICES, BUYER_PROFILE } from "@/components/buyer/fixtures";
-import { ProvenanceTierBadge } from "@/components/shared/domain/status-badges";
 import { Card, CardTitle } from "@/components/shared/ui/card";
+import { buyerService, normalizeBuyerInvoices } from "@/services/buyer";
 import { formatDate, formatNaira } from "@/lib/format";
 
-export default function Page() {
-  const invoice = BUYER_INVOICES.find((item) => item.id === "RQ-INV-4471");
+export default async function Page() {
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await buyerService.getPaymentSchedule<unknown>(token);
+  const invoices = normalizeBuyerInvoices(payload);
+  const invoice = invoices[0];
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-foreground text-3xl font-semibold sm:text-4xl">
-          {BUYER_PROFILE.companyName}
+          Payment dashboard
         </h1>
         <p className="text-muted-foreground mt-2 text-base sm:text-lg">
-          Your payment record, and what it unlocks for your suppliers.
+          Your upcoming obligations and supplier invoices.
         </p>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle>Provenance</CardTitle>
-              <p className="font-display text-accent-400 mt-7 text-4xl font-medium">
-                {BUYER_PROFILE.onTimePaymentRate}%
-              </p>
-            </div>
-            <ProvenanceTierBadge tier={BUYER_PROFILE.provenanceTier} />
-          </div>
-          <p className="text-muted-foreground mt-2 font-mono text-sm">
-            on-time payment rate · 14 of 15 invoices
-          </p>
-        </Card>
-
-        <Card className="p-6">
-          <CardTitle>What Anchored tier unlocks</CardTitle>
-          <p className="text-muted-foreground mt-5 max-w-xl text-base leading-7">
-            {BUYER_DASHBOARD_COPY[BUYER_PROFILE.provenanceTier]}
-          </p>
-        </Card>
       </div>
 
       <Card className="p-6">
@@ -61,12 +41,10 @@ export default function Page() {
               >
                 {invoice.id}
               </Link>
-              <span className="text-foreground">Okonkwo Textiles</span>
+              <span className="text-foreground">{invoice.supplierName}</span>
               <span className="text-foreground">{formatNaira(invoice.amount)}</span>
               <span className="text-foreground">{formatDate(invoice.dueDate)}</span>
-              <span className="seal-chip text-muted-foreground font-mono text-xs">
-                64 days left
-              </span>
+              <span className="seal-chip text-muted-foreground font-mono text-xs">Upcoming</span>
             </div>
             <div className="mt-6 space-y-4 md:hidden">
               <div className="grid grid-cols-[7rem_1fr] gap-y-3 text-sm">
@@ -78,20 +56,25 @@ export default function Page() {
                   {invoice.id}
                 </Link>
                 <span className="text-muted-foreground">Supplier</span>
-                <span className="text-foreground">Okonkwo Textiles</span>
+                <span className="text-foreground">{invoice.supplierName}</span>
                 <span className="text-muted-foreground">Amount</span>
                 <span className="text-foreground">{formatNaira(invoice.amount)}</span>
                 <span className="text-muted-foreground">Due</span>
                 <span className="text-foreground">{formatDate(invoice.dueDate)}</span>
               </div>
-              <span className="seal-chip text-muted-foreground inline-flex font-mono text-xs">
-                64 days left
-              </span>
             </div>
           </>
         ) : (
           <p className="text-muted-foreground mt-6 text-sm">No upcoming payments.</p>
         )}
+      </Card>
+
+      <Card className="p-6">
+        <CardTitle>Provenance</CardTitle>
+        <p className="text-muted-foreground mt-4 text-sm">
+          Provenance tier and payment-history aggregates are not exposed by the current buyer API
+          response.
+        </p>
       </Card>
     </div>
   );

@@ -1,21 +1,40 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-
-import { BUSINESS_INVOICES, BUSINESS_STATS } from "@/components/business/fixtures";
+import type { paths } from "@/types/api-generated";
+import { businessService, normalizeBusinessInvoices } from "@/services/business";
 import { Button } from "@/components/shared/ui/button";
 import { formatNaira } from "@/lib/format";
 
 import { InvoiceFilterTabs } from "./_components/invoice-filter-tabs";
 import { InvoiceListTable } from "./_components/invoice-list-table";
 
-// Screen 10-bizList. Data is dummy (see src/components/business/fixtures.ts)
-// until a real API exists — see docs/RAIQUID_CONTEXT.md, "Open decisions".
-export default async function Page({ searchParams }: PageProps<"/business/invoices">) {
-  const { status } = await searchParams;
-  const activeFilter = typeof status === "string" ? status : null;
+const FILTER_STATUSES = ["awaiting_acceptance", "funding", "repaid", "overdue"] as const;
 
-  const filteredInvoices = activeFilter
-    ? BUSINESS_INVOICES.filter((invoice) => invoice.status === activeFilter)
-    : BUSINESS_INVOICES;
+type BusinessInvoiceListQuery = paths["/business/invoices"]["get"]["parameters"]["query"];
+type BusinessInvoiceListStatus = NonNullable<BusinessInvoiceListQuery>["status"];
+
+export default async function Page({ searchParams }: PageProps<"/business/invoices">) {
+  const { getToken } = await auth();
+  const token = await getToken();
+  const { status } = await searchParams;
+
+  const activeFilter =
+    typeof status === "string" &&
+    FILTER_STATUSES.includes(status as (typeof FILTER_STATUSES)[number])
+      ? (status as (typeof FILTER_STATUSES)[number])
+      : null;
+
+  const apiStatus: BusinessInvoiceListStatus =
+    activeFilter === "awaiting_acceptance" ? "submitted" : (activeFilter ?? undefined);
+
+  const invoicesPayload = await businessService.listInvoices<unknown>(token, {
+    page: 1,
+    pageSize: 100,
+    ...(apiStatus ? { status: apiStatus } : {}),
+  });
+
+  const invoices = normalizeBusinessInvoices(invoicesPayload);
+  const totalFinanced = invoices.reduce((sum, invoice) => sum + invoice.fundedAmount, 0);
 
   return (
     <div className="space-y-6">
@@ -23,10 +42,10 @@ export default async function Page({ searchParams }: PageProps<"/business/invoic
         <div>
           <h1 className="font-display text-foreground text-3xl font-semibold">Invoices</h1>
           <p className="text-muted-foreground mt-1">
-            {BUSINESS_STATS.totalInvoicesCount} total · {formatNaira(BUSINESS_STATS.totalFinanced)}{" "}
-            financed to date
+            {invoices.length} total · {formatNaira(totalFinanced)} financed in the returned invoices
           </p>
         </div>
+
         <Button asChild size="lg">
           <Link href="/business/invoices/new">Upload invoice</Link>
         </Button>
@@ -34,7 +53,7 @@ export default async function Page({ searchParams }: PageProps<"/business/invoic
 
       <InvoiceFilterTabs active={activeFilter} />
 
-      <InvoiceListTable invoices={filteredInvoices} />
+      <InvoiceListTable invoices={invoices} />
     </div>
   );
 }

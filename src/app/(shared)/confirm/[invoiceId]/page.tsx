@@ -1,17 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BUYER_INVOICES } from "@/components/buyer/fixtures";
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { StandaloneShell } from "@/components/shared/layout/standalone-shell";
+import { confirmService, normalizeConfirmation } from "@/services/confirm";
 import { formatDate, formatNaira } from "@/lib/format";
 
 export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">) {
   const { invoiceId } = await params;
-  const invoice = BUYER_INVOICES.find((item) => item.id === invoiceId);
-
-  if (!invoice) {
+  let invoice;
+  try {
+    invoice = normalizeConfirmation(await confirmService.getConfirmation(invoiceId), invoiceId);
+  } catch {
     notFound();
   }
 
@@ -26,8 +27,8 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             {invoice.supplierName} is asking you to confirm an invoice
           </h1>
           <p className="text-muted-foreground mt-3 leading-6">
-            Confirming doesn&apos;t create a new obligation — it just verifies that the amount below
-            is real and already owed.
+            Confirming doesn&apos;t create a new obligation — it verifies that the amount below is
+            real and already owed.
           </p>
         </div>
 
@@ -43,16 +44,17 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             </div>
             <div className="flex items-center justify-between gap-5 py-4">
               <span>Goods/services</span>
-              <span className="text-right">{invoice.description}</span>
+              <span className="text-right">{invoice.description || "—"}</span>
             </div>
             <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
               <span>Proof of delivery</span>
-              <a
-                href={invoice.proofOfDeliveryUrl ?? "#"}
-                className="text-accent-400 hover:underline"
-              >
-                View document
-              </a>
+              {invoice.proofOfDeliveryUrl ? (
+                <a href={invoice.proofOfDeliveryUrl} className="text-accent-400 hover:underline">
+                  View document
+                </a>
+              ) : (
+                <span className="text-muted-foreground">Not provided</span>
+              )}
             </div>
           </div>
         </Card>

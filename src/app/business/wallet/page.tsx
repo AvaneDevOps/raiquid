@@ -1,12 +1,18 @@
-import { BUSINESS_WALLET } from "@/components/business/fixtures";
+import { auth } from "@clerk/nextjs/server";
+
+import { businessService, normalizeBusinessWallet } from "@/services/business";
 import { Button } from "@/components/shared/ui/button";
 import { Card, StatCard } from "@/components/shared/ui/card";
 import { formatNaira } from "@/lib/format";
 
 import { PayoutHistory } from "./_components/payout-history";
 
-export default function Page() {
-  const { payoutAccount, pendingPayout } = BUSINESS_WALLET;
+export default async function Page() {
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await businessService.getWallet<unknown>(token);
+  const wallet = normalizeBusinessWallet(payload);
+  const { payoutAccount, pendingPayout } = wallet;
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -18,7 +24,7 @@ export default function Page() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Total received"
-          value={formatNaira(BUSINESS_WALLET.totalReceived)}
+          value={formatNaira(wallet.totalReceived)}
           caption="all-time"
           emphasize
         />
@@ -33,7 +39,11 @@ export default function Page() {
         />
         <StatCard
           label="Connected account"
-          value={`${payoutAccount.bankName} •••• ${payoutAccount.accountNumberLast4}`}
+          value={
+            payoutAccount.bankName
+              ? `${payoutAccount.bankName} •••• ${payoutAccount.accountNumberLast4}`
+              : "Not configured"
+          }
         />
       </div>
 
@@ -41,16 +51,22 @@ export default function Page() {
         <div className="min-w-0 flex-1">
           <h2 className="text-foreground text-lg font-semibold">Payout account</h2>
           <p className="text-muted-foreground mt-1 font-mono text-sm">
-            {payoutAccount.bankName} •••• {payoutAccount.accountNumberLast4} ·{" "}
-            {payoutAccount.accountHolderName}
+            {payoutAccount.bankName || "Not configured"} ••••{" "}
+            {payoutAccount.accountNumberLast4 || "----"}
+            {payoutAccount.accountHolderName ? ` · ${payoutAccount.accountHolderName}` : ""}
           </p>
         </div>
-        <Button variant="secondary" className="shrink-0">
+        <Button
+          variant="secondary"
+          className="shrink-0"
+          disabled
+          title="Payout account changes are not available through the current API"
+        >
           Change account
         </Button>
       </Card>
 
-      <PayoutHistory payouts={BUSINESS_WALLET.payoutHistory} />
+      <PayoutHistory payouts={wallet.payoutHistory} />
     </div>
   );
 }

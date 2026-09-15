@@ -1,17 +1,14 @@
 import Link from "next/link";
+import { auth } from "@clerk/nextjs/server";
 
 import { getSessionUser } from "@/components/shared/layout/session-user";
 import { Button } from "@/components/shared/ui/button";
 import { StatCard } from "@/components/shared/ui/card";
-import { BUSINESS_INVOICES, BUSINESS_STATS } from "@/components/business/fixtures";
+import { businessService, normalizeBusinessInvoices } from "@/services/business";
 import { formatNaira } from "@/lib/format";
 
 import { RecentInvoicesCard } from "./_components/recent-invoices-card";
 
-/**
- * "Good morning/afternoon/evening" — small enough to keep local for now.
- * Promote to src/lib/ if a second role's dashboard wants the same greeting.
- */
 function getDaypartGreeting(date: Date = new Date()): string {
   const hour = date.getHours();
   if (hour < 12) return "Good morning";
@@ -19,11 +16,17 @@ function getDaypartGreeting(date: Date = new Date()): string {
   return "Good evening";
 }
 
-// Screen 04-bizDashboard. Data below is dummy (see
-// src/components/business/fixtures.ts) until a real API exists — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default async function Page() {
   const user = await getSessionUser("business");
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await businessService.listInvoices<unknown>(token, { page: 1, pageSize: 100 });
+  const invoices = normalizeBusinessInvoices(payload);
+
+  const activeInvoices = invoices.filter(
+    (invoice) => invoice.status !== "repaid" && invoice.status !== "overdue",
+  );
+  const financed = invoices.reduce((sum, invoice) => sum + invoice.fundedAmount, 0);
   const firstName = user.name.split(" ")[0];
 
   return (
@@ -43,24 +46,19 @@ export default async function Page() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Active invoices"
-          value={String(BUSINESS_STATS.activeInvoicesCount)}
-          caption={`${formatNaira(BUSINESS_STATS.activeInvoicesAmountInProgress)} in progress`}
+          value={String(activeInvoices.length)}
+          caption={`${formatNaira(activeInvoices.reduce((sum, invoice) => sum + invoice.amount, 0))} in progress`}
         />
         <StatCard
           label="Total financed"
-          value={formatNaira(BUSINESS_STATS.totalFinanced)}
-          caption={`since ${BUSINESS_STATS.totalFinancedSince}`}
+          value={formatNaira(financed)}
+          caption="from returned invoices"
           emphasize
         />
-        <StatCard
-          label="Avg. time to cash"
-          value={`${BUSINESS_STATS.avgDaysToCash} days`}
-          caption="from buyer acceptance"
-        />
+        <StatCard label="Invoices" value={String(invoices.length)} caption="returned by the API" />
       </div>
 
-      {/* BUSINESS_INVOICES is ordered most-recent-first — see fixtures.ts */}
-      <RecentInvoicesCard invoices={BUSINESS_INVOICES.slice(0, 3)} />
+      <RecentInvoicesCard invoices={invoices.slice(0, 3)} />
     </div>
   );
 }

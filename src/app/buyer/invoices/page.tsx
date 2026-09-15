@@ -1,12 +1,21 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
-import { BUYER_INVOICES } from "@/components/buyer/fixtures";
+import { normalizeBuyerInvoices, buyerService } from "@/services/buyer";
 import { InvoiceStatusBadge } from "@/components/shared/domain/status-badges";
 import { Button } from "@/components/shared/ui/button";
 import { Card, CardTitle } from "@/components/shared/ui/card";
 import { formatDate, formatNaira } from "@/lib/format";
 
-export default function Page() {
+export default async function Page() {
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await buyerService.listInvoices<unknown>(token, {
+    page: 1,
+    pageSize: 100,
+  });
+  const invoices = normalizeBuyerInvoices(payload);
+
   return (
     <div className="space-y-6">
       <div>
@@ -29,7 +38,7 @@ export default function Page() {
             <span>Status</span>
             <span />
           </div>
-          {BUYER_INVOICES.map((invoice) => (
+          {invoices.map((invoice) => (
             <div
               key={invoice.id}
               className="grid grid-cols-[1fr_1.5fr_1fr_1fr_1fr_auto] items-center gap-4 px-6 py-5"
@@ -46,7 +55,7 @@ export default function Page() {
           ))}
         </div>
         <div className="divide-border divide-y md:hidden">
-          {BUYER_INVOICES.map((invoice) => (
+          {invoices.map((invoice) => (
             <div key={invoice.id} className="space-y-4 p-5">
               <div className="flex items-start justify-between gap-3">
                 <span className="text-accent-400 font-mono text-sm">{invoice.id}</span>

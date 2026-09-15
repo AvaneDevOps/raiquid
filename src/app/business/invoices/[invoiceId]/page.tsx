@@ -1,44 +1,39 @@
+import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 
-import { BUSINESS_INVOICES } from "@/components/business/fixtures";
 import { formatDate } from "@/lib/format";
+import { businessService, normalizeBusinessInvoices } from "@/services/business";
 
 import { AwaitingAcceptanceView } from "./_components/awaiting-acceptance-view";
 import { FundingView } from "./_components/funding-view";
-import { INVOICE_ACCEPTED_AT } from "./_components/fixtures";
 import { InvoiceDetailHeader } from "./_components/invoice-header";
 import { PayoutView } from "./_components/payout-view";
 import { TokenizedView } from "./_components/tokenized-view";
 
-// Screens 06-09 (bizPending/Tokenized/Funding/Payout) — one page, 5
-// InvoiceStatus states via the stepper. "funded"/"repaid"/"overdue" all
-// share PayoutView — see that file's comment for why.
 export default async function Page({ params }: PageProps<"/business/invoices/[invoiceId]">) {
   const { invoiceId } = await params;
-  const invoice = BUSINESS_INVOICES.find((candidate) => candidate.id === invoiceId);
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await businessService.getInvoice<unknown>(invoiceId, token);
+  const invoices = normalizeBusinessInvoices([payload]);
+  const invoice = invoices[0];
 
-  if (!invoice) {
+  if (!invoice || invoice.id !== invoiceId) {
     notFound();
   }
-
-  const acceptedAt = INVOICE_ACCEPTED_AT[invoice.id];
 
   let subtitle: string | undefined;
   switch (invoice.status) {
     case "submitted":
     case "awaiting_acceptance":
-      subtitle = `Submitted ${formatDate(invoice.submittedAt)}`;
+      subtitle = invoice.submittedAt ? `Submitted ${formatDate(invoice.submittedAt)}` : undefined;
       break;
     case "tokenized":
-      subtitle = acceptedAt
-        ? `Accepted by ${invoice.buyerName} on ${formatDate(acceptedAt)}`
-        : undefined;
-      break;
     case "funding":
-      subtitle = acceptedAt ? `Listed ${formatDate(acceptedAt)}` : undefined;
+      subtitle = invoice.buyerName ? `Accepted by ${invoice.buyerName}` : undefined;
       break;
     default:
-      subtitle = undefined; // funded/repaid/overdue: no subtitle, matches screen 09
+      break;
   }
 
   return (

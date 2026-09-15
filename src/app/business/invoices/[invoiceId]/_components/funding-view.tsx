@@ -5,17 +5,9 @@ import { INVOICE_LIFECYCLE_STEPS, INVOICE_STATUS_STEP_INDEX } from "@/lib/domain
 import { formatNaira, formatPercent } from "@/lib/format";
 import type { Invoice } from "@/types";
 
-import { TOP_CONTRIBUTORS } from "./fixtures";
-
 // Screen 08-bizFunding.
 export function FundingView({ invoice }: { invoice: Invoice }) {
   const percentFunded = invoice.amount > 0 ? (invoice.fundedAmount / invoice.amount) * 100 : 0;
-  const namedContributors = TOP_CONTRIBUTORS[invoice.id] ?? [];
-
-  const namedTotal = namedContributors.reduce((sum, c) => sum + c.amount, 0);
-  const namedCount = namedContributors.length;
-  const otherCount = invoice.fundingInvestorCount - namedCount;
-  const otherAmount = invoice.fundedAmount - namedTotal;
 
   return (
     <>
@@ -41,24 +33,13 @@ export function FundingView({ invoice }: { invoice: Invoice }) {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-foreground font-semibold">Contributing investors</h3>
-          <dl className="divide-border mt-4 divide-y">
-            {namedContributors.map((contributor) => (
-              <div
-                key={contributor.initials}
-                className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
-              >
-                <dt className="text-foreground">{contributor.initials}</dt>
-                <dd className="text-foreground">{formatNaira(contributor.amount)}</dd>
-              </div>
-            ))}
-            {otherCount > 0 ? (
-              <div className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
-                <dt className="text-foreground">+{otherCount} others</dt>
-                <dd className="text-foreground">{formatNaira(otherAmount)}</dd>
-              </div>
-            ) : null}
-          </dl>
+          <h3 className="text-foreground font-semibold">Funding activity</h3>
+          <p className="text-muted-foreground mt-4 text-sm">
+            {invoice.fundingInvestorCount} investors have contributed to this invoice.
+          </p>
+          <p className="text-foreground mt-3 font-mono text-sm">
+            {formatNaira(invoice.fundedAmount)} raised so far
+          </p>
         </Card>
       </div>
     </>

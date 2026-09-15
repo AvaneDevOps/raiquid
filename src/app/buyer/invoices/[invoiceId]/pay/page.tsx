@@ -1,28 +1,31 @@
+import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 
-import { BUYER_INVOICES, BUYER_PAYMENT_ACCOUNT } from "@/components/buyer/fixtures";
 import { InvoiceRef } from "@/components/shared/domain/status-badges";
-import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { InlineNotice } from "@/components/shared/ui/notice";
-import { formatNaira } from "@/lib/format";
+import { buyerService, normalizeBuyerInvoices } from "@/services/buyer";
+import { formatDate, formatNaira } from "@/lib/format";
+
+import { PaymentForm } from "./_components/payment-form";
 
 export default async function Page({ params }: PageProps<"/buyer/invoices/[invoiceId]/pay">) {
   const { invoiceId } = await params;
-  const invoice = BUYER_INVOICES.find((item) => item.id === invoiceId);
+  const { getToken } = await auth();
+  const token = await getToken();
+  const payload = await buyerService.listInvoices<unknown>(token, { page: 1, pageSize: 100 });
+  const invoice = normalizeBuyerInvoices(payload).find((item) => item.id === invoiceId);
 
-  if (!invoice) {
-    notFound();
-  }
+  if (!invoice) notFound();
 
   return (
     <div className="max-w-2xl space-y-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <InvoiceRef id={invoice.id} />
-          <p className="text-muted-foreground mt-3">Due today</p>
+          <p className="text-muted-foreground mt-3">Due {formatDate(invoice.dueDate)}</p>
         </div>
-        <span className="seal-chip text-muted-foreground font-mono text-xs">Due today</span>
+        <span className="seal-chip text-muted-foreground font-mono text-xs">{invoice.status}</span>
       </div>
 
       <Card className="p-6">
@@ -33,24 +36,17 @@ export default async function Page({ params }: PageProps<"/buyer/invoices/[invoi
           </div>
           <div className="flex items-center justify-between gap-4 py-5">
             <span>Payee</span>
-            <span className="text-right">Raiquid settlement account</span>
+            <span className="text-right">{invoice.supplierName}</span>
           </div>
         </div>
       </Card>
 
-      <div>
-        <p className="text-muted-foreground mb-2 text-sm">Payment method</p>
-        <div className="border-border-strong bg-surface-raised rounded-lg border px-4 py-3">
-          Bank transfer — {BUYER_PAYMENT_ACCOUNT.bankName} ••••{" "}
-          {BUYER_PAYMENT_ACCOUNT.accountNumberLast4}
-        </div>
-      </div>
-
       <InlineNotice>
-        This is a simulated repayment for the sandbox environment. No real funds move.
+        This payment is recorded through the Raiquid backend. No payment-account details are exposed
+        by the current buyer API.
       </InlineNotice>
 
-      <Button size="lg">Confirm payment (sandbox)</Button>
+      <PaymentForm invoiceId={invoice.id} amount={invoice.amount} />
     </div>
   );
 }
