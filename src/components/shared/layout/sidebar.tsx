@@ -44,8 +44,12 @@ export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }
         })}
       </nav>
 
+      <div className="p-4">
+        <SignOutButton />
+      </div>
+
       <div className="border-border border-t p-4">
-        <UserSummary user={user} action={<SignOutButton />} />
+        <UserSummary user={user} />
       </div>
     </aside>
   );

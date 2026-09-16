@@ -111,7 +111,7 @@ export function UserAccountMenu({ user, className }: { user: SessionUser; classN
                     Settings
                   </Link>
                 </Button>
-                <SignOutButton className="h-10 w-full max-w-none justify-start px-4 text-sm" />
+                <SignOutButton className="h-10 w-full px-4 text-sm" />
               </div>
             </motion.div>
           </motion.div>
