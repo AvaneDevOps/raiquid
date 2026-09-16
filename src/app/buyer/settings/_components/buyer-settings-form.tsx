@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
-import { BUYER_SETTINGS } from "@/components/buyer/fixtures";
 import { buyerService } from "@/services/buyer";
 import { Card } from "@/components/shared/ui/card";
 import { Input } from "@/components/shared/ui/input";
@@ -12,11 +11,27 @@ import { Button } from "@/components/shared/ui/button";
 import { NotificationToggle } from "./notification-toggle";
 import type { BuyerSettingsData } from "@/services/buyer";
 
+import { InlineNotice } from "@/components/shared/ui/notice";
+
+import type {
+  BuyerAuthorizedContact,
+  BuyerNotificationPreference,
+  BuyerSettingsDataSource,
+} from "./fallbacks";
+
 interface BuyerSettingsFormProps {
   initialSettings: BuyerSettingsData;
+  authorizedContacts: BuyerAuthorizedContact[];
+  notificationPreferences: BuyerNotificationPreference[];
+  supplementalDataSource: BuyerSettingsDataSource;
 }
 
-export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
+export function BuyerSettingsForm({
+  initialSettings,
+  authorizedContacts,
+  notificationPreferences,
+  supplementalDataSource,
+}: BuyerSettingsFormProps) {
   const { getToken } = useAuth();
 
   const [companyName, setCompanyName] = useState(initialSettings.legalName);
@@ -24,12 +39,17 @@ export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
   const [phone, setPhone] = useState(initialSettings.contactPhone);
   const [saving, setSaving] = useState(false);
 
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const [notificationState, setNotificationState] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(BUYER_SETTINGS.notifications.map((item) => [item.key, item.defaultOn])),
+    Object.fromEntries(notificationPreferences.map((item) => [item.key, item.defaultOn])),
   );
 
   async function handleSave() {
     setSaving(true);
+    setSaved(false);
+    setError(null);
 
     try {
       const token = await getToken();
@@ -46,6 +66,9 @@ export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
       setCompanyName(updated.legalName);
       setBillingEmail(updated.contactEmail);
       setPhone(updated.contactPhone);
+      setSaved(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Settings could not be saved.");
     } finally {
       setSaving(false);
     }
@@ -54,6 +77,9 @@ export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
   return (
     <div className="max-w-2xl space-y-6">
       <h1 className="font-display text-foreground text-3xl font-semibold">Settings</h1>
+
+      {error ? <InlineNotice tone="danger">{error}</InlineNotice> : null}
+      {saved ? <InlineNotice tone="success">Settings saved successfully.</InlineNotice> : null}
 
       <Card className="space-y-6 p-6">
         <div className="flex items-center justify-between gap-4">
@@ -105,9 +131,14 @@ export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
 
       <Card className="p-6">
         <h2 className="text-foreground font-semibold">Authorized contacts</h2>
+        {supplementalDataSource === "fallback" ? (
+          <p className="text-muted-foreground mt-1 text-sm">
+            Contact management is not currently available through the Raiquid API.
+          </p>
+        ) : null}
 
         <div className="divide-border mt-5 divide-y">
-          {BUYER_SETTINGS.authorizedContacts.map((contact) => (
+          {authorizedContacts.map((contact) => (
             <div
               key={contact.name}
               className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
@@ -132,9 +163,15 @@ export function BuyerSettingsForm({ initialSettings }: BuyerSettingsFormProps) {
 
       <Card className="p-6">
         <h2 className="text-foreground font-semibold">Notifications</h2>
+        {supplementalDataSource === "fallback" ? (
+          <p className="text-muted-foreground mt-1 text-sm">
+            These preferences are currently shown from fallback data and are not saved to your
+            Raiquid account.
+          </p>
+        ) : null}
 
         <div className="divide-border mt-4 divide-y">
-          {BUYER_SETTINGS.notifications.map((item) => (
+          {notificationPreferences.map((item) => (
             <div
               key={item.key}
               className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
