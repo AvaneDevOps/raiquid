@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { components, paths } from "@/types/api-generated";
 import type { Invoice, InvoiceStatus } from "@/types";
 import { apiClient, type ApiToken } from "./client";
@@ -149,15 +148,3 @@ export function normalizeBuyerSettings(payload: unknown): BuyerSettingsData {
 export function normalizePaymentSchedule(payload: unknown): BuyerInvoice[] {
   return normalizeBuyerInvoices(payload);
 }
-=======
-import { apiClient, type ApiToken } from "./client";
-
-export const buyerService = {
-  get<TResponse>(path: string, token: ApiToken) {
-    return apiClient.get<TResponse>(path, token);
-  },
-  post<TResponse>(path: string, data: unknown, token: ApiToken) {
-    return apiClient.post<TResponse>(path, data, token);
-  },
-};
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075

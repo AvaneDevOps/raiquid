@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
-export default function Page() {
-  return null;
-=======
 import Link from "next/link";
 import type { Route } from "next";
 
@@ -140,5 +134,4 @@ export default function Page() {
       )}
     </div>
   );
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 }

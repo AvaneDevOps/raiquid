@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
-export default function Page() {
-  return null;
-=======
 import { PROVENANCE_TIER_ORDER } from "@/types";
 
 import { INVESTOR_MARKETPLACE_LISTINGS, INVESTOR_MARKETPLACE_STATS } from "@/components/investor";
@@ -66,5 +60,4 @@ export default async function Page({ searchParams }: PageProps<"/investor/market
       )}
     </div>
   );
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 }

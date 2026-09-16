@@ -71,16 +71,6 @@ design first.
 | Route                                    | Screen            | Status |
 | ---------------------------------------- | ----------------- | ------ |
 | `/investor` (redirects to portfolio)     | —                 | done   |
-<<<<<<< HEAD
-| `/investor/portfolio`                    | 22-invPortfolio   | stub   |
-| `/investor/portfolio/[invoiceId]`        | 23-invRepay       | stub   |
-| `/investor/marketplace`                  | 19-invMarketplace | stub   |
-| `/investor/marketplace/[invoiceId]`      | 20-invDetail      | stub   |
-| `/investor/marketplace/[invoiceId]/fund` | 21-invFund        | stub   |
-| `/investor/whitelisting`                 | 18-invWhitelist   | stub   |
-| `/investor/wallet`                       | 24-invWallet      | stub   |
-| `/investor/settings`                     | 25-invSettings    | stub   |
-=======
 | `/investor/portfolio`                    | 22-invPortfolio   | done   |
 | `/investor/portfolio/[invoiceId]`        | 23-invRepay       | done   |
 | `/investor/marketplace`                  | 19-invMarketplace | done   |
@@ -89,7 +79,6 @@ design first.
 | `/investor/whitelisting`                 | 18-invWhitelist   | done   |
 | `/investor/wallet`                       | 24-invWallet      | done   |
 | `/investor/settings`                     | 25-invSettings    | done   |
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
 ## Admin — `admin/` route group, `AdminShell` (top tabs, same on mobile)
 
@@ -103,7 +92,6 @@ design first.
 
 ## Shared / cross-cutting
 
-<<<<<<< HEAD
 | Route              | Screen           | Status      | Notes                                                                                                                                                                                                   |
 | ------------------ | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/notifications`   | 30-notifications | implemented | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
@@ -113,22 +101,7 @@ design first.
 
 ## Route-protection
 
-`src/proxy.ts` performs the current thin session-cookie check for
-`/business/*`, `/buyer/*`, `/investor/*`, `/admin/*`, while the authoritative
-role check remains in each role layout. Replace this seam when the live auth
-provider is reconciled with the backend integration guide.
-=======
-| Route              | Screen           | Status | Notes                                                                                                                                                                                                   |
-| ------------------ | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/notifications`   | 30-notifications | stub   | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
-| 404                | —                | stub   | `src/app/not-found.tsx`                                                                                                                                                                                 |
-| Error boundary     | —                | stub   | `src/app/error.tsx`                                                                                                                                                                                     |
-| Empty/error states | 31-emptyError    | —      | Not a route — a set of UI states (empty invoice list, delayed-transaction notice) that live inside existing pages. See `docs/DESIGN_SYSTEM.md`, "EmptyState" and "InlineNotice".                        |
-
-## Route-protection
-
 `src/proxy.ts` (Clerk `clerkMiddleware`) bounces unauthenticated requests
 on `/business/*`, `/buyer/*`, `/investor/*`, `/admin/*` to `/auth`, while
 the authoritative role check remains in each role layout via
 `getSessionUser()`, which reads the role from Clerk `publicMetadata`.
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075

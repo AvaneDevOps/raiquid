@@ -1,31 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-<<<<<<< HEAD
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { StandaloneShell } from "@/components/shared/layout/standalone-shell";
 import { confirmService, normalizeConfirmation } from "@/services/confirm";
-=======
-import { BUYER_INVOICES } from "@/components/buyer/fixtures";
-import { Button } from "@/components/shared/ui/button";
-import { Card } from "@/components/shared/ui/card";
-import { StandaloneShell } from "@/components/shared/layout/standalone-shell";
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 import { formatDate, formatNaira } from "@/lib/format";
 
 export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">) {
   const { invoiceId } = await params;
-<<<<<<< HEAD
   let invoice;
   try {
     invoice = normalizeConfirmation(await confirmService.getConfirmation(invoiceId), invoiceId);
   } catch {
-=======
-  const invoice = BUYER_INVOICES.find((item) => item.id === invoiceId);
-
-  if (!invoice) {
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
     notFound();
   }
 
@@ -40,13 +27,8 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             {invoice.supplierName} is asking you to confirm an invoice
           </h1>
           <p className="text-muted-foreground mt-3 leading-6">
-<<<<<<< HEAD
             Confirming doesn&apos;t create a new obligation — it verifies that the amount below is
             real and already owed.
-=======
-            Confirming doesn&apos;t create a new obligation — it just verifies that the amount below
-            is real and already owed.
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
           </p>
         </div>
 
@@ -62,7 +44,6 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             </div>
             <div className="flex items-center justify-between gap-5 py-4">
               <span>Goods/services</span>
-<<<<<<< HEAD
               <span className="text-right">{invoice.description || "—"}</span>
             </div>
             <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
@@ -74,18 +55,6 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
               ) : (
                 <span className="text-muted-foreground">Not provided</span>
               )}
-=======
-              <span className="text-right">{invoice.description}</span>
-            </div>
-            <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
-              <span>Proof of delivery</span>
-              <a
-                href={invoice.proofOfDeliveryUrl ?? "#"}
-                className="text-accent-400 hover:underline"
-              >
-                View document
-              </a>
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
             </div>
           </div>
         </Card>

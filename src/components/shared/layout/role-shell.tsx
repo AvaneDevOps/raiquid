@@ -4,12 +4,7 @@ import type { UserRole } from "@/types";
 import type { SessionUser } from "@/components/shared/layout/session-user";
 import { Sidebar } from "@/components/shared/layout/sidebar";
 import { BottomTabBar } from "@/components/shared/layout/bottom-tab-bar";
-<<<<<<< HEAD
-import { UserSummary } from "@/components/shared/layout/user-summary";
-import { PageReveal } from "@/components/shared/layout/page-reveal";
-=======
 import { UserAccountMenu } from "@/components/shared/ui/user-account-menu";
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
@@ -33,19 +28,10 @@ export function RoleShell({
             <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
             Raiquid
           </span>
-<<<<<<< HEAD
-          <UserSummary user={user} />
-        </header>
-
-        <main className="flex-1 px-4 pt-6 pb-24 md:px-8 md:py-8">
-          <PageReveal>{children}</PageReveal>
-        </main>
-=======
           <UserAccountMenu user={user} />
         </header>
 
         <main className="flex-1 px-4 pt-6 pb-24 md:px-8 md:py-8">{children}</main>
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
         <BottomTabBar role={role} />
       </div>

@@ -39,11 +39,7 @@ export function InvestorSection() {
   return (
     <section
       id="for-investors"
-<<<<<<< HEAD
-      className="from-accent-600/10 via-bg to-bg relative bg-gradient-to-br px-6 py-20 transition md:px-12 lg:px-16"
-=======
       className="from-accent-600/10 via-bg to-bg relative bg-linear-to-br px-6 py-20 transition md:px-12 lg:px-16"
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-20">
         {/* Left investor card */}

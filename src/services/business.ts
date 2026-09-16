@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import type { components, paths } from "@/types/api-generated";
 import type { Invoice, InvoiceStatus } from "@/types";
 import { apiClient, type ApiToken } from "./client";
@@ -235,13 +234,4 @@ export function normalizeBusinessWallet(payload: unknown): BusinessWalletData {
     },
     payoutHistory: history.map(normalizePayout),
   };
-=======
-import { apiClient, type ApiToken } from "./client";
-
-export function createInvoice<TResponse = unknown>(
-  data: unknown,
-  token: ApiToken,
-): Promise<TResponse> {
-  return apiClient.post("/business/invoices", data, token);
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 }

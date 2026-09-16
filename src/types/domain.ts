@@ -223,12 +223,9 @@ export interface DocumentCheck {
   label: string;
   status: DocumentCheckStatus;
 }
-<<<<<<< HEAD
 
 export interface BusinessVerification {
   businessName: string;
   status: BusinessVerificationStatus;
   documentChecks: DocumentCheck[];
 }
-=======
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075

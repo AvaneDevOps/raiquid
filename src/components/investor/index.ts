@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-// Components used only within the investor area — if a second area needs one of
-// these, promote it to src/components/shared/ instead of duplicating it.
-export {};
-=======
 import type { Holding, Invoice, ProvenanceTier, WalletTransaction } from "@/types";
 
 // Components used only within the investor area — if a second area needs one of
@@ -224,4 +219,3 @@ export const INVESTOR_NOTIFICATION_PREFS = [
   { key: "newInvoices", label: "New invoices matching your filters", defaultOn: true },
   { key: "repaymentReceived", label: "Repayment received", defaultOn: true },
 ] as const;
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075

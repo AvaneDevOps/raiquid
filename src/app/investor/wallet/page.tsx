@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-// TODO: implement. See docs/ROUTE_MAP.md for the source screen reference
-// and docs/RAIQUID_CONTEXT.md for domain/business context.
-export default function Page() {
-  return null;
-=======
 import { Button } from "@/components/shared/ui/button";
 import { StatCard } from "@/components/shared/ui/card";
 import { InlineNotice } from "@/components/shared/ui/notice";
@@ -60,5 +54,4 @@ export default function Page() {
       </InlineNotice>
     </div>
   );
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 }

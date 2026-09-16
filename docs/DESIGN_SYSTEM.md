@@ -224,7 +224,6 @@ mono text, **no fill** — the chip interior is the page/card background
   relative timestamp — positive = green, informational = amber,
   warning = red. Invoice ids inside the message are plain mono, not
   chips.
-<<<<<<< HEAD
 - **Delayed transaction state** (screen 31): use the route-local
   `TransactionDelayedState` on business invoice detail when an on-chain
   transaction is waiting for confirmation. It combines a `Card`, danger
@@ -235,5 +234,3 @@ mono text, **no fill** — the chip interior is the page/card background
   (`src/app/not-found.tsx`) use the same dark theme, card surface,
   Fraunces heading, muted supporting copy, and existing `Button`
   primitives rather than introducing a separate error visual language.
-=======
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075

@@ -8,11 +8,7 @@ import { useSignUp, useSignIn, useUser } from "@clerk/nextjs";
 // server-only) — pulling it into this Client Component's bundle breaks
 // the build. See the barrel's own file for the full export list.
 import { LandingHeader } from "@/components/shared/layout/landing-header";
-<<<<<<< HEAD
-import { Button, Input, InlineNotice } from "@/components/shared/ui";
-=======
 import { Button, Input, InlineNotice, PasswordInput } from "@/components/shared/ui";
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 import { cn } from "@/lib/utils";
 import { ROLE_HOME } from "@/lib/role-home";
 import { isUserRole } from "@/lib/user-role";
@@ -32,18 +28,11 @@ import { motion, AnimatePresence } from "framer-motion";
 // "Company name" (buyer) are inferred from the Investor/Buyer shapes in
 // domain.ts, not confirmed against an export.
 //
-<<<<<<< HEAD
-// The second field's value (business name / country / company name) is
-// collected here but not yet sent anywhere — there's no backend profile
-// endpoint for it yet and the integration guide's unsafeMetadata example
-// only documents `{ role }`. See docs/COMPLIANCE_AUDIT.md.
-=======
 // The second field's value (business name / country of residence / company
 // name) is stored in Clerk unsafeMetadata as `subtitle` and surfaced under
 // the user's name on mobile — see getSessionUser() in session-user.tsx.
 // There's still no backend profile endpoint to refresh it from; see
 // docs/COMPLIANCE_AUDIT.md.
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
 type SignupRole = Extract<UserRole, "business" | "investor" | "buyer">;
 
@@ -76,12 +65,9 @@ export default function AuthPage() {
   const [signupError, setSignupError] = useState<string>();
   const [loginPending, setLoginPending] = useState(false);
   const [loginError, setLoginError] = useState<string>();
-<<<<<<< HEAD
-=======
   // True when Clerk requires an email code to establish device trust
   // (signing in from a new browser). Flips the login view to code entry.
   const [loginNeedsCode, setLoginNeedsCode] = useState(false);
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
   // Reactive off the signUp signal, not separate state: true exactly when
   // create() left the attempt needing an email code and nothing else —
@@ -112,26 +98,19 @@ export default function AuthPage() {
 
     const data = new FormData(event.currentTarget);
     const { firstName, lastName } = splitName(String(data.get("fullName") ?? ""));
-<<<<<<< HEAD
-=======
     const secondField = String(data.get("secondField") ?? "");
 
     // The role-specific second field (business name / country of residence /
     // company name) is the subtitle shown under the user's name on mobile —
     // persist it so getSessionUser() can read it back from Clerk metadata.
     const subtitle = signupRole === "investor" ? `Diaspora Investor · ${secondField}` : secondField;
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
     const { error } = await signUp.create({
       emailAddress: String(data.get("email") ?? ""),
       password: String(data.get("password") ?? ""),
       firstName,
       lastName,
-<<<<<<< HEAD
-      unsafeMetadata: { role: signupRole },
-=======
       unsafeMetadata: { role: signupRole, subtitle },
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
     });
 
     if (error) {
@@ -234,12 +213,6 @@ export default function AuthPage() {
       return;
     }
 
-<<<<<<< HEAD
-    if (signIn.status !== "complete") {
-      setLoginError(
-        "This account needs an extra verification step that this form doesn't handle yet.",
-      );
-=======
     if (signIn.status === "complete") {
       const { error: finalizeError } = await signIn.finalize();
       if (finalizeError) {
@@ -295,7 +268,6 @@ export default function AuthPage() {
 
     if (signIn.status !== "complete") {
       setLoginError("That code didn't work. Double-check it, or request a new one.");
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
       setLoginPending(false);
       return;
     }
@@ -305,9 +277,6 @@ export default function AuthPage() {
       setLoginError(finalizeError.longMessage ?? finalizeError.message);
       setLoginPending(false);
     }
-<<<<<<< HEAD
-    // On success the useEffect above handles the redirect once useUser() sees the new session.
-=======
     // Redirect happens via the existing useEffect.
   }
 
@@ -325,7 +294,6 @@ export default function AuthPage() {
     setLoginNeedsCode(false);
     setLoginError(undefined);
     setSignupError(undefined);
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
   }
 
   return (
@@ -341,11 +309,7 @@ export default function AuthPage() {
             <div className="bg-surface-raised relative flex rounded-lg p-1">
               <button
                 type="button"
-<<<<<<< HEAD
-                onClick={() => setMode("signup")}
-=======
                 onClick={() => switchMode("signup")}
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                 className={cn(
                   "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
                   mode === "signup"
@@ -364,11 +328,7 @@ export default function AuthPage() {
               </button>
               <button
                 type="button"
-<<<<<<< HEAD
-                onClick={() => setMode("login")}
-=======
                 onClick={() => switchMode("login")}
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                 className={cn(
                   "relative z-10 flex-1 cursor-pointer rounded-md py-2.5 text-sm font-semibold transition-colors duration-200",
                   mode === "login"
@@ -424,24 +384,17 @@ export default function AuthPage() {
 
                 <form className="mt-6 space-y-4" onSubmit={handleSignup}>
                   {[
-<<<<<<< HEAD
-                    { id: "fullName", label: "Full name", placeholder: "Kennedy Okonkwo" },
-=======
                     {
                       id: "fullName",
                       label: "Full name",
                       placeholder: "Kennedy Okonkwo",
                       autoComplete: "name",
                     },
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                     {
                       id: "secondField",
                       label: SECOND_FIELD[signupRole].label,
                       placeholder: SECOND_FIELD[signupRole].placeholder,
-<<<<<<< HEAD
-=======
                       autoComplete: "organization",
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                     },
                     {
                       id: "signupEmail",
@@ -449,10 +402,7 @@ export default function AuthPage() {
                       placeholder: "kennedy@okonkwotextiles.com",
                       type: "email",
                       name: "email",
-<<<<<<< HEAD
-=======
                       autoComplete: "email",
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                     },
                     {
                       id: "signupPassword",
@@ -460,10 +410,7 @@ export default function AuthPage() {
                       placeholder: "******************",
                       type: "password",
                       name: "password",
-<<<<<<< HEAD
-=======
                       autoComplete: "new-password",
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                     },
                   ].map((field, i) => (
                     <motion.div
@@ -475,15 +422,6 @@ export default function AuthPage() {
                       <label htmlFor={field.id} className="text-foreground mb-1.5 block text-sm">
                         {field.label}
                       </label>
-<<<<<<< HEAD
-                      <Input
-                        id={field.id}
-                        name={field.name ?? field.id}
-                        type={field.type ?? "text"}
-                        placeholder={field.placeholder}
-                        required={field.id !== "secondField"}
-                      />
-=======
                       {field.type === "password" ? (
                         <PasswordInput
                           id={field.id}
@@ -502,7 +440,6 @@ export default function AuthPage() {
                           autoComplete={field.autoComplete}
                         />
                       )}
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                     </motion.div>
                   ))}
 
@@ -537,12 +474,7 @@ export default function AuthPage() {
 
                   {/* Clerk's bot sign-up protection widget. Must exist in the
                       DOM before signUp.create() is called — normally invisible,
-<<<<<<< HEAD
-                      only shows a challenge for traffic Clerk flags as risky.
-                      https://clerk.com/docs/guides/development/custom-flows/authentication/bot-sign-up-protection */}
-=======
                       only shows a challenge for traffic Clerk flags as risky. */}
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
                   <div id="clerk-captcha" data-cl-theme="dark" data-cl-size="flexible" />
                 </form>
 
@@ -624,70 +556,6 @@ export default function AuthPage() {
                 transition={{ duration: 0.22, ease: "easeOut" }}
                 className="mt-6"
               >
-<<<<<<< HEAD
-                <form className="space-y-4" onSubmit={handleLogin}>
-                  {[
-                    {
-                      id: "email",
-                      label: "Email Address",
-                      type: "email",
-                      placeholder: "johnkennedy@gmail.com",
-                      autoComplete: "email",
-                    },
-                    {
-                      id: "password",
-                      label: "Password",
-                      type: "password",
-                      placeholder: "******************",
-                      autoComplete: "current-password",
-                    },
-                  ].map((field, i) => (
-                    <motion.div
-                      key={field.id}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06, duration: 0.2 }}
-                    >
-                      <label htmlFor={field.id} className="text-foreground mb-1.5 block text-sm">
-                        {field.label}
-                      </label>
-                      <Input
-                        id={field.id}
-                        name={field.id}
-                        type={field.type}
-                        placeholder={field.placeholder}
-                        required
-                        autoComplete={field.autoComplete}
-                      />
-                    </motion.div>
-                  ))}
-
-                  <AnimatePresence>
-                    {loginError ? (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto", x: [0, -4, 4, -4, 4, 0] }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <InlineNotice tone="danger">{loginError}</InlineNotice>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
-
-                  <motion.div whileTap={{ scale: 0.98 }}>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      className="w-full hover:cursor-pointer"
-                      disabled={loginPending || !signIn}
-                    >
-                      {loginPending ? "Signing in…" : "Sign in"}
-                    </Button>
-                  </motion.div>
-                </form>
-=======
                 {loginNeedsCode ? (
                   <>
                     <p className="text-foreground text-lg font-semibold">Verify it&apos;s you</p>
@@ -833,7 +701,6 @@ export default function AuthPage() {
                     </motion.div>
                   </form>
                 )}
->>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
               </motion.div>
             )}
           </AnimatePresence>
