@@ -1,12 +1,16 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
 import { getSessionUser } from "@/components/shared/layout/session-user";
 import { Button } from "@/components/shared/ui/button";
 import { StatCard } from "@/components/shared/ui/card";
-import { BUSINESS_INVOICES, BUSINESS_STATS } from "@/components/business/fixtures";
+import { InlineNotice } from "@/components/shared/ui/notice";
 import { formatNaira } from "@/lib/format";
+import { businessService } from "@/services";
+import type { Invoice } from "@/types";
 
 import { RecentInvoicesCard } from "./_components/recent-invoices-card";
+import { isActive, toInvoice } from "../_lib/invoice";
 
 /**
  * "Good morning/afternoon/evening" — small enough to keep local for now.
@@ -19,12 +23,35 @@ function getDaypartGreeting(date: Date = new Date()): string {
   return "Good evening";
 }
 
-// Screen 04-bizDashboard. Data below is dummy (see
-// src/components/business/fixtures.ts) until a real API exists — see
+// Screen 04-bizDashboard, wired to real GET /business/invoices — see
+// ../_lib/invoice.ts for the mapping (shared with business/invoices) and
+// the real "active" definition. "Total financed" and "Avg. time to
+// cash" are removed entirely — no backing endpoint exists for either
+// (the former needs a stats aggregate, the latter needs
+// acceptedAt-to-payout timing nobody's computed) — see
 // docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default async function Page() {
   const user = await getSessionUser("business");
   const firstName = user.name.split(" ")[0];
+
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let invoices: Invoice[] = [];
+  let loadError: string | null = null;
+  try {
+    const response = await businessService.get<{ data: Record<string, unknown>[] }>(
+      "/business/invoices?pageSize=100",
+      token,
+    );
+    invoices = response.data.map(toInvoice);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Couldn't load your invoices.";
+  }
+
+  const activeInvoices = invoices.filter(isActive);
+  const activeInvoicesAmount = activeInvoices.reduce((sum, invoice) => sum + invoice.amount, 0);
+  const recent = invoices.slice(0, 3);
 
   return (
     <div className="space-y-8">
@@ -40,27 +67,17 @@ export default async function Page() {
         </Button>
       </div>
 
+      {loadError ? <InlineNotice tone="danger">{loadError}</InlineNotice> : null}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Active invoices"
-          value={String(BUSINESS_STATS.activeInvoicesCount)}
-          caption={`${formatNaira(BUSINESS_STATS.activeInvoicesAmountInProgress)} in progress`}
-        />
-        <StatCard
-          label="Total financed"
-          value={formatNaira(BUSINESS_STATS.totalFinanced)}
-          caption={`since ${BUSINESS_STATS.totalFinancedSince}`}
-          emphasize
-        />
-        <StatCard
-          label="Avg. time to cash"
-          value={`${BUSINESS_STATS.avgDaysToCash} days`}
-          caption="from buyer acceptance"
+          value={String(activeInvoices.length)}
+          caption={`${formatNaira(activeInvoicesAmount)} in progress`}
         />
       </div>
 
-      {/* BUSINESS_INVOICES is ordered most-recent-first — see fixtures.ts */}
-      <RecentInvoicesCard invoices={BUSINESS_INVOICES.slice(0, 3)} />
+      <RecentInvoicesCard invoices={recent} />
     </div>
   );
 }

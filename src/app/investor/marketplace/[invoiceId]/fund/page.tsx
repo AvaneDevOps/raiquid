@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useParams } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 
-import { INVESTOR_WALLET_BALANCE, MIN_INVESTMENT } from "@/components/investor";
+import { MIN_INVESTMENT } from "@/components/investor";
 import { InvoiceRef } from "@/components/shared/domain/status-badges";
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
@@ -13,19 +13,25 @@ import { InlineNotice } from "@/components/shared/ui/notice";
 import { formatNaira } from "@/lib/format";
 import { ApiError, investorService } from "@/services";
 
+interface WalletResponse {
+  balance: number;
+}
+
 // Screen 21-invFund, wired to POST /investor/marketplace/{id}/fund
 // (FundInvoiceDto { amount }) — the real invoiceId comes from the route,
-// not a fixture lookup. Wallet balance and the minimum-investment floor
-// are still INVESTOR_WALLET_BALANCE/MIN_INVESTMENT fixtures (investor-level
-// constants, not invoice-specific, so they're stale but not mismatched) —
-// no wallet-balance endpoint was wired tonight. The original share% /
-// projected-return / total breakdown needed the real invoice's amount and
-// expectedReturnPct — the latter has no backing field on the real schema,
-// and getting the former means a GET /investor/marketplace/{id} fetch that
-// was never built or tested tonight. Rather than compute those numbers
-// against an unrelated hardcoded fixture invoice next to the real
-// invoiceId (wrong and misleading), that block is dropped here. See
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
+// not a fixture lookup. Wallet balance is now a real GET /investor/wallet
+// fetch on mount, matching what the backend itself enforces (fundInvoice
+// checks the investor's real wallet balance server-side too — this is a
+// convenience check, not the authoritative one). MIN_INVESTMENT stays a
+// fixture — it's a UI floor, not fabricated backend data. The original
+// share% / projected-return / total breakdown needed the real invoice's
+// amount and expectedReturnPct — the latter is now backed by the real
+// investorYieldPct field (see ../../_lib/listing.ts), but getting the
+// former still means a GET /investor/marketplace/{id} fetch that was
+// never built here. Rather than compute those numbers against an
+// unrelated hardcoded fixture invoice next to the real invoiceId (wrong
+// and misleading), that block is dropped. See docs/RAIQUID_CONTEXT.md,
+// "Open decisions".
 export default function Page() {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const { getToken } = useAuth();
@@ -34,6 +40,29 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [walletError, setWalletError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const token = await getToken();
+        const response = await investorService.get<WalletResponse>("/investor/wallet", token);
+        if (active) setWalletBalance(response.balance);
+      } catch (err) {
+        if (active) {
+          setWalletError(
+            err instanceof ApiError ? err.message : "Couldn't load your wallet balance.",
+          );
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch once on mount
+  }, []);
 
   function handleAmountChange(rawValue: string) {
     const digits = rawValue.replace(/[^\d]/g, "");
@@ -53,7 +82,7 @@ export default function Page() {
       setError(`Minimum investment is ${formatNaira(MIN_INVESTMENT)}.`);
       return;
     }
-    if (amount > INVESTOR_WALLET_BALANCE) {
+    if (walletBalance !== null && amount > walletBalance) {
       setError("Insufficient wallet balance for this amount.");
       return;
     }
@@ -99,9 +128,15 @@ export default function Page() {
         <Card className="mt-4 flex items-center justify-between gap-4 p-5">
           <p className="text-muted-foreground text-sm">Wallet balance</p>
           <p className="text-muted-foreground font-mono text-sm">
-            {formatNaira(INVESTOR_WALLET_BALANCE)}
+            {walletBalance === null ? "Loading…" : formatNaira(walletBalance)}
           </p>
         </Card>
+
+        {walletError ? (
+          <InlineNotice tone="danger" className="mt-4">
+            {walletError}
+          </InlineNotice>
+        ) : null}
 
         <InlineNotice tone="info" className="mt-4">
           Funds are simulated sandbox tokens for this build. A small share of your return, not the

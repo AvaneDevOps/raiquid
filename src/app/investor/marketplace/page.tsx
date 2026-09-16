@@ -5,6 +5,7 @@ import type { MarketplaceListing } from "@/components/investor";
 import { EmptyState, InlineNotice } from "@/components/shared/ui/notice";
 import { investorService } from "@/services";
 
+import { toListing } from "./_lib/listing";
 import { MarketplaceCard } from "./_components/marketplace-card";
 import { MarketplaceSortTabs, type MarketplaceSort } from "./_components/marketplace-sort-tabs";
 
@@ -15,42 +16,8 @@ function isMarketplaceSort(value: unknown): value is MarketplaceSort {
 }
 
 // Screen 19-invMarketplace, wired to GET /investor/marketplace. Response
-// shape confirmed against the backend source (raiquid-api's
-// InvestorService.listMarketplace), not guessed: { data, page, pageSize,
-// total }, each row a Prisma Invoice with `include: { buyer: true }` — buyer
-// name and provenance tier both come off the nested raw.buyer object
-// (legalName, provenanceTier), not flat fields. amount, dueDate, status,
-// fundedAmount, platformFeePct, reserveContributionPct and description are
-// all real fields too. expectedReturnPct and fundingInvestorCount have no
-// backing field anywhere on the real schema yet — placeholder 0 below,
-// same gap as the other yield/fee fields noted in
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
-interface BuyerRef {
-  legalName?: string;
-  provenanceTier?: MarketplaceListing["provenanceTier"];
-}
-
-function toListing(raw: Record<string, unknown>): MarketplaceListing {
-  const buyer = raw.buyer as BuyerRef | undefined;
-  return {
-    id: String(raw.id ?? ""),
-    businessId: String(raw.businessId ?? ""),
-    buyerId: String(raw.buyerId ?? ""),
-    buyerName: buyer?.legalName ?? "—",
-    amount: Number(raw.amount ?? 0),
-    dueDate: String(raw.dueDate ?? ""),
-    submittedAt: String(raw.createdAt ?? ""),
-    description: String(raw.description ?? ""),
-    status: (raw.status as MarketplaceListing["status"]) ?? "tokenized",
-    expectedReturnPct: 0,
-    fundedAmount: Number(raw.fundedAmount ?? 0),
-    fundingInvestorCount: 0,
-    platformFeePct: Number(raw.platformFeePct ?? 0),
-    reserveContributionPct: Number(raw.reserveContributionPct ?? 0),
-    provenanceTier: buyer?.provenanceTier ?? "quarried",
-  };
-}
-
+// shape confirmed against the backend source, not guessed — see
+// ./_lib/listing.ts for the mapping (shared with the detail screen).
 export default async function Page({ searchParams }: PageProps<"/investor/marketplace">) {
   const { sort } = await searchParams;
   const activeSort: MarketplaceSort = isMarketplaceSort(sort) ? sort : "return";

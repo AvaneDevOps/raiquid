@@ -47,9 +47,9 @@ export interface RecentActivityItem {
 }
 
 export const ADMIN_RECENT_ACTIVITY: RecentActivityItem[] = [
-  { id: "act_1", action: "mint", tokenId: "RQ-INV-4502-T1", status: "confirmed" },
-  { id: "act_2", action: "transfer", tokenId: "RQ-INV-4471-T1", status: "confirmed" },
-  { id: "act_3", action: "burn", tokenId: "RQ-INV-4091-T1", status: "confirmed" },
+  { id: "act_1", action: "mintToken", tokenId: "RQ-INV-4502-T1", status: "confirmed" },
+  { id: "act_2", action: "newInvest", tokenId: "RQ-INV-4471-T1", status: "confirmed" },
+  { id: "act_3", action: "dividendDistribution", tokenId: "RQ-INV-4091-T1", status: "confirmed" },
 ];
 
 /** Screen 27-adminReserve, "Balance growth" bar chart. No chart library is
@@ -120,9 +120,9 @@ export const ADMIN_LEDGER_EVENTS: OnChainEvent[] = [
   {
     id: "evt_1",
     timestamp: "2026-08-27T14:02:00Z",
-    action: "mint",
+    action: "mintToken",
     tokenAddressShort: "0x7f3a...c091",
-    network: "Base Sepolia",
+    network: "Ethereum Sepolia",
     status: "confirmed",
   },
   {
@@ -130,31 +130,31 @@ export const ADMIN_LEDGER_EVENTS: OnChainEvent[] = [
     timestamp: "2026-08-27T14:03:00Z",
     action: "whitelist",
     tokenAddressShort: "0x22b1...44de",
-    network: "Base Sepolia",
+    network: "Ethereum Sepolia",
     status: "confirmed",
   },
   {
     id: "evt_3",
     timestamp: "2026-08-27T16:41:00Z",
-    action: "transfer",
+    action: "newInvest",
     tokenAddressShort: "0x7f3a...c091",
-    network: "Base Sepolia",
+    network: "Ethereum Sepolia",
     status: "pending",
   },
   {
     id: "evt_4",
     timestamp: "2026-08-27T16:41:00Z",
-    action: "transfer",
+    action: "newInvest",
     tokenAddressShort: "0x9a04...7e12",
-    network: "Base Sepolia",
+    network: "Ethereum Sepolia",
     status: "failed",
   },
   {
     id: "evt_5",
     timestamp: "2026-08-21T09:15:00Z",
-    action: "burn",
+    action: "dividendDistribution",
     tokenAddressShort: "0x5c88...1a3f",
-    network: "Base Sepolia",
+    network: "Ethereum Sepolia",
     status: "confirmed",
   },
 ];

@@ -1,19 +1,46 @@
-import { ADMIN_LEDGER_EVENTS } from "@/components/admin/fixtures";
+import { auth } from "@clerk/nextjs/server";
 
+import { InlineNotice } from "@/components/shared/ui/notice";
 import { LedgerTable } from "@/components/admin/ledger-table";
+import { adminService } from "@/services";
+import type { OnChainEvent } from "@/types";
 
-// Screen 29-adminLedger. Data below is dummy (see
-// src/components/admin/fixtures.ts) until a real API exists — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
-export default function Page() {
+import { toEvent } from "./_lib/event";
+
+// Screen 29-adminLedger, wired to real GET /admin/ledger — confirmed
+// against the backend source (raiquid-api's
+// AdminController/AdminService.getLedger), not guessed. See ./_lib/event.ts
+// for the confirmed mapping and the chain-name correction (Ethereum
+// Sepolia, not Base Sepolia — confirmed against raiquid-api's own config,
+// not either disagreeing piece of frontend copy).
+export default async function Page() {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let events: OnChainEvent[] = [];
+  let loadError: string | null = null;
+  try {
+    const response = await adminService.get<{ data: Record<string, unknown>[] }>(
+      "/admin/ledger",
+      token,
+    );
+    events = response.data.map(toEvent);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Couldn't load the ledger.";
+  }
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-foreground text-3xl font-semibold">On-chain ledger</h1>
-        <p className="text-muted-foreground mt-1">Base Sepolia · Brickken sandbox</p>
+        <p className="text-muted-foreground mt-1">Ethereum Sepolia · Brickken sandbox</p>
       </div>
 
-      <LedgerTable events={ADMIN_LEDGER_EVENTS} />
+      {loadError ? (
+        <InlineNotice tone="danger">{loadError}</InlineNotice>
+      ) : (
+        <LedgerTable events={events} />
+      )}
     </div>
   );
 }

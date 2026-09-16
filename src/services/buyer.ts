@@ -7,4 +7,7 @@ export const buyerService = {
   post<TResponse>(path: string, data: unknown, token: ApiToken) {
     return apiClient.post<TResponse>(path, data, token);
   },
+  patch<TResponse>(path: string, data: unknown, token: ApiToken) {
+    return apiClient.patch<TResponse>(path, data, token);
+  },
 };

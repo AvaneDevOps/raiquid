@@ -1,14 +1,44 @@
-import { ADMIN_RESERVE_BALANCE_GROWTH, ADMIN_RESERVE_SNAPSHOT } from "@/components/admin/fixtures";
-import { StatCard } from "@/components/shared/ui/card";
-import { formatNaira, formatPercent } from "@/lib/format";
+import { auth } from "@clerk/nextjs/server";
 
-import { BalanceGrowthCard } from "@/components/admin/balance-growth-card";
+import { Card, CardTitle, StatCard } from "@/components/shared/ui/card";
+import { EmptyState, InlineNotice } from "@/components/shared/ui/notice";
+import { formatNaira, formatPercent } from "@/lib/format";
+import { adminService } from "@/services";
+
 import { ClaimsPaidCard } from "@/components/admin/claims-paid-card";
 
-// Screen 27-adminReserve. Data below is dummy (see
-// src/components/admin/fixtures.ts) until a real API exists — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
-export default function Page() {
+interface ReserveResponse {
+  reserveBalance: number;
+  coverageRatio: number | null;
+}
+
+// Screen 27-adminReserve, wired to real GET /admin/reserve (confirmed
+// against the backend source: reserveBalance and coverageRatio are both
+// server-computed, and claims is *always* an empty array — "No
+// ReservePool or claims model exists," per raiquid-api's own code
+// comment — which is exactly the zero-claims state ClaimsPaidCard already
+// renders, now backed for real rather than assumed). Contribution rate
+// has no single platform-wide value — it's set per invoice by the
+// buyer's provenance tier (PROVENANCE_FEE_SCHEDULE), not a flat rate, so
+// it's shown as honest text instead of a fabricated flat percentage. The
+// balance-growth chart is an empty state — no historical time-series
+// endpoint exists to back it. See docs/RAIQUID_CONTEXT.md, "Open
+// decisions".
+export default async function Page() {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let reserveBalance = 0;
+  let coverageRatioPct = 0;
+  let loadError: string | null = null;
+  try {
+    const response = await adminService.get<ReserveResponse>("/admin/reserve", token);
+    reserveBalance = response.reserveBalance;
+    coverageRatioPct = (response.coverageRatio ?? 0) * 100;
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Couldn't load the reserve pool.";
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -18,27 +48,31 @@ export default function Page() {
         </p>
       </div>
 
+      {loadError ? <InlineNotice tone="danger">{loadError}</InlineNotice> : null}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Current balance"
-          value={formatNaira(ADMIN_RESERVE_SNAPSHOT.currentBalance)}
-          emphasize
-        />
+        <StatCard label="Current balance" value={formatNaira(reserveBalance)} emphasize />
         <StatCard
           label="Contribution rate"
-          value={formatPercent(ADMIN_RESERVE_SNAPSHOT.contributionRatePct)}
-          caption="per financed invoice"
+          value="Varies by buyer tier"
+          caption="set per invoice, not platform-wide"
         />
         <StatCard
           label="Coverage ratio"
-          value={formatPercent(ADMIN_RESERVE_SNAPSHOT.coverageRatioPct)}
+          value={formatPercent(coverageRatioPct)}
           caption="of total value financed"
         />
       </div>
 
-      <BalanceGrowthCard data={ADMIN_RESERVE_BALANCE_GROWTH} />
+      <Card className="p-5">
+        <CardTitle>Balance growth</CardTitle>
+        <EmptyState
+          title="Not available yet"
+          description="Historical reserve balance isn't tracked over time yet — there's no endpoint for it."
+        />
+      </Card>
 
-      <ClaimsPaidCard claimsPaid={ADMIN_RESERVE_SNAPSHOT.claimsPaid} />
+      <ClaimsPaidCard claimsPaid={0} />
     </div>
   );
 }
