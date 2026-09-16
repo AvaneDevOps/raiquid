@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { InvoiceStatusBadge } from "@/components/shared/domain/status-badges";
 import { Card } from "@/components/shared/ui/card";
 import { EmptyState } from "@/components/shared/ui/notice";
@@ -41,7 +43,14 @@ export function InvoiceListTable({ invoices }: { invoices: Invoice[] }) {
         <tbody>
           {invoices.map((invoice) => (
             <tr key={invoice.id} className="border-border border-b last:border-0">
-              <td className="text-foreground px-5 py-4 font-mono">{invoice.id}</td>
+              <td className="text-foreground px-5 py-4 font-mono">
+                <Link
+                  href={`/business/invoices/${invoice.id}`}
+                  className="hover:text-accent-400 transition-colors"
+                >
+                  {invoice.id}
+                </Link>
+              </td>
               <td className="text-foreground px-5 py-4">{invoice.buyerName}</td>
               <td className="text-foreground px-5 py-4">{formatNaira(invoice.amount)}</td>
               <td className="text-foreground px-5 py-4">{formatDate(invoice.dueDate)}</td>
@@ -59,7 +68,14 @@ export function InvoiceListTable({ invoices }: { invoices: Invoice[] }) {
           <dl key={invoice.id} className="space-y-2 px-5 py-4">
             <div className="flex items-center justify-between gap-4">
               <dt className="text-muted-foreground text-sm">Invoice</dt>
-              <dd className="text-foreground font-mono text-sm">{invoice.id}</dd>
+              <dd className="text-foreground font-mono text-sm">
+                <Link
+                  href={`/business/invoices/${invoice.id}`}
+                  className="hover:text-accent-400 transition-colors"
+                >
+                  {invoice.id}
+                </Link>
+              </dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="text-muted-foreground text-sm">Buyer</dt>

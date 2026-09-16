@@ -6,10 +6,8 @@ import { INVOICE_LIFECYCLE_STEPS, INVOICE_STATUS_STEP_INDEX } from "@/lib/domain
 import { formatNaira } from "@/lib/format";
 import type { Invoice } from "@/types";
 
-// Screen 07-bizTokenized. On-chain status is hardcoded "confirmed" for
-// now — no OnChainEvent fixture wired up per-invoice yet; promote this
-// to real data once one exists (see docs/RAIQUID_CONTEXT.md, "On-chain
-// integration").
+// On-chain status remains a product stub until Brickken/Base Sepolia
+// state is exposed to the Business invoice flow.
 export function TokenizedView({ invoice }: { invoice: Invoice }) {
   const percentFunded = invoice.amount > 0 ? (invoice.fundedAmount / invoice.amount) * 100 : 0;
 

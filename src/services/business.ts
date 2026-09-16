@@ -2,6 +2,30 @@ import type { components, paths } from "@/types/api-generated";
 import type { Invoice, InvoiceStatus } from "@/types";
 import { apiClient, type ApiToken } from "./client";
 
+export interface BusinessSettingsData {
+  legalName: string;
+  registrationNumber: string;
+  countryOfIncorporation: string;
+  contactEmail: string;
+  contactPhone: string;
+  payoutWalletAddress: string;
+}
+
+export type BusinessSettings = BusinessSettingsData;
+
+export function normalizeBusinessSettings(payload: unknown): BusinessSettingsData {
+  const root = asRecord(payload);
+
+  return {
+    legalName: asString(root.legalName, asString(root.name)),
+    registrationNumber: asString(root.registrationNumber),
+    countryOfIncorporation: asString(root.countryOfIncorporation),
+    contactEmail: asString(root.contactEmail),
+    contactPhone: asString(root.contactPhone, asString(root.phone)),
+    payoutWalletAddress: asString(root.payoutWalletAddress),
+  };
+}
+
 type CreateInvoiceInput = components["schemas"]["CreateInvoiceDto"];
 type UpdateBusinessSettingsInput = components["schemas"]["UpdateBusinessSettingsDto"];
 type BusinessInvoiceListQuery = paths["/business/invoices"]["get"]["parameters"]["query"];
@@ -48,15 +72,17 @@ export const businessService = {
     return apiClient.get<TResponse>("/business/wallet", token);
   },
 
-  getSettings<TResponse = unknown>(token: ApiToken): Promise<TResponse> {
-    return apiClient.get<TResponse>("/business/settings", token);
+  getSettings(token: ApiToken): Promise<BusinessSettingsData> {
+    return apiClient.get<unknown>("/business/settings", token).then(normalizeBusinessSettings);
   },
 
-  updateSettings<TResponse = unknown>(
+  updateSettings(
     data: UpdateBusinessSettingsInput,
     token: ApiToken,
-  ): Promise<TResponse> {
-    return apiClient.patch<TResponse>("/business/settings", data, token);
+  ): Promise<BusinessSettingsData> {
+    return apiClient
+      .patch<unknown>("/business/settings", data, token)
+      .then(normalizeBusinessSettings);
   },
 };
 
@@ -79,7 +105,16 @@ function asString(value: unknown, fallback = ""): string {
 }
 
 function asNumber(value: unknown, fallback = 0): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+
+  return fallback;
 }
 
 function asStatus(value: unknown): InvoiceStatus {
@@ -198,26 +233,5 @@ export function normalizeBusinessWallet(payload: unknown): BusinessWalletData {
       accountHolderName: asString(account.accountHolderName, asString(account.accountName)),
     },
     payoutHistory: history.map(normalizePayout),
-  };
-}
-
-export interface BusinessSettingsData {
-  legalName: string;
-  registrationNumber: string;
-  countryOfIncorporation: string;
-  contactEmail: string;
-  contactPhone: string;
-  payoutWalletAddress: string;
-}
-
-export function normalizeBusinessSettings(payload: unknown): BusinessSettingsData {
-  const root = asRecord(payload);
-  return {
-    legalName: asString(root.legalName, asString(root.name)),
-    registrationNumber: asString(root.registrationNumber),
-    countryOfIncorporation: asString(root.countryOfIncorporation),
-    contactEmail: asString(root.contactEmail),
-    contactPhone: asString(root.contactPhone, asString(root.phone)),
-    payoutWalletAddress: asString(root.payoutWalletAddress),
   };
 }

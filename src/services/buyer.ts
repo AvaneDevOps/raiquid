@@ -45,15 +45,12 @@ export const buyerService = {
     return apiClient.post<TResponse>(`/buyer/invoices/${id}/pay`, data, token);
   },
 
-  getSettings<TResponse = unknown>(token: ApiToken): Promise<TResponse> {
-    return apiClient.get<TResponse>("/buyer/settings", token);
+  getSettings(token: ApiToken): Promise<BuyerSettingsData> {
+    return apiClient.get<unknown>("/buyer/settings", token).then(normalizeBuyerSettings);
   },
 
-  updateSettings<TResponse = unknown>(
-    data: UpdateBuyerSettingsInput,
-    token: ApiToken,
-  ): Promise<TResponse> {
-    return apiClient.patch<TResponse>("/buyer/settings", data, token);
+  updateSettings(data: UpdateBuyerSettingsInput, token: ApiToken): Promise<BuyerSettingsData> {
+    return apiClient.patch<unknown>("/buyer/settings", data, token).then(normalizeBuyerSettings);
   },
 };
 
