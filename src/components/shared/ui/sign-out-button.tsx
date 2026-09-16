@@ -18,7 +18,7 @@ export function SignOutButton({ className }: { className?: string }) {
         size="sm"
         onClick={() => setShowConfirmation(true)}
         className={cn(
-          "w-fill seal-chip text-muted-foreground border-border-strong hover:border-danger hover:bg-surface-raised hover:text-foreground flex h-8 max-w-xs shrink-0 items-center justify-between gap-1 border px-1 whitespace-nowrap transition-colors hover:cursor-pointer",
+          "seal-chip text-md text-foreground/80 border-border-strong hover:border-danger hover:bg-surface hover:text-foreground flex h-10 w-full max-w-none items-center justify-start gap-2 border px-2 whitespace-nowrap transition-colors",
           className,
         )}
       >
