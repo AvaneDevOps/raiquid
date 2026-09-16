@@ -5,6 +5,7 @@ import type { SessionUser } from "@/components/shared/layout/session-user";
 import { Sidebar } from "@/components/shared/layout/sidebar";
 import { BottomTabBar } from "@/components/shared/layout/bottom-tab-bar";
 import { UserSummary } from "@/components/shared/layout/user-summary";
+import { PageReveal } from "@/components/shared/layout/page-reveal";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
 
@@ -31,7 +32,9 @@ export function RoleShell({
           <UserSummary user={user} />
         </header>
 
-        <main className="flex-1 px-4 pt-6 pb-24 md:px-8 md:py-8">{children}</main>
+        <main className="flex-1 px-4 pt-6 pb-24 md:px-8 md:py-8">
+          <PageReveal>{children}</PageReveal>
+        </main>
 
         <BottomTabBar role={role} />
       </div>

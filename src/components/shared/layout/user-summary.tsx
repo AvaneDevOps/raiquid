@@ -13,15 +13,22 @@ export function UserSummary({
   action?: ReactNode;
 }) {
   return (
-    <div className={cn("flex items-center gap-3", className)}>
-      <span className="border-border-strong bg-surface-raised text-accent-400 flex size-9 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-medium">
-        {user.initials}
-      </span>
-      <span className="min-w-0">
-        <span className="text-foreground block truncate text-sm font-medium">{user.name}</span>
-        <span className="text-muted-foreground block truncate text-xs">{user.subtitle}</span>
-      </span>
-      <div className="ml-auto shrink-0">{action}</div>
+    <div
+      className={cn(
+        action ? "flex flex-col items-stretch gap-3" : "flex items-center gap-3",
+        className,
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="border-border-strong bg-surface-raised text-accent-400 flex size-9 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-medium">
+          {user.initials}
+        </span>
+        <span className="min-w-0">
+          <span className="text-foreground block truncate text-sm font-medium">{user.name}</span>
+          <span className="text-muted-foreground block truncate text-xs">{user.subtitle}</span>
+        </span>
+      </div>
+      {action ? <div className="w-full">{action}</div> : null}
     </div>
   );
 }

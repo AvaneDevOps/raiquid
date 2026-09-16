@@ -21,7 +21,7 @@ export function SignOutButton() {
         variant="ghost"
         size="sm"
         onClick={() => setShowConfirmation(true)}
-        className="text-muted-foreground hover:text-foreground shrink-0"
+        className="text-muted-foreground hover:text-foreground w-full justify-start"
       >
         <SquareArrowRightExit strokeWidth={1.5} />
         Sign out

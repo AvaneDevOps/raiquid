@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Hexagon } from "lucide-react";
 import { ADMIN_NAV } from "@/lib/nav-config";
 import { cn } from "@/lib/utils";
+import { PageReveal } from "@/components/shared/layout/page-reveal";
 
 // Deliberately identical at both breakpoints — on mobile the tab row scrolls, it does not become a bottom bar.
 export function AdminShell({ children }: { children: ReactNode }) {
@@ -41,7 +42,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </nav>
       </header>
 
-      <main className="px-4 py-6 md:px-8 md:py-8">{children}</main>
+      <main className="px-4 py-6 md:px-8 md:py-8">
+        <PageReveal>{children}</PageReveal>
+      </main>
     </div>
   );
 }
