@@ -43,7 +43,11 @@ export function ProvenanceSection() {
   return (
     <section className="border-border relative overflow-hidden border-t px-6 py-16 md:px-12 lg:px-16">
       {/* Centered glow */}
+<<<<<<< HEAD
       <div className="pointer-events-none absolute top-1/2 left-1/2 h-[500px] w-[700px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse,_var(--color-accent-600)_0%,_transparent_70%)] opacity-10" />
+=======
+      <div className="pointer-events-none absolute top-1/2 left-1/2 h-125 w-175 -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse,var(--color-accent-600)_0%,transparent_70%)] opacity-10" />
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 
       <div className="relative mx-auto max-w-7xl">
         <div className="max-w-xl">

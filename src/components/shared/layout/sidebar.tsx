@@ -7,7 +7,11 @@ import { ROLE_NAV } from "@/lib/nav-config";
 import type { UserRole } from "@/types";
 import type { SessionUser } from "@/components/shared/layout/session-user";
 import { UserSummary } from "@/components/shared/layout/user-summary";
+<<<<<<< HEAD
 import { SignOutButton } from "@/components/shared/layout/sign-out-button";
+=======
+import { SignOutButton } from "@/components/shared/ui/sign-out-button";
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 import { cn } from "@/lib/utils";
 
 type RoleWithNav = Exclude<UserRole, "admin">;
@@ -44,8 +48,17 @@ export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }
         })}
       </nav>
 
+<<<<<<< HEAD
       <div className="border-border border-t p-4">
         <UserSummary user={user} action={<SignOutButton />} />
+=======
+      <div className="p-4">
+        <SignOutButton />
+      </div>
+
+      <div className="border-border border-t p-4">
+        <UserSummary user={user} />
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
       </div>
     </aside>
   );

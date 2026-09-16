@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import Link from "next/link";
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
@@ -25,4 +26,9 @@ export default function GlobalError({ reset }: { reset: () => void }) {
       </Card>
     </main>
   );
+=======
+// TODO: implement error boundary UI.
+export default function GlobalError() {
+  return null;
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { AppNotification, NotificationTone } from "@/types";
 import type { paths } from "@/types/api-generated";
 
@@ -71,5 +72,15 @@ export const notificationsService = {
 
   markRead<TResponse = unknown>(id: string, token: ApiToken): Promise<TResponse> {
     return apiClient.patch<TResponse>(`/notifications/${id}/read`, {}, token);
+=======
+import { apiClient, type ApiToken } from "./client";
+
+export const notificationsService = {
+  get<TResponse>(path: string, token: ApiToken) {
+    return apiClient.get<TResponse>(path, token);
+  },
+  patch<TResponse>(path: string, data: unknown, token: ApiToken) {
+    return apiClient.patch<TResponse>(path, data, token);
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
   },
 };

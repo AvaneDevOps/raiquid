@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Card, CardTitle } from "@/components/shared/ui/card";
+=======
+import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 import type { DocumentCheck } from "@/types";
 
 import { DocumentCheckBadge } from "./document-check-badge";

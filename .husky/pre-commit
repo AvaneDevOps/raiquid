@@ -1,1 +1,5 @@
+<<<<<<< HEAD
+=======
+node scripts/scan-for-obfuscation.mjs
+>>>>>>> 126c1250105090cfeb3f5a136297e976271e7075
 npx lint-staged
