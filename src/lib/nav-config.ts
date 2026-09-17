@@ -51,6 +51,7 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Reserve pool", href: "/admin/reserve" },
   { label: "Provenance registry", href: "/admin/provenance" },
   { label: "Ledger", href: "/admin/ledger" },
+  { label: "Whitelisting", href: "/admin/whitelisting" },
 ];
 
 export const LANDING_NAV: { label: string; href: Route }[] = [

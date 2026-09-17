@@ -1,18 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { BUYER_INVOICES } from "@/components/buyer/fixtures";
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { StandaloneShell } from "@/components/shared/layout/standalone-shell";
 import { formatDate, formatNaira } from "@/lib/format";
+import { ApiError } from "@/services";
+
+import { getConfirmation, type Confirmation } from "./_lib/confirmation";
 
 export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">) {
   const { invoiceId } = await params;
-  const invoice = BUYER_INVOICES.find((item) => item.id === invoiceId);
 
-  if (!invoice) {
-    notFound();
+  let invoice: Confirmation;
+  try {
+    invoice = await getConfirmation(invoiceId);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
 
   return (
@@ -47,18 +52,19 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             </div>
             <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
               <span>Proof of delivery</span>
-              <a
-                href={invoice.proofOfDeliveryUrl ?? "#"}
-                className="text-accent-400 hover:underline"
-              >
-                View document
-              </a>
+              {invoice.proofOfDeliveryUrl ? (
+                <a href={invoice.proofOfDeliveryUrl} className="text-accent-400 hover:underline">
+                  View document
+                </a>
+              ) : (
+                <span className="text-muted-foreground">Not available</span>
+              )}
             </div>
           </div>
         </Card>
 
         <Button asChild className="w-full" size="lg">
-          <Link href={`/confirm/${invoice.id}/review`}>Review &amp; respond</Link>
+          <Link href={`/confirm/${invoiceId}/review`}>Review &amp; respond</Link>
         </Button>
       </div>
     </StandaloneShell>

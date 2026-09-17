@@ -1,27 +1,43 @@
+import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 
-import { BUSINESS_INVOICES } from "@/components/business/fixtures";
 import { formatDate } from "@/lib/format";
+import { ApiError, businessService } from "@/services";
+import type { Invoice } from "@/types";
 
 import { AwaitingAcceptanceView } from "./_components/awaiting-acceptance-view";
 import { FundingView } from "./_components/funding-view";
-import { INVOICE_ACCEPTED_AT } from "./_components/fixtures";
 import { InvoiceDetailHeader } from "./_components/invoice-header";
 import { PayoutView } from "./_components/payout-view";
 import { TokenizedView } from "./_components/tokenized-view";
+import { toAcceptedAt, toInvoice, toMintEvent } from "./_lib/invoice";
 
 // Screens 06-09 (bizPending/Tokenized/Funding/Payout) — one page, 5
 // InvoiceStatus states via the stepper. "funded"/"repaid"/"overdue" all
-// share PayoutView — see that file's comment for why.
+// share PayoutView — see that file's comment for why. Wired to real
+// GET /business/invoices/{id} — see ./_lib/invoice.ts for the confirmed
+// mapping.
 export default async function Page({ params }: PageProps<"/business/invoices/[invoiceId]">) {
   const { invoiceId } = await params;
-  const invoice = BUSINESS_INVOICES.find((candidate) => candidate.id === invoiceId);
 
-  if (!invoice) {
-    notFound();
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let invoice: Invoice;
+  let acceptedAt: string | undefined;
+  let mintEvent: ReturnType<typeof toMintEvent>;
+  try {
+    const raw = await businessService.get<Record<string, unknown>>(
+      `/business/invoices/${invoiceId}`,
+      token,
+    );
+    invoice = toInvoice(raw);
+    acceptedAt = toAcceptedAt(raw);
+    mintEvent = toMintEvent(raw);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
   }
-
-  const acceptedAt = INVOICE_ACCEPTED_AT[invoice.id];
 
   let subtitle: string | undefined;
   switch (invoice.status) {
@@ -48,7 +64,7 @@ export default async function Page({ params }: PageProps<"/business/invoices/[in
       {(invoice.status === "submitted" || invoice.status === "awaiting_acceptance") && (
         <AwaitingAcceptanceView invoice={invoice} />
       )}
-      {invoice.status === "tokenized" && <TokenizedView invoice={invoice} />}
+      {invoice.status === "tokenized" && <TokenizedView invoice={invoice} mintEvent={mintEvent} />}
       {invoice.status === "funding" && <FundingView invoice={invoice} />}
       {(invoice.status === "funded" ||
         invoice.status === "repaid" ||

@@ -8,6 +8,11 @@ import type { OnChainEvent } from "@/types";
 import { formatTimestamp } from "@/lib/format-timestamp";
 import { OnChainActionBadge } from "./on-chain-action-badge";
 
+// Ethereum Sepolia's public explorer — confirmed as the real chain
+// directly against raiquid-api's config (BRICKKEN_CHAIN_ID defaults to
+// 11155111), not either piece of frontend copy that disagreed with it.
+const EXPLORER_TX_URL = "https://sepolia.etherscan.io/tx/";
+
 /**
  * Screen 29-adminLedger. Same responsive pattern as InvoiceListTable and
  * ProvenanceRegistryTable: a desktop <table> and a mobile stacked <dl>,
@@ -17,6 +22,10 @@ import { OnChainActionBadge } from "./on-chain-action-badge";
  * chip — same "raw string in a table row" rule as the overview's token ids
  * (docs/DESIGN_SYSTEM.md). Action is OnChainActionBadge here (always amber)
  * — contrast with the overview, where the same labels are plain text.
+ *
+ * "View on Etherscan" links out per row when a real txHash exists (not
+ * every event has one yet — on-chain identifiers can arrive before the
+ * off-chain row, per the schema comment on OnChainEvent).
  *
  * "Retry" (screen 29, failed row only) has no wired action yet — on-chain
  * integration is an open decision (docs/RAIQUID_CONTEXT.md) — so it's a
@@ -28,7 +37,7 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
     return (
       <EmptyState
         title="No on-chain activity yet"
-        description="Mint, transfer, burn, and whitelist events will appear here as they happen in the sandbox."
+        description="Tokenization, whitelist, investment, and settlement events will appear here as they happen in the sandbox."
       />
     );
   }
@@ -44,6 +53,7 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
             <th className="px-5 py-3 font-normal">Token</th>
             <th className="px-5 py-3 font-normal">Network</th>
             <th className="px-5 py-3 font-normal">Status</th>
+            <th className="px-5 py-3 font-normal" />
           </tr>
         </thead>
         <tbody>
@@ -69,6 +79,18 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
                     </button>
                   ) : null}
                 </div>
+              </td>
+              <td className="px-5 py-4">
+                {event.txHash ? (
+                  <a
+                    href={`${EXPLORER_TX_URL}${event.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-400 text-sm font-medium hover:underline"
+                  >
+                    View on Etherscan
+                  </a>
+                ) : null}
               </td>
             </tr>
           ))}
@@ -113,6 +135,21 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
                 ) : null}
               </dd>
             </div>
+            {event.txHash ? (
+              <div className="flex items-center justify-between gap-4">
+                <dt className="text-muted-foreground text-sm">Explorer</dt>
+                <dd>
+                  <a
+                    href={`${EXPLORER_TX_URL}${event.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent-400 text-sm font-medium hover:underline"
+                  >
+                    View on Etherscan
+                  </a>
+                </dd>
+              </div>
+            ) : null}
           </dl>
         ))}
       </div>

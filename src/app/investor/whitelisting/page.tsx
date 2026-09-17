@@ -1,38 +1,65 @@
+import { auth } from "@clerk/nextjs/server";
+
 import { Stepper } from "@/components/shared/domain/stepper";
-import { Badge, type BadgeTone } from "@/components/shared/ui/badge";
-import { Card } from "@/components/shared/ui/card";
 import { InlineNotice } from "@/components/shared/ui/notice";
 import { WHITELIST_STEPS } from "@/lib/domain-display";
+import { investorService } from "@/services";
+import type { WhitelistStatus } from "@/types";
 
-interface SubmittedDocument {
-  name: string;
-  label: string;
-  tone: BadgeTone;
+import { WhitelistingForm } from "./_components/whitelisting-form";
+
+interface WhitelistingResponse {
+  whitelistStatus: WhitelistStatus;
+  countryOfResidence: string | null;
+  displayName: string | null;
 }
 
-// Screen 18-invWhitelist. Data below is dummy until a real API exists — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions". Document states are row-level
-// labels only (not the WhitelistStatus domain enum), so they map directly to
-// generic seal-chip tones: received = green, in review = amber.
-const DOCUMENTS: SubmittedDocument[] = [
-  {
-    name: "Proof of identity",
-    label: "Received",
-    tone: "green",
-  },
-  {
-    name: "Proof of address",
-    label: "Received",
-    tone: "green",
-  },
-  {
-    name: "Source of funds declaration",
-    label: "In review",
-    tone: "amber",
-  },
-];
+// WHITELIST_STEPS order matches the real WhitelistStatus enum order exactly
+// (raiquid-api's prisma/schema.prisma): identity_submitted (not yet
+// submitted — the default/initial state, despite the name), in_review,
+// whitelisted.
+const STEP_INDEX: Record<WhitelistStatus, number> = {
+  identity_submitted: 0,
+  in_review: 1,
+  whitelisted: 2,
+};
 
-export default function WhitelistPage() {
+// Screen 18-invWhitelist, wired to GET /investor/whitelisting — confirmed
+// against the backend source (raiquid-api's
+// InvestorController.getWhitelisting / InvestorService.getWhitelisting):
+// { whitelistStatus, countryOfResidence, displayName }. The old
+// "Documents submitted" card was fixture data with no backing endpoint at
+// all (no per-document status exists anywhere) — dropped rather than kept
+// next to real data.
+export default async function WhitelistPage() {
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let status: WhitelistStatus;
+  try {
+    const response = await investorService.get<WhitelistingResponse>(
+      "/investor/whitelisting",
+      token,
+    );
+    status = response.whitelistStatus;
+  } catch (error) {
+    return (
+      <div className="w-full max-w-xl space-y-8">
+        <div>
+          <h1 className="font-display text-foreground text-3xl font-semibold">
+            Getting you whitelisted
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Required before you can fund any invoice.
+          </p>
+        </div>
+        <InlineNotice tone="danger">
+          {error instanceof Error ? error.message : "Couldn't load whitelisting status."}
+        </InlineNotice>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-xl space-y-8">
       <div>
@@ -44,30 +71,25 @@ export default function WhitelistPage() {
         </p>
       </div>
 
-      <Stepper steps={WHITELIST_STEPS} currentIndex={1} />
+      <Stepper steps={WHITELIST_STEPS} currentIndex={STEP_INDEX[status]} />
 
-      <Card className="p-6">
-        <h2 className="text-foreground font-semibold">Documents submitted</h2>
-
-        <dl className="divide-border mt-4 divide-y">
-          {DOCUMENTS.map((document) => (
-            <div
-              key={document.name}
-              className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
-            >
-              <dt className="text-foreground text-sm">{document.name}</dt>
-              <dd>
-                <Badge tone={document.tone}>{document.label}</Badge>
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </Card>
-
-      <InlineNotice tone="info">
-        You can browse the marketplace now — funding unlocks the moment whitelisting completes,
-        usually within one business day.
-      </InlineNotice>
+      {status === "identity_submitted" ? (
+        <>
+          <WhitelistingForm />
+          <InlineNotice tone="info">
+            You can browse the marketplace now — funding unlocks the moment whitelisting completes.
+          </InlineNotice>
+        </>
+      ) : status === "whitelisted" ? (
+        <InlineNotice tone="success">
+          You&apos;re whitelisted — you can fund any invoice on the marketplace.
+        </InlineNotice>
+      ) : (
+        <InlineNotice tone="info">
+          Your details are in review — this usually takes one business day. You can browse the
+          marketplace now; funding unlocks the moment whitelisting completes.
+        </InlineNotice>
+      )}
     </div>
   );
 }
