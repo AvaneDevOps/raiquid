@@ -1,5 +1,5 @@
 import type { components, paths } from "@/types/api-generated";
-import type { Invoice, InvoiceStatus } from "@/types";
+import type { Invoice, InvoiceStatus, ProvenanceTier } from "@/types";
 import { apiClient, type ApiToken } from "./client";
 
 type PayInvoiceInput = components["schemas"]["PayInvoiceDto"];
@@ -64,6 +64,8 @@ const INVOICE_STATUSES = new Set<InvoiceStatus>([
   "overdue",
 ]);
 
+const PROVENANCE_TIERS = new Set<ProvenanceTier>(["quarried", "carried", "anchored"]);
+
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
 }
@@ -73,7 +75,19 @@ function asString(value: unknown, fallback = ""): string {
 }
 
 function asNumber(value: unknown, fallback = 0): number {
-  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim() !== "") {
+    const parsed = Number(value);
+
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+
+  return fallback;
 }
 
 function asStatus(value: unknown): InvoiceStatus {
@@ -83,9 +97,18 @@ function asStatus(value: unknown): InvoiceStatus {
     : "awaiting_acceptance";
 }
 
+function asProvenanceTier(value: unknown): ProvenanceTier {
+  return typeof value === "string" && PROVENANCE_TIERS.has(value as ProvenanceTier)
+    ? (value as ProvenanceTier)
+    : "quarried";
+}
+
 // The current backend OpenAPI document does not describe invoice response bodies,
 // so this adapter isolates that contract gap from the UI.
-export type BuyerInvoice = Invoice & { supplierName: string };
+export type BuyerInvoice = Invoice & {
+  supplierName: string;
+  confirmToken?: string;
+};
 
 export function normalizeBuyerInvoices(payload: unknown): BuyerInvoice[] {
   const root = asRecord(payload);
@@ -117,11 +140,15 @@ export function normalizeBuyerInvoices(payload: unknown): BuyerInvoice[] {
       description: asString(invoice.description),
       proofOfDeliveryUrl: asString(invoice.proofOfDeliveryUrl) || undefined,
       status: asStatus(invoice.status),
-      expectedReturnPct: asNumber(invoice.expectedReturnPct, asNumber(invoice.expectedReturn)),
+      expectedReturnPct: asNumber(
+        invoice.investorYieldPct,
+        asNumber(invoice.expectedReturnPct, asNumber(invoice.expectedReturn)),
+      ),
       fundedAmount: asNumber(invoice.fundedAmount, asNumber(invoice.amountFunded)),
       fundingInvestorCount: asNumber(invoice.fundingInvestorCount, asNumber(invoice.investorCount)),
       platformFeePct: asNumber(invoice.platformFeePct),
       reserveContributionPct: asNumber(invoice.reserveContributionPct),
+      confirmToken: asString(invoice.confirmToken) || undefined,
       supplierName: asString(
         invoice.businessLegalName,
         asString(invoice.supplierName, asString(supplier.legalName, asString(supplier.name, "—"))),
@@ -134,14 +161,19 @@ export interface BuyerSettingsData {
   legalName: string;
   contactEmail: string;
   contactPhone: string;
+  provenanceTier: ProvenanceTier;
+  onTimePaymentRate: number;
 }
 
 export function normalizeBuyerSettings(payload: unknown): BuyerSettingsData {
   const root = asRecord(payload);
+
   return {
     legalName: asString(root.legalName, asString(root.companyName, asString(root.name))),
     contactEmail: asString(root.contactEmail, asString(root.billingEmail)),
     contactPhone: asString(root.contactPhone, asString(root.phone)),
+    provenanceTier: asProvenanceTier(root.provenanceTier),
+    onTimePaymentRate: asNumber(root.onTimePaymentRate),
   };
 }
 

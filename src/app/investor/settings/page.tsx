@@ -1,25 +1,93 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth, useUser } from "@clerk/nextjs";
 
 import { WhitelistStatusBadge } from "@/components/shared/domain/status-badges";
+import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
 import { Input } from "@/components/shared/ui/input";
-import { INVESTOR_NOTIFICATION_PREFS, INVESTOR_PROFILE } from "@/components/investor";
-
+import { InlineNotice } from "@/components/shared/ui/notice";
+import { INVESTOR_NOTIFICATION_PREFS } from "@/components/investor";
 import { NotificationToggle } from "@/components/shared/ui";
+import { ApiError, investorService } from "@/services";
+import type { WhitelistStatus } from "@/types";
 
-// Screen 25-invSettings. No backend exists yet — profile fields are
-// real controlled inputs (ready for a future save action), and the
-// screen shows no Save button, so none is invented here. Notification
-// toggles are genuinely interactive but local-only (reset on reload).
-// Whitelist state is hardcoded "whitelisted" — the export isolates the
-// cleared state ("Whitelisted / Cleared to fund invoices"); wire the
-// real WhitelistStatus once a session/profile fetch exists.
+interface SettingsResponse {
+  displayName: string | null;
+  countryOfResidence: string | null;
+}
+
+interface WhitelistingResponse {
+  whitelistStatus: WhitelistStatus;
+}
+
+// Screen 25-invSettings, wired to real GET/PATCH /investor/settings
+// (confirmed against raiquid-api's InvestorController/InvestorService and
+// UpdateInvestorSettingsDto: displayName, countryOfResidence,
+// investingWalletAddress — the last has no input on this screen yet).
+// Email has no field on Investor at all (it lives on the linked Clerk
+// user, not this model) — sourced from the real signed-in Clerk user via
+// useUser() instead of the INVESTOR_PROFILE fixture; not editable here,
+// same as it wasn't before. Whitelist status is now the real
+// GET /investor/whitelisting value instead of a hardcoded "whitelisted".
+// Notification toggles stay local-only — no notification-preferences
+// endpoint exists. See docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default function Page() {
-  const [fullName, setFullName] = useState(INVESTOR_PROFILE.fullName);
-  const [email, setEmail] = useState(INVESTOR_PROFILE.email);
-  const [countryOfResidence, setCountryOfResidence] = useState(INVESTOR_PROFILE.countryOfResidence);
+  const { getToken } = useAuth();
+  const { user } = useUser();
+
+  const [fullName, setFullName] = useState("");
+  const [countryOfResidence, setCountryOfResidence] = useState("");
+  const [whitelistStatus, setWhitelistStatus] = useState<WhitelistStatus | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const token = await getToken();
+        const [settings, whitelisting] = await Promise.all([
+          investorService.get<SettingsResponse>("/investor/settings", token),
+          investorService.get<WhitelistingResponse>("/investor/whitelisting", token),
+        ]);
+        if (!active) return;
+        setFullName(settings.displayName ?? "");
+        setCountryOfResidence(settings.countryOfResidence ?? "");
+        setWhitelistStatus(whitelisting.whitelistStatus);
+      } catch (error) {
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : "Couldn't load your settings.");
+        }
+      }
+    })();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fetch once on mount
+  }, []);
+
+  async function handleSave() {
+    setSaving(true);
+    setSaveError(null);
+    setSaved(false);
+    try {
+      const token = await getToken();
+      await investorService.patch(
+        "/investor/settings",
+        { displayName: fullName, countryOfResidence },
+        token,
+      );
+      setSaved(true);
+    } catch (error) {
+      setSaveError(error instanceof ApiError ? error.message : "Something went wrong. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const [notificationState, setNotificationState] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(INVESTOR_NOTIFICATION_PREFS.map((pref) => [pref.key, pref.defaultOn])),
@@ -28,6 +96,8 @@ export default function Page() {
   return (
     <div className="w-full max-w-2xl space-y-6">
       <h1 className="font-display text-foreground text-3xl font-semibold">Settings</h1>
+
+      {loadError ? <InlineNotice tone="danger">{loadError}</InlineNotice> : null}
 
       <Card className="space-y-6 p-6">
         <h2 className="text-foreground font-semibold">Profile</h2>
@@ -41,6 +111,7 @@ export default function Page() {
             className="mt-2"
             value={fullName}
             onChange={(event) => setFullName(event.target.value)}
+            disabled={saving}
           />
         </div>
 
@@ -52,30 +123,40 @@ export default function Page() {
             id="email"
             type="email"
             className="mt-2"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            value={user?.primaryEmailAddress?.emailAddress ?? ""}
+            disabled
           />
         </div>
 
         <div>
           <label htmlFor="countryOfResidence" className="text-muted-foreground text-sm">
-            Country of residence
+            Country of residence (2-letter ISO code, e.g. NG)
           </label>
           <Input
             id="countryOfResidence"
-            className="mt-2"
+            className="mt-2 uppercase"
+            maxLength={2}
             value={countryOfResidence}
-            onChange={(event) => setCountryOfResidence(event.target.value)}
+            onChange={(event) => setCountryOfResidence(event.target.value.toUpperCase())}
+            disabled={saving}
           />
         </div>
+
+        {saveError ? <InlineNotice tone="danger">{saveError}</InlineNotice> : null}
+        {saved ? <InlineNotice tone="success">Saved.</InlineNotice> : null}
+
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "Save changes"}
+        </Button>
       </Card>
 
       <Card className="flex flex-row items-center justify-between gap-3 p-6">
         <div>
           <h2 className="text-foreground font-semibold">Whitelisting status</h2>
-          <p className="text-muted-foreground mt-1 font-mono text-sm">Cleared to fund invoices</p>
         </div>
-        <WhitelistStatusBadge className="w-fit" status="whitelisted" />
+        {whitelistStatus ? (
+          <WhitelistStatusBadge className="w-fit" status={whitelistStatus} />
+        ) : null}
       </Card>
 
       <Card className="p-6">

@@ -154,8 +154,21 @@ export interface WalletTransaction {
   reference: string; // invoice id or "Bank transfer"
 }
 
-/** On-chain action types surfaced in the admin ledger (screen 29). */
-export type OnChainAction = "mint" | "whitelist" | "transfer" | "burn";
+/**
+ * On-chain action types surfaced in the admin ledger (screen 29).
+ * Corrected to the real raiquid-api OnChainAction enum (prisma/schema.prisma)
+ * — the original mint/whitelist/transfer/burn set was invented before a
+ * real backend existed and didn't match once one did.
+ */
+export type OnChainAction =
+  | "newTokenization"
+  | "whitelist"
+  | "mintToken"
+  | "newSto"
+  | "newInvest"
+  | "closeOffer"
+  | "claimTokens"
+  | "dividendDistribution";
 
 export type OnChainStatus = "confirmed" | "pending" | "failed";
 
@@ -164,8 +177,12 @@ export interface OnChainEvent {
   timestamp: string; // ISO datetime
   action: OnChainAction;
   tokenAddressShort: string; // e.g. "0x7f3a...c091"
-  network: "Base Sepolia"; // Brickken sandbox network; single value today
+  // Brickken sandbox network. Confirmed directly against raiquid-api's
+  // config (BRICKKEN_CHAIN_ID defaults to 11155111) — this used to say
+  // "Base Sepolia", which was never actually correct.
+  network: "Ethereum Sepolia";
   status: OnChainStatus;
+  txHash?: string; // present once the transaction has a real on-chain hash
 }
 
 // ---------------------------------------------------------------------------

@@ -1,25 +1,43 @@
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { INVESTOR_HOLDINGS } from "@/components/investor";
 import { InvoiceRef, InvoiceStatusBadge } from "@/components/shared/domain/status-badges";
 import { Button } from "@/components/shared/ui/button";
 import { Card } from "@/components/shared/ui/card";
+import { InlineNotice } from "@/components/shared/ui/notice";
 import { formatDate, formatNaira } from "@/lib/format";
+import { ApiError, investorService } from "@/services";
 
-// Screen 23-invRepay. Data below is dummy (see
-// src/components/investor/index.ts) until a real API exists — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
-// The export shows the repaid receipt (principal + return, token chip in
-// the closed/burned green tone, "Closed (burned)" as plain text). Holdings
-// that are still funding/overdue render an interim position view in the
-// same cards so every row on /investor/portfolio has a detail page.
+import { toHolding, type PortfolioHolding } from "../_lib/holding";
+
+// Screen 23-invRepay, wired to real GET /investor/portfolio/{id}. The
+// route param is named [invoiceId] from the fixture era, but the value
+// it actually needs — and gets, from the list page's own links — is the
+// Holding's own id, not the invoice id; the real single-GET endpoint
+// takes the holding id (confirmed against raiquid-api's
+// InvestorService.getPortfolioHolding). Buyer name is "—" — same gap as
+// the list page, GET /investor/portfolio doesn't include invoice.buyer.
 export default async function Page({ params }: PageProps<"/investor/portfolio/[invoiceId]">) {
-  const { invoiceId } = await params;
-  const holding = INVESTOR_HOLDINGS.find((candidate) => candidate.invoiceId === invoiceId);
+  const { invoiceId: holdingId } = await params;
 
-  if (!holding) {
-    notFound();
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  let holding: PortfolioHolding;
+  try {
+    const raw = await investorService.get<Record<string, unknown>>(
+      `/investor/portfolio/${holdingId}`,
+      token,
+    );
+    holding = toHolding(raw);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    return (
+      <InlineNotice tone="danger">
+        {error instanceof Error ? error.message : "Couldn't load this holding."}
+      </InlineNotice>
+    );
   }
 
   if (holding.status !== "repaid") {

@@ -1,21 +1,25 @@
-import { INVESTOR_BUYER_PROVENANCE } from "@/components/investor";
 import { ProvenanceTierBadge } from "@/components/shared/domain/status-badges";
 import { Badge } from "@/components/shared/ui/badge";
 import { Card, CardTitle } from "@/components/shared/ui/card";
 import { formatMonthYear, formatNumber, formatPercent } from "@/lib/format";
 import type { ProvenanceTier } from "@/types";
 
+import type { BuyerProvenance } from "../../_lib/listing";
 import { DetailRow } from "./invoice-detail-cards";
 
+// Reputation numbers are passed in from the real GET /investor/marketplace/{id}
+// response now (see ../_lib/listing.ts, toBuyerProvenance) — no more
+// INVESTOR_BUYER_PROVENANCE fixture lookup keyed by buyerId, which would
+// return undefined (and crash) for any real buyer id.
 export function BuyerProvenanceCard({
-  buyerId,
   provenanceTier,
+  acceptanceRatePct,
+  onTimeRatePct,
+  invoicesFinanced,
+  memberSince,
 }: {
-  buyerId: string;
   provenanceTier: ProvenanceTier;
-}) {
-  const provenance = INVESTOR_BUYER_PROVENANCE[buyerId];
-
+} & BuyerProvenance) {
   return (
     <Card className="p-6">
       <div className="flex items-start justify-between gap-3">
@@ -23,14 +27,12 @@ export function BuyerProvenanceCard({
         <ProvenanceTierBadge tier={provenanceTier} />
       </div>
       <dl className="divide-border mt-4 divide-y">
-        <DetailRow label="Acceptance rate">
-          {formatPercent(provenance.acceptanceRatePct, 0)}
-        </DetailRow>
+        <DetailRow label="Acceptance rate">{formatPercent(acceptanceRatePct, 0)}</DetailRow>
         <DetailRow label="On-time payment rate">
-          {provenance.onTimeRatePct === null ? "—" : formatPercent(provenance.onTimeRatePct, 0)}
+          {onTimeRatePct === null ? "—" : formatPercent(onTimeRatePct, 0)}
         </DetailRow>
-        <DetailRow label="Invoices financed">{formatNumber(provenance.invoicesFinanced)}</DetailRow>
-        <DetailRow label="On platform since">{formatMonthYear(provenance.memberSince)}</DetailRow>
+        <DetailRow label="Invoices financed">{formatNumber(invoicesFinanced)}</DetailRow>
+        <DetailRow label="On platform since">{formatMonthYear(memberSince)}</DetailRow>
       </dl>
     </Card>
   );

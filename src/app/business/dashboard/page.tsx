@@ -1,12 +1,15 @@
-import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
 
 import { getSessionUser } from "@/components/shared/layout/session-user";
 import { Button } from "@/components/shared/ui/button";
 import { StatCard } from "@/components/shared/ui/card";
-import { businessService, normalizeBusinessInvoices } from "@/services/business";
+import { InlineNotice } from "@/components/shared/ui/notice";
 import { formatNaira } from "@/lib/format";
+import { businessService } from "@/services";
+import type { Invoice } from "@/types";
 
+import { isActive, toInvoice } from "../_lib/invoice";
 import { RecentInvoicesCard } from "./_components/recent-invoices-card";
 
 function getDaypartGreeting(date: Date = new Date()): string {
@@ -18,16 +21,27 @@ function getDaypartGreeting(date: Date = new Date()): string {
 
 export default async function Page() {
   const user = await getSessionUser("business");
+  const firstName = user.name.split(" ")[0];
+
   const { getToken } = await auth();
   const token = await getToken();
-  const payload = await businessService.listInvoices<unknown>(token, { page: 1, pageSize: 100 });
-  const invoices = normalizeBusinessInvoices(payload);
 
-  const activeInvoices = invoices.filter(
-    (invoice) => invoice.status !== "repaid" && invoice.status !== "overdue",
-  );
-  const financed = invoices.reduce((sum, invoice) => sum + invoice.fundedAmount, 0);
-  const firstName = user.name.split(" ")[0];
+  let invoices: Invoice[] = [];
+  let loadError: string | null = null;
+
+  try {
+    const response = await businessService.get<{ data: Record<string, unknown>[] }>(
+      "/business/invoices?pageSize=100",
+      token,
+    );
+    invoices = response.data.map(toInvoice);
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Couldn't load your invoices.";
+  }
+
+  const activeInvoices = invoices.filter(isActive);
+  const activeInvoicesAmount = activeInvoices.reduce((sum, invoice) => sum + invoice.amount, 0);
+  const recent = invoices.slice(0, 3);
 
   return (
     <div className="space-y-8">
@@ -43,22 +57,17 @@ export default async function Page() {
         </Button>
       </div>
 
+      {loadError ? <InlineNotice tone="danger">{loadError}</InlineNotice> : null}
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <StatCard
           label="Active invoices"
           value={String(activeInvoices.length)}
-          caption={`${formatNaira(activeInvoices.reduce((sum, invoice) => sum + invoice.amount, 0))} in progress`}
+          caption={`${formatNaira(activeInvoicesAmount)} in progress`}
         />
-        <StatCard
-          label="Total financed"
-          value={formatNaira(financed)}
-          caption="from returned invoices"
-          emphasize
-        />
-        <StatCard label="Invoices" value={String(invoices.length)} caption="returned by the API" />
       </div>
 
-      <RecentInvoicesCard invoices={invoices.slice(0, 3)} />
+      <RecentInvoicesCard invoices={recent} />
     </div>
   );
 }

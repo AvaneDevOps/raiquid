@@ -6,9 +6,9 @@ import { INVOICE_LIFECYCLE_STEPS, INVOICE_STATUS_STEP_INDEX } from "@/lib/domain
 import { formatNaira } from "@/lib/format";
 import type { Invoice } from "@/types";
 
-// On-chain status remains a product stub until Brickken/Base Sepolia
-// state is exposed to the Business invoice flow.
-export function TokenizedView({ invoice }: { invoice: Invoice }) {
+import type { MintEvent } from "../_lib/invoice";
+
+export function TokenizedView({ invoice, mintEvent }: { invoice: Invoice; mintEvent?: MintEvent }) {
   const percentFunded = invoice.amount > 0 ? (invoice.fundedAmount / invoice.amount) * 100 : 0;
 
   return (
@@ -28,7 +28,7 @@ export function TokenizedView({ invoice }: { invoice: Invoice }) {
             </p>
           ) : null}
           <p className="text-muted-foreground mt-4 font-mono text-sm">
-            Minted on Base Sepolia · confirmed
+            Minted on Ethereum Sepolia · {mintEvent?.status ?? "pending"}
           </p>
         </Card>
 

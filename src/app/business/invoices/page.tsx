@@ -1,9 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
-import type { paths } from "@/types/api-generated";
-import { businessService, normalizeBusinessInvoices } from "@/services/business";
+
 import { Button } from "@/components/shared/ui/button";
-import { formatNaira } from "@/lib/format";
+import { InlineNotice } from "@/components/shared/ui/notice";
+import { businessService, normalizeBusinessInvoices } from "@/services/business";
+import type { paths } from "@/types/api-generated";
 
 import { InvoiceFilterTabs } from "./_components/invoice-filter-tabs";
 import { InvoiceListTable } from "./_components/invoice-list-table";
@@ -14,8 +15,6 @@ type BusinessInvoiceListQuery = paths["/business/invoices"]["get"]["parameters"]
 type BusinessInvoiceListStatus = NonNullable<BusinessInvoiceListQuery>["status"];
 
 export default async function Page({ searchParams }: PageProps<"/business/invoices">) {
-  const { getToken } = await auth();
-  const token = await getToken();
   const { status } = await searchParams;
 
   const activeFilter =
@@ -27,23 +26,39 @@ export default async function Page({ searchParams }: PageProps<"/business/invoic
   const apiStatus: BusinessInvoiceListStatus =
     activeFilter === "awaiting_acceptance" ? "submitted" : (activeFilter ?? undefined);
 
-  const invoicesPayload = await businessService.listInvoices<unknown>(token, {
-    page: 1,
-    pageSize: 100,
-    ...(apiStatus ? { status: apiStatus } : {}),
-  });
+  const { getToken } = await auth();
+  const token = await getToken();
 
-  const invoices = normalizeBusinessInvoices(invoicesPayload);
-  const totalFinanced = invoices.reduce((sum, invoice) => sum + invoice.fundedAmount, 0);
+  let invoices: ReturnType<typeof normalizeBusinessInvoices> = [];
+  let total = 0;
+  let loadError: string | null = null;
+
+  try {
+    const response = await businessService.listInvoices<unknown>(token, {
+      page: 1,
+      pageSize: 100,
+      ...(apiStatus ? { status: apiStatus } : {}),
+    });
+
+    invoices = normalizeBusinessInvoices(response);
+
+    total =
+      typeof response === "object" &&
+      response !== null &&
+      "total" in response &&
+      typeof response.total === "number"
+        ? response.total
+        : invoices.length;
+  } catch (error) {
+    loadError = error instanceof Error ? error.message : "Couldn't load invoices.";
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-display text-foreground text-3xl font-semibold">Invoices</h1>
-          <p className="text-muted-foreground mt-1">
-            {invoices.length} total · {formatNaira(totalFinanced)} financed in the returned invoices
-          </p>
+          {!loadError && <p className="text-muted-foreground mt-1">{total} total</p>}
         </div>
 
         <Button asChild size="lg">
@@ -53,7 +68,11 @@ export default async function Page({ searchParams }: PageProps<"/business/invoic
 
       <InvoiceFilterTabs active={activeFilter} />
 
-      <InvoiceListTable invoices={invoices} />
+      {loadError ? (
+        <InlineNotice tone="danger">{loadError}</InlineNotice>
+      ) : (
+        <InvoiceListTable invoices={invoices} />
+      )}
     </div>
   );
 }

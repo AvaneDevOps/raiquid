@@ -2,6 +2,8 @@ import type { components, paths } from "@/types/api-generated";
 import type { Invoice, InvoiceStatus } from "@/types";
 import { apiClient, type ApiToken } from "./client";
 
+export type CreateInvoiceDto = components["schemas"]["CreateInvoiceDto"];
+
 export interface BusinessSettingsData {
   legalName: string;
   registrationNumber: string;
@@ -84,6 +86,14 @@ export const businessService = {
       .patch<unknown>("/business/settings", data, token)
       .then(normalizeBusinessSettings);
   },
+
+  get<TResponse>(path: string, token: ApiToken): Promise<TResponse> {
+    return apiClient.get<TResponse>(path, token);
+  },
+
+  patch<TResponse>(path: string, data: unknown, token: ApiToken): Promise<TResponse> {
+    return apiClient.patch<TResponse>(path, data, token);
+  },
 };
 
 const INVOICE_STATUSES = new Set<InvoiceStatus>([
@@ -119,6 +129,7 @@ function asNumber(value: unknown, fallback = 0): number {
 
 function asStatus(value: unknown): InvoiceStatus {
   const status = value === "submitted" ? "awaiting_acceptance" : value;
+
   return typeof status === "string" && INVOICE_STATUSES.has(status as InvoiceStatus)
     ? (status as InvoiceStatus)
     : "awaiting_acceptance";
@@ -204,6 +215,7 @@ export function normalizeBusinessWallet(payload: unknown): BusinessWalletData {
   const normalizePayout = (value: unknown, index: number) => {
     const payout = asRecord(value);
     const status = payout.status === "received" ? "received" : "pending";
+
     return {
       id: asString(payout.id, `payout-${index + 1}`),
       date: asString(payout.date, asString(payout.createdAt)),

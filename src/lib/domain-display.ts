@@ -81,9 +81,16 @@ export const WHITELIST_STEPS: { key: string; label: string }[] = [
 // Screens 06/15/20 show "Carried tier"; the registry (28) drops "tier"
 // because that column is already headed "Tier" — shortLabel covers that.
 
+// Real raiquid-api OnChainAction values (prisma/schema.prisma) — see
+// src/types/domain.ts's OnChainAction comment for why this replaced the
+// original invented mint/whitelist/transfer/burn set.
 export const ONCHAIN_ACTION_META = {
-  mint: { label: "Mint", tone: "amber" },
+  newTokenization: { label: "Tokenized", tone: "amber" },
   whitelist: { label: "Whitelist", tone: "amber" },
-  transfer: { label: "Transfer", tone: "amber" },
-  burn: { label: "Burn", tone: "amber" },
+  mintToken: { label: "Mint", tone: "amber" },
+  newSto: { label: "STO launched", tone: "amber" },
+  newInvest: { label: "Invested", tone: "amber" },
+  closeOffer: { label: "Offer closed", tone: "amber" },
+  claimTokens: { label: "Tokens claimed", tone: "amber" },
+  dividendDistribution: { label: "Dividend distributed", tone: "amber" },
 } as const;

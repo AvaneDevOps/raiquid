@@ -13,13 +13,23 @@ import { businessService } from "@/services/business";
 import { ProofOfDeliveryDropzone } from "./_components/proof-of-delivery-dropzone";
 
 type FormErrors = Partial<
-  Record<"buyerName" | "buyerEmail" | "amount" | "dueDate" | "description" | "file", string>
+  Record<
+    | "buyerName"
+    | "invoiceNumber"
+    | "buyerContactEmail"
+    | "amount"
+    | "dueDate"
+    | "description"
+    | "file",
+    string
+  >
 >;
 
 export default function Page() {
   const { getToken } = useAuth();
   const [buyerName, setBuyerName] = useState("");
-  const [buyerEmail, setBuyerEmail] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [buyerContactEmail, setBuyerContactEmail] = useState("");
   const [amountDisplay, setAmountDisplay] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [description, setDescription] = useState("");
@@ -42,7 +52,9 @@ export default function Page() {
     const amount = Number(amountDisplay.replace(/,/g, ""));
 
     if (!buyerName.trim()) nextErrors.buyerName = "Enter the buyer's legal name.";
-    if (!buyerEmail.trim()) nextErrors.buyerEmail = "Enter the buyer's contact email.";
+    if (!invoiceNumber.trim()) nextErrors.invoiceNumber = "Enter an invoice number.";
+    if (!buyerContactEmail.trim())
+      nextErrors.buyerContactEmail = "Enter the buyer's contact email.";
     if (!amountDisplay || !(amount > 0)) nextErrors.amount = "Enter a valid invoice amount.";
     if (!dueDate) nextErrors.dueDate = "Choose a due date.";
     if (!description.trim()) nextErrors.description = "Describe the goods or services delivered.";
@@ -51,20 +63,23 @@ export default function Page() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
+
     try {
       const token = await getToken();
+
       await businessService.createInvoice(
         {
-          invoiceNumber: `INV-${Date.now()}`,
+          invoiceNumber: invoiceNumber.trim(),
           amount,
           currency: "NGN",
           dueDate,
-          description,
+          description: description.trim(),
           buyerLegalName: buyerName.trim(),
-          buyerContactEmail: buyerEmail.trim(),
+          buyerContactEmail: buyerContactEmail.trim(),
         },
         token,
       );
+
       setSubmitted(true);
     } catch (error) {
       setApiError(error instanceof Error ? error.message : "The invoice could not be submitted.");
@@ -99,21 +114,39 @@ export default function Page() {
               ) : null}
             </div>
 
-            <div>
-              <label htmlFor="buyerEmail" className="text-muted-foreground text-sm">
-                Buyer contact email
-              </label>
-              <Input
-                id="buyerEmail"
-                type="email"
-                className="mt-2"
-                value={buyerEmail}
-                onChange={(event) => setBuyerEmail(event.target.value)}
-                aria-invalid={Boolean(errors.buyerEmail)}
-              />
-              {errors.buyerEmail ? (
-                <p className="text-danger mt-1 text-sm">{errors.buyerEmail}</p>
-              ) : null}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label htmlFor="invoiceNumber" className="text-muted-foreground text-sm">
+                  Invoice number
+                </label>
+                <Input
+                  id="invoiceNumber"
+                  className="mt-2"
+                  value={invoiceNumber}
+                  onChange={(event) => setInvoiceNumber(event.target.value)}
+                  aria-invalid={Boolean(errors.invoiceNumber)}
+                />
+                {errors.invoiceNumber ? (
+                  <p className="text-danger mt-1 text-sm">{errors.invoiceNumber}</p>
+                ) : null}
+              </div>
+
+              <div>
+                <label htmlFor="buyerContactEmail" className="text-muted-foreground text-sm">
+                  Buyer contact email
+                </label>
+                <Input
+                  id="buyerContactEmail"
+                  type="email"
+                  className="mt-2"
+                  value={buyerContactEmail}
+                  onChange={(event) => setBuyerContactEmail(event.target.value)}
+                  aria-invalid={Boolean(errors.buyerContactEmail)}
+                />
+                {errors.buyerContactEmail ? (
+                  <p className="text-danger mt-1 text-sm">{errors.buyerContactEmail}</p>
+                ) : null}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -175,9 +208,7 @@ export default function Page() {
           <InlineNotice tone="danger" className="mt-6">
             {apiError}
           </InlineNotice>
-        ) : null}
-
-        {submitted ? (
+        ) : submitted ? (
           <InlineNotice tone="success" className="mt-6">
             Invoice submitted successfully and is now awaiting buyer confirmation.
           </InlineNotice>
