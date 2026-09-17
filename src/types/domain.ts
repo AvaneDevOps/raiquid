@@ -174,6 +174,7 @@ export type OnChainStatus = "confirmed" | "pending" | "failed";
 
 export interface OnChainEvent {
   id: string;
+  invoiceId?: string; // loose link — may be absent, per schema comment on OnChainEvent
   timestamp: string; // ISO datetime
   action: OnChainAction;
   tokenAddressShort: string; // e.g. "0x7f3a...c091"
