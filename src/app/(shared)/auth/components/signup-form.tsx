@@ -1,10 +1,12 @@
 "use client";
 
-import { type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button, Input, InlineNotice, PasswordInput } from "@/components/shared/ui";
 import { SECOND_FIELD, type SignupRole } from "@/app/(shared)/auth/layout/constants";
 import { RolePicker } from "./role-picker";
+
+const MIN_PASSWORD_LENGTH = 15;
 
 export function SignupForm({
   role,
@@ -21,6 +23,18 @@ export function SignupForm({
   error?: string;
   canSubmit: boolean;
 }) {
+  // Tracks the password field directly so the hint reflects length, not
+  // focus — it appears once the user starts typing and disappears as soon
+  // as the requirement is met, rather than toggling on every focus/blur.
+  const [password, setPassword] = useState("");
+  const [passwordTouched, setPasswordTouched] = useState(false);
+
+  const handlePasswordFocus = () => setPasswordTouched(true);
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) =>
+    setPassword(event.target.value);
+
+  const showPasswordHint = passwordTouched && password.length < MIN_PASSWORD_LENGTH;
+
   const fields = [
     {
       id: "fullName",
@@ -68,13 +82,30 @@ export function SignupForm({
               {field.label}
             </label>
             {field.type === "password" ? (
-              <PasswordInput
-                id={field.id}
-                name={field.name}
-                placeholder={field.placeholder}
-                required
-                autoComplete={field.autoComplete}
-              />
+              <>
+                <PasswordInput
+                  id={field.id}
+                  name={field.name}
+                  placeholder={field.placeholder}
+                  required
+                  autoComplete={field.autoComplete}
+                  onFocus={handlePasswordFocus}
+                  onChange={handlePasswordChange}
+                />
+                <AnimatePresence>
+                  {showPasswordHint ? (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="text-muted-foreground mt-1.5 text-xs"
+                    >
+                      Your password must contain {MIN_PASSWORD_LENGTH} or more characters.
+                    </motion.p>
+                  ) : null}
+                </AnimatePresence>
+              </>
             ) : (
               <Input
                 id={field.id}

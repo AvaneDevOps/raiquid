@@ -112,7 +112,7 @@ export default function AuthPage() {
                   <FinalizingSignupView />
                 ) : signup.editingEmail ? (
                   <EditEmailView
-                    defaultEmail={signup.signUp?.emailAddress}
+                    defaultEmail={signup.signUp?.emailAddress ?? undefined}
                     pending={signup.pending}
                     error={signup.error}
                     onSubmit={signup.handleUpdateEmail}
@@ -123,7 +123,7 @@ export default function AuthPage() {
                   />
                 ) : (
                   <CheckEmailView
-                    email={signup.signUp?.emailAddress}
+                    email={signup.signUp?.emailAddress ?? undefined}
                     code={signup.code}
                     onCodeChange={signup.setCode}
                     onSubmit={signup.handleVerifyEmail}
@@ -150,7 +150,7 @@ export default function AuthPage() {
               >
                 {login.needsCode ? (
                   <LoginVerifyView
-                    identifier={login.signIn?.identifier}
+                    identifier={login.signIn?.identifier ?? undefined}
                     code={login.code}
                     onCodeChange={login.setCode}
                     onSubmit={login.handleVerifyLoginCode}
