@@ -105,6 +105,7 @@ export default function Page() {
               <Input
                 id="buyerName"
                 className="mt-2"
+                placeholder="Distify Distribution Ltd"
                 value={buyerName}
                 onChange={(event) => setBuyerName(event.target.value)}
                 aria-invalid={Boolean(errors.buyerName)}
@@ -122,6 +123,7 @@ export default function Page() {
                 <Input
                   id="invoiceNumber"
                   className="mt-2"
+                  placeholder="INV-2026-0100"
                   value={invoiceNumber}
                   onChange={(event) => setInvoiceNumber(event.target.value)}
                   aria-invalid={Boolean(errors.invoiceNumber)}
@@ -139,6 +141,7 @@ export default function Page() {
                   id="buyerContactEmail"
                   type="email"
                   className="mt-2"
+                  placeholder="ap@distify.example"
                   value={buyerContactEmail}
                   onChange={(event) => setBuyerContactEmail(event.target.value)}
                   aria-invalid={Boolean(errors.buyerContactEmail)}
@@ -158,6 +161,7 @@ export default function Page() {
                   id="amount"
                   className="mt-2"
                   inputMode="numeric"
+                  placeholder="2,000,000"
                   value={amountDisplay}
                   onChange={(event) => handleAmountChange(event.target.value)}
                   aria-invalid={Boolean(errors.amount)}
@@ -173,6 +177,7 @@ export default function Page() {
                   id="dueDate"
                   type="date"
                   className="mt-2"
+                  placeholder="2026-10-30"
                   value={dueDate}
                   onChange={(event) => setDueDate(event.target.value)}
                   aria-invalid={Boolean(errors.dueDate)}
@@ -191,6 +196,7 @@ export default function Page() {
                 id="description"
                 className="mt-2"
                 rows={3}
+                placeholder="400 units of woven fabric, delivered 28 Aug 2026."
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 aria-invalid={Boolean(errors.description)}

@@ -10,6 +10,7 @@ export default async function Page() {
   const token = await getToken();
 
   const settings = await buyerService.getSettings(token);
+
   const supplementalDataSource: BuyerSettingsDataSource = "fallback";
 
   return (

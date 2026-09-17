@@ -8,7 +8,7 @@ import { Card } from "@/components/shared/ui/card";
 import { Input } from "@/components/shared/ui/input";
 import { Button } from "@/components/shared/ui/button";
 
-import { NotificationToggle } from "./notification-toggle";
+import { NotificationToggle } from "@/components/shared/ui";
 import type { BuyerSettingsData } from "@/services/buyer";
 
 import { InlineNotice } from "@/components/shared/ui/notice";
