@@ -49,6 +49,13 @@ const PREVIEW_USER: SessionUser = {
   initials: "AO",
 };
 
+const PREVIEW_ADMIN_USER: SessionUser = {
+  name: "Chinedu Adeyemi",
+  subtitle: "Chinedu Adeyemi",
+  role: "admin",
+  initials: "CA",
+};
+
 const BUTTON_VARIANTS = ["primary", "secondary", "ghost", "danger"] as const;
 const BUTTON_SIZES = ["sm", "md", "lg"] as const;
 const BADGE_TONES = ["amber", "green", "red", "neutral"] as const;
@@ -227,7 +234,7 @@ export default function ComponentGalleryPage() {
 
       <Section title="AdminShell (top tabs — identical at every breakpoint)">
         <div className="border-border overflow-hidden rounded-xl border">
-          <AdminShell>
+          <AdminShell user={PREVIEW_ADMIN_USER}>
             <p className="text-muted-foreground text-sm">Admin content area.</p>
           </AdminShell>
         </div>

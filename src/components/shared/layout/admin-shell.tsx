@@ -5,20 +5,27 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Hexagon } from "lucide-react";
 import { ADMIN_NAV } from "@/lib/nav-config";
+import type { SessionUser } from "@/components/shared/layout/session-user";
+import { UserAccountMenu } from "@/components/shared/ui/user-account-menu";
 import { cn } from "@/lib/utils";
 
 // Deliberately identical at both breakpoints — on mobile the tab row scrolls, it does not become a bottom bar.
-export function AdminShell({ children }: { children: ReactNode }) {
+export function AdminShell({ user, children }: { user?: SessionUser; children: ReactNode }) {
   const pathname = usePathname();
 
   return (
     <div className="min-h-screen">
       <header className="border-border bg-surface border-b">
-        <div className="flex h-14 items-center gap-2 px-4 md:px-8">
-          <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
-          <span className="font-display text-foreground text-base font-semibold">Raiquid</span>
-          <span className="text-muted-foreground text-sm">/ platform</span>
+        {/* Top row: wordmark (left) + user account menu with sign-out (right) */}
+        <div className="flex h-14 items-center justify-between px-4 md:px-8">
+          <div className="flex items-center gap-2">
+            <Hexagon className="text-accent-400 size-4 shrink-0" strokeWidth={1.75} />
+            <span className="font-display text-foreground text-base font-semibold">Raiquid</span>
+            <span className="text-muted-foreground text-sm">/ platform</span>
+          </div>
+          {user && <UserAccountMenu user={user} />}
         </div>
+        {/* Bottom row: text-only tab navigation */}
         <nav className="flex gap-1 overflow-x-auto px-2 md:px-6">
           {ADMIN_NAV.map((item) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
