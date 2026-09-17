@@ -12,11 +12,6 @@ import { PayoutView } from "./_components/payout-view";
 import { TokenizedView } from "./_components/tokenized-view";
 import { toAcceptedAt, toInvoice, toMintEvent } from "./_lib/invoice";
 
-// Screens 06-09 (bizPending/Tokenized/Funding/Payout) — one page, 5
-// InvoiceStatus states via the stepper. "funded"/"repaid"/"overdue" all
-// share PayoutView — see that file's comment for why. Wired to real
-// GET /business/invoices/{id} — see ./_lib/invoice.ts for the confirmed
-// mapping.
 export default async function Page({ params }: PageProps<"/business/invoices/[invoiceId]">) {
   const { invoiceId } = await params;
 
@@ -26,6 +21,7 @@ export default async function Page({ params }: PageProps<"/business/invoices/[in
   let invoice: Invoice;
   let acceptedAt: string | undefined;
   let mintEvent: ReturnType<typeof toMintEvent>;
+
   try {
     const raw = await businessService.get<Record<string, unknown>>(
       `/business/invoices/${invoiceId}`,
@@ -54,7 +50,7 @@ export default async function Page({ params }: PageProps<"/business/invoices/[in
       subtitle = acceptedAt ? `Listed ${formatDate(acceptedAt)}` : undefined;
       break;
     default:
-      subtitle = undefined; // funded/repaid/overdue: no subtitle, matches screen 09
+      subtitle = undefined;
   }
 
   return (

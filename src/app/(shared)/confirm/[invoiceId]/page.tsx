@@ -48,7 +48,7 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]">
             </div>
             <div className="flex items-center justify-between gap-5 py-4">
               <span>Goods/services</span>
-              <span className="text-right">{invoice.description}</span>
+              <span className="text-right">{invoice.description || "—"}</span>
             </div>
             <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
               <span>Proof of delivery</span>

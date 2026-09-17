@@ -1,8 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+
 import { OnChainStatusBadge } from "@/components/shared/domain/status-badges";
 import { Card } from "@/components/shared/ui/card";
 import { EmptyState } from "@/components/shared/ui/notice";
+import { ApiError, adminService } from "@/services";
 import type { OnChainEvent } from "@/types";
 
 import { formatTimestamp } from "@/lib/format-timestamp";
@@ -27,12 +32,68 @@ const EXPLORER_TX_URL = "https://sepolia.etherscan.io/tx/";
  * every event has one yet — on-chain identifiers can arrive before the
  * off-chain row, per the schema comment on OnChainEvent).
  *
- * "Retry" (screen 29, failed row only) has no wired action yet — on-chain
- * integration is an open decision (docs/RAIQUID_CONTEXT.md) — so it's a
- * plain unstyled text button, not the shared Button component, matching
- * the export's chrome-less look.
+ * "Retry" is wired for real (POST /admin/invoices/{invoiceId}/retry-sto-launch)
+ * but scoped narrowly to what the backend actually supports tonight: only
+ * a failed newSto (STO launch) row, with a real invoiceId, gets a clickable
+ * button. Every other failed action stays exactly as it was — a plain
+ * unstyled inert text button, no onClick — since there is no backend
+ * retry endpoint for those yet (open decision, docs/RAIQUID_CONTEXT.md).
+ * The call can take up to 90s (Brickken STO launch), so the button disables
+ * and relabels itself while pending rather than looking clickable or dead.
+ * router.refresh() re-fetches the real server-rendered data on both success
+ * and failure instead of faking a local state update.
  */
 export function LedgerTable({ events }: { events: OnChainEvent[] }) {
+  const router = useRouter();
+  const { getToken } = useAuth();
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rowErrors, setRowErrors] = useState<Record<string, string>>({});
+
+  async function retryStoLaunch(event: OnChainEvent) {
+    if (!event.invoiceId) return;
+
+    setPendingId(event.id);
+    setRowErrors((prev) => ({ ...prev, [event.id]: "" }));
+    try {
+      const token = await getToken();
+      await adminService.post(`/admin/invoices/${event.invoiceId}/retry-sto-launch`, {}, token);
+    } catch (error) {
+      setRowErrors((prev) => ({
+        ...prev,
+        [event.id]: error instanceof ApiError ? error.message : "Something went wrong. Try again.",
+      }));
+    } finally {
+      setPendingId(null);
+      router.refresh();
+    }
+  }
+
+  function RetryControl({ event }: { event: OnChainEvent }) {
+    if (event.status !== "failed") return null;
+
+    const isRetryable = event.action === "newSto" && Boolean(event.invoiceId);
+    const isPending = pendingId === event.id;
+
+    if (!isRetryable) {
+      return (
+        <button type="button" className="text-foreground text-sm font-medium hover:underline">
+          Retry
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() => retryStoLaunch(event)}
+        className="text-foreground text-sm font-medium hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-60"
+      >
+        {isPending ? "Retrying… this can take up to 90 seconds" : "Retry"}
+      </button>
+    );
+  }
+
   if (events.length === 0) {
     return (
       <EmptyState
@@ -70,15 +131,11 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
               <td className="px-5 py-4">
                 <div className="flex items-center gap-3">
                   <OnChainStatusBadge status={event.status} />
-                  {event.status === "failed" ? (
-                    <button
-                      type="button"
-                      className="text-foreground text-sm font-medium hover:underline"
-                    >
-                      Retry
-                    </button>
-                  ) : null}
+                  <RetryControl event={event} />
                 </div>
+                {rowErrors[event.id] ? (
+                  <p className="text-danger mt-1 text-sm">{rowErrors[event.id]}</p>
+                ) : null}
               </td>
               <td className="px-5 py-4">
                 {event.txHash ? (
@@ -125,16 +182,12 @@ export function LedgerTable({ events }: { events: OnChainEvent[] }) {
               <dt className="text-muted-foreground text-sm">Status</dt>
               <dd className="flex items-center gap-3">
                 <OnChainStatusBadge status={event.status} />
-                {event.status === "failed" ? (
-                  <button
-                    type="button"
-                    className="text-foreground text-sm font-medium hover:underline"
-                  >
-                    Retry
-                  </button>
-                ) : null}
+                <RetryControl event={event} />
               </dd>
             </div>
+            {rowErrors[event.id] ? (
+              <p className="text-danger text-sm">{rowErrors[event.id]}</p>
+            ) : null}
             {event.txHash ? (
               <div className="flex items-center justify-between gap-4">
                 <dt className="text-muted-foreground text-sm">Explorer</dt>
