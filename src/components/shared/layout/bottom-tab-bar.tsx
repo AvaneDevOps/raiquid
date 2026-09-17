@@ -16,6 +16,7 @@ export function BottomTabBar({ role }: { role: RoleWithNav }) {
     <nav className="border-border bg-surface fixed inset-x-0 bottom-0 z-40 flex border-t md:hidden">
       {items.map((item) => {
         const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        const Icon = item.icon;
         return (
           <Link
             key={item.href}
@@ -26,13 +27,16 @@ export function BottomTabBar({ role }: { role: RoleWithNav }) {
               active ? "text-accent-400 font-medium" : "text-muted-foreground",
             )}
           >
-            {/* the exports use a small dot per tab, not an icon (mobile screen 04) */}
-            <span
-              className={cn(
-                "size-1.5 shrink-0 rounded-full",
-                active ? "bg-accent-400" : "bg-muted-foreground",
-              )}
-            />
+            {Icon ? (
+              <Icon className="size-5 shrink-0" strokeWidth={1.75} />
+            ) : (
+              <span
+                className={cn(
+                  "size-1.5 shrink-0 rounded-full",
+                  active ? "bg-accent-400" : "bg-muted-foreground",
+                )}
+              />
+            )}
             <span className="max-w-full truncate">{item.label}</span>
           </Link>
         );

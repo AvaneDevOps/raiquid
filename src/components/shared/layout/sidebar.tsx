@@ -26,18 +26,20 @@ export function Sidebar({ role, user }: { role: RoleWithNav; user: SessionUser }
       <nav className="flex-1 space-y-1 px-3 py-2">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "block rounded-lg px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                 active
                   ? "bg-surface-raised text-accent-400 font-medium"
                   : "text-muted-foreground hover:bg-surface-raised hover:text-foreground",
               )}
             >
+              {Icon && <Icon className="size-4 shrink-0" strokeWidth={1.75} />}
               {item.label}
             </Link>
           );
