@@ -1,4 +1,4 @@
-import { Card, CardHeader, CardTitle } from "@/components/shared/ui/card";
+import { Card, CardTitle } from "@/components/shared/ui/card";
 import type { DocumentCheck } from "@/types";
 
 import { DocumentCheckBadge } from "./document-check-badge";
