@@ -70,6 +70,7 @@ export function OTPInput({ value, onChange }: OTPInputProps) {
               onKeyDown={(event) => handleKeyDown(index, event)}
               onPaste={handlePaste}
               autoComplete={index === 0 ? "one-time-code" : "off"}
+              autoFocus={index === 0}
               aria-label={`Verification code digit ${index + 1}`}
               animate={{
                 scale: isFilled ? 1.04 : 1,

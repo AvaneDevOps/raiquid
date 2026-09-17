@@ -4,13 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
 import { BUYER_SETTINGS } from "@/components/buyer/fixtures";
-import { Button } from "@/components/shared/ui/button";
-import { Card } from "@/components/shared/ui/card";
-import { Input } from "@/components/shared/ui/input";
-import { InlineNotice } from "@/components/shared/ui/notice";
+import { Button, Card, Input, NotificationToggle, InlineNotice } from "@/components/shared/ui";
 import { ApiError, buyerService } from "@/services";
-
-import { NotificationToggle } from "./_components/notification-toggle";
 
 interface SettingsResponse {
   legalName?: string;

@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 
-import { Button } from "@/components/shared/ui/button";
-import { Card } from "@/components/shared/ui/card";
-import { Input } from "@/components/shared/ui/input";
-import { InlineNotice } from "@/components/shared/ui/notice";
+import { Card, Input, NotificationToggle, Button, InlineNotice } from "@/components/shared/ui";
 import { ApiError, businessService } from "@/services";
 
 import {
@@ -14,7 +11,6 @@ import {
   NOTIFICATION_PREFERENCES,
   PASSWORD_LAST_CHANGED_LABEL,
 } from "./_components/fixtures";
-import { NotificationToggle } from "./_components/notification-toggle";
 
 interface SettingsResponse {
   legalName: string;
