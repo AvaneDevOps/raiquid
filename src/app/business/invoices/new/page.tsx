@@ -38,14 +38,12 @@ type FormErrors = Partial<
 // See docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default function Page() {
   const { getToken } = useAuth();
-  const [buyerName, setBuyerName] = useState("Distify Distribution Ltd");
-  const [invoiceNumber, setInvoiceNumber] = useState("INV-2026-0100");
-  const [buyerContactEmail, setBuyerContactEmail] = useState("ap@distify.example");
-  const [amountDisplay, setAmountDisplay] = useState("2,000,000");
-  const [dueDate, setDueDate] = useState("2026-10-30");
-  const [description, setDescription] = useState(
-    "400 units of woven fabric, delivered 28 Aug 2026.",
-  );
+  const [buyerName, setBuyerName] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [buyerContactEmail, setBuyerContactEmail] = useState("");
+  const [amountDisplay, setAmountDisplay] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
@@ -116,6 +114,7 @@ export default function Page() {
               <Input
                 id="buyerName"
                 className="mt-2"
+                placeholder="Distify Distribution Ltd"
                 value={buyerName}
                 onChange={(event) => setBuyerName(event.target.value)}
                 aria-invalid={Boolean(errors.buyerName)}
@@ -133,6 +132,7 @@ export default function Page() {
                 <Input
                   id="invoiceNumber"
                   className="mt-2"
+                  placeholder="INV-2026-0100"
                   value={invoiceNumber}
                   onChange={(event) => setInvoiceNumber(event.target.value)}
                   aria-invalid={Boolean(errors.invoiceNumber)}
@@ -150,6 +150,7 @@ export default function Page() {
                   id="buyerContactEmail"
                   type="email"
                   className="mt-2"
+                  placeholder="ap@distify.example"
                   value={buyerContactEmail}
                   onChange={(event) => setBuyerContactEmail(event.target.value)}
                   aria-invalid={Boolean(errors.buyerContactEmail)}
@@ -169,6 +170,7 @@ export default function Page() {
                   id="amount"
                   className="mt-2"
                   inputMode="numeric"
+                  placeholder="2,000,000"
                   value={amountDisplay}
                   onChange={(event) => handleAmountChange(event.target.value)}
                   aria-invalid={Boolean(errors.amount)}
@@ -184,6 +186,7 @@ export default function Page() {
                   id="dueDate"
                   type="date"
                   className="mt-2"
+                  placeholder="2026-10-30"
                   value={dueDate}
                   onChange={(event) => setDueDate(event.target.value)}
                   aria-invalid={Boolean(errors.dueDate)}
@@ -202,6 +205,7 @@ export default function Page() {
                 id="description"
                 className="mt-2"
                 rows={3}
+                placeholder="400 units of woven fabric, delivered 28 Aug 2026."
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 aria-invalid={Boolean(errors.description)}
