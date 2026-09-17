@@ -8,7 +8,7 @@ import { useSignUp, useSignIn, useUser } from "@clerk/nextjs";
 // server-only) — pulling it into this Client Component's bundle breaks
 // the build. See the barrel's own file for the full export list.
 import { LandingHeader } from "@/components/shared/layout/landing-header";
-import { Button, Input, InlineNotice, PasswordInput } from "@/components/shared/ui";
+import { Button, Input, InlineNotice, PasswordInput, OTPInput } from "@/components/shared/ui";
 import { cn } from "@/lib/utils";
 import { ROLE_HOME } from "@/lib/role-home";
 import { isUserRole } from "@/lib/user-role";
@@ -90,6 +90,9 @@ export default function AuthPage() {
   const signupResendCoolDown = useCoolDown(RESEND_COOLDOWN_SECONDS);
   const [loginResendPending, setLoginResendPending] = useState(false);
   const loginResendCoolDown = useCoolDown(RESEND_COOLDOWN_SECONDS);
+
+  const [signupCode, setSignupCode] = useState("");
+  const [loginCode, setLoginCode] = useState("");
 
   // Reactive off the signUp signal, not separate state: true exactly when
   // create() left the attempt needing an email code and nothing else —
@@ -179,14 +182,13 @@ export default function AuthPage() {
 
   async function handleVerifyEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!signUp) return;
+    if (!signUp || signupCode.length !== 6) return;
 
     setSignupPending(true);
     setSignupError(undefined);
 
-    const data = new FormData(event.currentTarget);
     const { error } = await signUp.verifications.verifyEmailCode({
-      code: String(data.get("code") ?? ""),
+      code: signupCode,
     });
 
     if (error) {
@@ -214,10 +216,15 @@ export default function AuthPage() {
   }
 
   async function handleResendCode() {
-    if (!signUp) return;
+    if (!signUp || resendPending || signupResendCoolDown.remaining > 0) setResendPending(true);
     setSignupError(undefined);
     const { error } = await signUp.verifications.sendEmailCode();
-    if (error) setSignupError(error.longMessage ?? error.message);
+    setResendPending(false);
+    if (error) {
+      setSignupError(error.longMessage ?? error.message);
+      return;
+    }
+    signupResendCoolDown.start();
   }
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
@@ -277,14 +284,13 @@ export default function AuthPage() {
 
   async function handleVerifyLoginCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!signIn) return;
+    if (!signIn || loginCode.length !== 6) return;
 
     setLoginPending(true);
     setLoginError(undefined);
 
-    const data = new FormData(event.currentTarget);
     const { error } = await signIn.mfa.verifyEmailCode({
-      code: String(data.get("code") ?? ""),
+      code: loginCode,
     });
 
     if (error) {
@@ -308,10 +314,16 @@ export default function AuthPage() {
   }
 
   async function handleResendLoginCode() {
-    if (!signIn) return;
+    if (!signUp || loginResendPending || loginResendCoolDown.remaining > 0)
+      setLoginResendPending(true);
     setLoginError(undefined);
     const { error } = await signIn.mfa.sendEmailCode();
-    if (error) setLoginError(error.longMessage ?? error.message);
+    setLoginResendPending(false);
+    if (error) {
+      setLoginError(error.longMessage ?? error.message);
+      return;
+    }
+    loginResendCoolDown.start();
   }
 
   // Tab switches must also reset the login code-step state, otherwise
@@ -539,15 +551,7 @@ export default function AuthPage() {
                         <label htmlFor="code" className="text-foreground mb-1.5 block text-sm">
                           Verification code
                         </label>
-                        <Input
-                          id="code"
-                          name="code"
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          placeholder="123456"
-                          required
-                        />
+                        <OTPInput value={signupCode} onChange={setSignupCode} />
                       </motion.div>
 
                       <AnimatePresence>
@@ -569,7 +573,7 @@ export default function AuthPage() {
                           variant="primary"
                           size="lg"
                           className="w-full"
-                          disabled={signupPending}
+                          disabled={signupPending || signupCode.length !== 6}
                         >
                           {signupPending ? "Verifying…" : "Verify email"}
                         </Button>
@@ -579,9 +583,14 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={handleResendCode}
-                      className="text-accent-400 mt-4 block text-center text-xs hover:underline"
+                      disabled={resendPending || signupResendCoolDown.remaining > 0}
+                      className="text-accent-400 disabled:text-muted-foreground mt-4 block w-full text-center text-xs hover:cursor-pointer hover:underline disabled:cursor-not-allowed disabled:no-underline"
                     >
-                      I didn&apos;t get a code — send it again
+                      {signupResendCoolDown.remaining > 0
+                        ? `Resend available in ${signupResendCoolDown.remaining}s`
+                        : resendPending
+                          ? "Sending..."
+                          : "Didn't get a code? — Resend code"}
                     </button>
                   </>
                 )}
@@ -608,15 +617,7 @@ export default function AuthPage() {
                         <label htmlFor="loginCode" className="text-foreground mb-1.5 block text-sm">
                           Verification code
                         </label>
-                        <Input
-                          id="loginCode"
-                          name="code"
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          placeholder="123456"
-                          required
-                        />
+                        <OTPInput value={loginCode} onChange={setLoginCode} />
                       </motion.div>
 
                       <AnimatePresence>
@@ -638,7 +639,7 @@ export default function AuthPage() {
                           variant="primary"
                           size="lg"
                           className="w-full"
-                          disabled={loginPending || !signIn}
+                          disabled={loginPending || loginCode.length !== 6}
                         >
                           {loginPending ? "Verifying…" : "Verify and sign in"}
                         </Button>
@@ -648,9 +649,14 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={handleResendLoginCode}
-                      className="text-accent-400 mt-4 block text-center text-xs hover:underline"
+                      disabled={loginResendPending || loginResendCoolDown.remaining > 0}
+                      className="text-accent-400 disabled:text-muted-foreground mt-4 block w-full text-center text-xs hover:cursor-pointer hover:underline disabled:cursor-not-allowed disabled:no-underline"
                     >
-                      I didn&apos;t get a code — send it again
+                      {loginResendCoolDown.remaining > 0
+                        ? `Resend available in ${loginResendCoolDown.remaining}s`
+                        : loginResendPending
+                          ? "Sending..."
+                          : "Didn't get a code? — Resend code"}
                     </button>
 
                     <button

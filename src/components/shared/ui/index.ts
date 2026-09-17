@@ -7,3 +7,4 @@ export * from "./input";
 export * from "./textarea";
 export * from "./toggle";
 export * from "./password-input";
+export * from "./otp-input";

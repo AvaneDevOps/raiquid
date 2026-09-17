@@ -3,10 +3,10 @@ import { AdminShell } from "@/components/shared/layout/admin-shell";
 import { getSessionUser } from "@/components/shared/layout/session-user";
 
 export default async function Layout({ children }: { children: ReactNode }) {
-  // AdminShell takes no user prop today (no user slot in the exports —
-  // wordmark + tabs only, see docs/DESIGN_SYSTEM.md's "Layout shells").
-  // This call is the guard only: no session -> /auth, non-admin session ->
-  // their own role home. Return value intentionally discarded.
-  await getSessionUser("admin");
-  return <AdminShell>{children}</AdminShell>;
+  // getSessionUser gates access (no session -> /auth, wrong role -> their
+  // own home) *and* returns the SessionUser the AdminShell renders in its
+  // header via UserAccountMenu — which embeds the sign-out button the admin
+  // panel was missing.
+  const user = await getSessionUser("admin");
+  return <AdminShell user={user}>{children}</AdminShell>;
 }
