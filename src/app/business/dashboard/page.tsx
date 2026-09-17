@@ -9,13 +9,9 @@ import { formatNaira } from "@/lib/format";
 import { businessService } from "@/services";
 import type { Invoice } from "@/types";
 
-import { RecentInvoicesCard } from "./_components/recent-invoices-card";
 import { isActive, toInvoice } from "../_lib/invoice";
+import { RecentInvoicesCard } from "./_components/recent-invoices-card";
 
-/**
- * "Good morning/afternoon/evening" — small enough to keep local for now.
- * Promote to src/lib/ if a second role's dashboard wants the same greeting.
- */
 function getDaypartGreeting(date: Date = new Date()): string {
   const hour = date.getHours();
   if (hour < 12) return "Good morning";
@@ -23,13 +19,6 @@ function getDaypartGreeting(date: Date = new Date()): string {
   return "Good evening";
 }
 
-// Screen 04-bizDashboard, wired to real GET /business/invoices — see
-// ../_lib/invoice.ts for the mapping (shared with business/invoices) and
-// the real "active" definition. "Total financed" and "Avg. time to
-// cash" are removed entirely — no backing endpoint exists for either
-// (the former needs a stats aggregate, the latter needs
-// acceptedAt-to-payout timing nobody's computed) — see
-// docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default async function Page() {
   const user = await getSessionUser("business");
   const firstName = user.name.split(" ")[0];
@@ -39,6 +28,7 @@ export default async function Page() {
 
   let invoices: Invoice[] = [];
   let loadError: string | null = null;
+
   try {
     const response = await businessService.get<{ data: Record<string, unknown>[] }>(
       "/business/invoices?pageSize=100",

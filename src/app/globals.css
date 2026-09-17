@@ -56,6 +56,28 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 280ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-enter {
+    animation: none;
+  }
+}
+
 /* Chamfered top-left + bottom-right corners — the seal-chip silhouette, applied by <Badge>. ~6px measured off chip crops from screens 04/06. */
 @utility seal-chip {
   --seal-chamfer: 6px;

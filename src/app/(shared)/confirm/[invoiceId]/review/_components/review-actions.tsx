@@ -4,11 +4,8 @@ import { useState } from "react";
 
 import { InlineNotice } from "@/components/shared/ui/notice";
 import { Button } from "@/components/shared/ui/button";
-import { ApiError, buyerService } from "@/services";
+import { ApiError, confirmService } from "@/services";
 
-// POST /confirm/{invoiceId}/review — ReviewConfirmationDto { accept, note? }.
-// Magic-link route, no Clerk token (see src/types/api-generated.ts,
-// ConfirmController_submitReview).
 export function ReviewActions({
   invoiceId,
   supplierName,
@@ -25,11 +22,7 @@ export function ReviewActions({
     setSubmitting(true);
     setError(null);
     try {
-      await buyerService.post(
-        `/confirm/${invoiceId}/review`,
-        { accept } satisfies { accept: boolean },
-        null,
-      );
+      await confirmService.submitReview(invoiceId, { accept });
       setResult(accept ? "accepted" : "disputed");
     } catch (err) {
       setError(

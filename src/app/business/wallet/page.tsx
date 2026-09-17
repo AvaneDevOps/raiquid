@@ -90,11 +90,13 @@ export default async function Page() {
           caption="all-time"
           emphasize
         />
+
         <StatCard
           label="Pending payout"
           value={formatNaira(pendingPayoutAmount)}
           caption={pendingPayoutAmount > 0 ? "awaiting repayment" : "No pending payouts"}
         />
+
         <StatCard
           label="Connected account"
           value={payoutWalletAddress ? truncateMiddle(payoutWalletAddress) : "Not connected"}

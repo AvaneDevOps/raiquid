@@ -14,10 +14,14 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]/r
   const { invoiceId } = await params;
 
   let invoice: Confirmation;
+
   try {
     invoice = await getConfirmation(invoiceId);
   } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound();
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+
     throw error;
   }
 
@@ -34,10 +38,12 @@ export default async function Page({ params }: PageProps<"/confirm/[invoiceId]/r
               <span>From</span>
               <span className="text-right">{invoice.supplierName}</span>
             </div>
+
             <div className="flex items-center justify-between gap-5 py-4">
               <span>Amount owed</span>
               <span>{formatNaira(invoice.amount)}</span>
             </div>
+
             <div className="flex items-center justify-between gap-5 py-4 last:pb-0">
               <span>Payable on</span>
               <span>{formatDate(invoice.dueDate)}</span>
