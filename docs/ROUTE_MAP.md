@@ -92,12 +92,12 @@ design first.
 
 ## Shared / cross-cutting
 
-| Route              | Screen           | Status | Notes                                                                                                                                                                                                   |
-| ------------------ | ---------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/notifications`   | 30-notifications | stub   | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
-| 404                | —                | stub   | `src/app/not-found.tsx`                                                                                                                                                                                 |
-| Error boundary     | —                | stub   | `src/app/error.tsx`                                                                                                                                                                                     |
-| Empty/error states | 31-emptyError    | —      | Not a route — a set of UI states (empty invoice list, delayed-transaction notice) that live inside existing pages. See `docs/DESIGN_SYSTEM.md`, "EmptyState" and "InlineNotice".                        |
+| Route              | Screen           | Status      | Notes                                                                                                                                                                                                   |
+| ------------------ | ---------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/notifications`   | 30-notifications | implemented | Export (screen 30) shows the panel only, no chrome — treat as the export isolating content; render inside the visitor's current role shell. Rows: tone dot + message + relative time (green/amber/red). |
+| 404                | —                | implemented | `src/app/not-found.tsx`                                                                                                                                                                                 |
+| Error boundary     | —                | implemented | `src/app/error.tsx`                                                                                                                                                                                     |
+| Empty/error states | 31-emptyError    | implemented | Not a route — a set of UI states (empty invoice list, delayed-transaction notice) that live inside existing pages. See `docs/DESIGN_SYSTEM.md`, "EmptyState" and "InlineNotice".                        |
 
 ## Route-protection
 

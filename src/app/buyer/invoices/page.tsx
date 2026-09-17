@@ -6,27 +6,26 @@ import { Button } from "@/components/shared/ui/button";
 import { Card, CardTitle } from "@/components/shared/ui/card";
 import { EmptyState, InlineNotice } from "@/components/shared/ui/notice";
 import { formatDate, formatNaira } from "@/lib/format";
-import { buyerService } from "@/services";
+import { buyerService, normalizeBuyerInvoices, type BuyerInvoice } from "@/services/buyer";
 
-import { needsReview, toBuyerInvoice, type BuyerInvoice } from "../_lib/invoice";
+function needsReview(invoice: BuyerInvoice): boolean {
+  return invoice.status === "submitted" || invoice.status === "awaiting_acceptance";
+}
 
-// Screen 15-buyInvoices, wired to GET /buyer/invoices — see
-// ../_lib/invoice.ts for the confirmed mapping. Only submitted/
-// awaiting_acceptance rows get a Review link (to the real magic-link
-// confirm flow, /confirm/{confirmToken} — not /confirm/{id}, a different
-// value); anything already accepted has nothing left to review.
 export default async function Page() {
   const { getToken } = await auth();
   const token = await getToken();
 
   let invoices: BuyerInvoice[] = [];
   let loadError: string | null = null;
+
   try {
-    const response = await buyerService.get<{ data: Record<string, unknown>[] }>(
-      "/buyer/invoices",
-      token,
-    );
-    invoices = response.data.map(toBuyerInvoice);
+    const payload = await buyerService.listInvoices<unknown>(token, {
+      page: 1,
+      pageSize: 100,
+    });
+
+    invoices = normalizeBuyerInvoices(payload);
   } catch (error) {
     loadError = error instanceof Error ? error.message : "Couldn't load your invoices.";
   }

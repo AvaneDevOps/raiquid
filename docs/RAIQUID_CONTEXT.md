@@ -206,6 +206,7 @@ implementation state materially changes.
   metadata — `ClerkApiTokenProvider` in `src/services/auth-token.ts` wires
   the Clerk session token into `src/services/client.ts`'s token-provider
   seam for authenticated backend requests.
+
 - **Data fetching / backend.** The live API contract is documented in
   `docs/Frontend_Backend_Integration_Guide.pdf`. All backend communication
   belongs in `src/services/`, with `src/services/client.ts` responsible for
