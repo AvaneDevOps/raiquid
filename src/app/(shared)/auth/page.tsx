@@ -53,6 +53,20 @@ function splitName(fullName: string): { firstName: string; lastName?: string } {
   return rest.length ? { firstName, lastName: rest.join(" ") } : { firstName };
 }
 
+const RESEND_COOLDOWN_SECONDS = 30;
+
+function useCoolDown(seconds: number) {
+  const [remaining, setRemaining] = useState(0);
+
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const timer = setInterval(() => setRemaining((s) => Math.max(0, s - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [remaining]);
+
+  return { remaining, start: () => setRemaining(seconds) };
+}
+
 export default function AuthPage() {
   const router = useRouter();
   const { isSignedIn, user } = useUser();
@@ -63,11 +77,19 @@ export default function AuthPage() {
   const [signupRole, setSignupRole] = useState<SignupRole>("business");
   const [signupPending, setSignupPending] = useState(false);
   const [signupError, setSignupError] = useState<string>();
+  // True once verification has succeeded and finalize() is in flight —
+  // keeps the "verify-email" view up so we don't flash back to the
+  // signup form before the redirect effect fires.
+  const [finalizingSignup, setFinalizingSignup] = useState(false);
   const [loginPending, setLoginPending] = useState(false);
   const [loginError, setLoginError] = useState<string>();
   // True when Clerk requires an email code to establish device trust
   // (signing in from a new browser). Flips the login view to code entry.
   const [loginNeedsCode, setLoginNeedsCode] = useState(false);
+  const [resendPending, setResendPending] = useState(false);
+  const signupResendCoolDown = useCoolDown(RESEND_COOLDOWN_SECONDS);
+  const [loginResendPending, setLoginResendPending] = useState(false);
+  const loginResendCoolDown = useCoolDown(RESEND_COOLDOWN_SECONDS);
 
   // Reactive off the signUp signal, not separate state: true exactly when
   // create() left the attempt needing an email code and nothing else —
@@ -78,7 +100,8 @@ export default function AuthPage() {
     signUp.unverifiedFields.includes("email_address") &&
     signUp.missingFields.length === 0;
 
-  const view: "signup" | "login" | "verify-email" = needsEmailVerification ? "verify-email" : mode;
+  const view: "signup" | "login" | "verify-email" =
+    needsEmailVerification || finalizingSignup ? "verify-email" : mode;
 
   // Shared by both flows: once finalize() actually activates a session,
   // useUser() reflects it — redirect to that role's home from one place
@@ -120,10 +143,12 @@ export default function AuthPage() {
     }
 
     if (signUp.status === "complete") {
+      setFinalizingSignup(true);
       const { error: finalizeError } = await signUp.finalize();
       if (finalizeError) {
         setSignupError(finalizeError.longMessage ?? finalizeError.message);
         setSignupPending(false);
+        setFinalizingSignup(false);
       }
       // On success the useEffect above redirects once useUser() sees the new session.
       return;
@@ -178,10 +203,12 @@ export default function AuthPage() {
       return;
     }
 
+    setFinalizingSignup(true);
     const { error: finalizeError } = await signUp.finalize();
     if (finalizeError) {
       setSignupError(finalizeError.longMessage ?? finalizeError.message);
       setSignupPending(false);
+      setFinalizingSignup(false);
     }
     // On success the useEffect above redirects once useUser() sees the new session.
   }
@@ -491,61 +518,73 @@ export default function AuthPage() {
                 transition={{ duration: 0.22, ease: "easeOut" }}
                 className="mt-6"
               >
-                <p className="text-foreground text-lg font-semibold">Check your email</p>
-                <p className="text-muted-foreground mt-1.5 text-sm">
-                  We sent a code to <span className="text-foreground">{signUp?.emailAddress}</span>.
-                  Enter it below to finish creating your account.
-                </p>
+                {finalizingSignup ? (
+                  <div className="py-6 text-center">
+                    <p className="text-foreground text-lg font-semibold">Setting up your account</p>
+                    <p className="text-muted-foreground mt-1.5 text-sm">
+                      This will just take a moment...
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-foreground text-lg font-semibold">Check your email</p>
+                    <p className="text-muted-foreground mt-1.5 text-sm">
+                      We sent a code to{" "}
+                      <span className="text-foreground">{signUp?.emailAddress}</span>. Enter it
+                      below to finish creating your account.
+                    </p>
 
-                <form className="mt-6 space-y-4" onSubmit={handleVerifyEmail}>
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                    <label htmlFor="code" className="text-foreground mb-1.5 block text-sm">
-                      Verification code
-                    </label>
-                    <Input
-                      id="code"
-                      name="code"
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      placeholder="123456"
-                      required
-                    />
-                  </motion.div>
-
-                  <AnimatePresence>
-                    {signupError ? (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <InlineNotice tone="danger">{signupError}</InlineNotice>
+                    <form className="mt-6 space-y-4" onSubmit={handleVerifyEmail}>
+                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                        <label htmlFor="code" className="text-foreground mb-1.5 block text-sm">
+                          Verification code
+                        </label>
+                        <Input
+                          id="code"
+                          name="code"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          placeholder="123456"
+                          required
+                        />
                       </motion.div>
-                    ) : null}
-                  </AnimatePresence>
 
-                  <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      size="lg"
-                      className="w-full"
-                      disabled={signupPending}
+                      <AnimatePresence>
+                        {signupError ? (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <InlineNotice tone="danger">{signupError}</InlineNotice>
+                          </motion.div>
+                        ) : null}
+                      </AnimatePresence>
+
+                      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+                        <Button
+                          type="submit"
+                          variant="primary"
+                          size="lg"
+                          className="w-full"
+                          disabled={signupPending}
+                        >
+                          {signupPending ? "Verifying…" : "Verify email"}
+                        </Button>
+                      </motion.div>
+                    </form>
+
+                    <button
+                      type="button"
+                      onClick={handleResendCode}
+                      className="text-accent-400 mt-4 block text-center text-xs hover:underline"
                     >
-                      {signupPending ? "Verifying…" : "Verify email"}
-                    </Button>
-                  </motion.div>
-                </form>
-
-                <button
-                  type="button"
-                  onClick={handleResendCode}
-                  className="text-accent-400 mt-4 block text-center text-xs hover:underline"
-                >
-                  I didn&apos;t get a code — send it again
-                </button>
+                      I didn&apos;t get a code — send it again
+                    </button>
+                  </>
+                )}
               </motion.div>
             ) : (
               <motion.div
