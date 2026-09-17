@@ -1,139 +1,92 @@
 # Raiquid
 
-Raiquid is a dark-theme Next.js application for tokenised invoice financing for Nigerian SMEs. Businesses upload verified invoices, buyers confirm what they owe, invoices are tokenised and listed for funding, and investors receive returns as the buyer repays on the due date.
+**Turn waiting invoices into working capital.**
 
-The product is built for the Brickken Developer Build Programme and uses the Base Sepolia sandbox, with the design language and product flow documented in the repo's design and route artifacts.
+Live demo: https://raiquid.avane.online
 
-## Project status
+## The problem
 
-This repo is a working frontend implementation with the shared foundation and major role shells in place. The route tree is scaffolded and many screens are implemented, while a few routes remain stubs as noted in the route map.
+A Nigerian SME delivers goods or services, sends an invoice, and then
+waits. Thirty days. Sixty. Sometimes ninety. The work is done, the
+debt is real, but the cash isn't. That gap is what stalls small
+businesses more than almost anything else.
 
-For the full handoff context, start here:
+Raiquid closes it. A business submits a confirmed invoice, and
+investors fund it immediately, for a real return, backed by a
+real, on-chain settlement.
 
-- docs/RAIQUID_CONTEXT.md
-- docs/DESIGN_SYSTEM.md
-- docs/ROUTE_MAP.md
+## How it works
 
-## Architecture summary
+1. **A business submits an invoice.** Real signup, real form.
+2. **The buyer confirms it, no account required.** A single-use
+   magic link, sent by real email. The buyer isn't a Raiquid user,
+   so they shouldn't have to become one just to confirm a debt.
+3. **The invoice is tokenized on-chain**, through Brickken's sandbox
+   on Ethereum Sepolia, real API calls, not simulated.
+4. **Whitelisted investors fund it**, at a discount to face value.
+   The discount rate is tiered by the buyer's provenance, their
+   real, public payment history on the platform: better-behaved
+   buyers unlock cheaper capital for the businesses that invoice
+   them.
+5. **The buyer repays the full face value.** The gap between what
+   investors funded and what gets repaid is real yield, not a flat
+   number pulled from nowhere.
 
-- One responsive Next.js app, not a monorepo or separate mobile app
-- App Router with Next.js 16.3
-- TypeScript strict mode
-- Tailwind CSS v4 styling
-- React 19
-- Auth via Clerk, with route protection handled at the app layer
-- Domain model and display mappings centralized in src/types/domain.ts and src/lib/domain-display.ts
-- Route structure mirrors the URL structure 1:1 in src/app
+## Provenance: the trust layer
 
-## Quick start
+Every buyer builds a public track record, acceptance rate, on-time
+payment rate, invoices financed. That record is what lets an
+investor size up risk before funding, and it's what determines the
+discount rate on the next invoice. Good payment behavior compounds
+into cheaper capital.
 
-### Prerequisites
+## Real Brickken integration, independently verifiable
 
-- Node 22 recommended (see .nvmrc)
-- npm
+Every on-chain action, tokenization, whitelisting, offering launch,
+investment, runs through Brickken's Dapp API against the Ethereum
+Sepolia testnet. This isn't mocked, and you don't have to take our
+word for it:
 
-### Install and run
+- Open the **admin ledger** in the live demo. Every real on-chain
+  event is logged there, each with a working link straight to
+  Sepolia Etherscan. Click through, the transaction is sitting on a
+  chain Raiquid doesn't control.
+- Tokenization is the cleanest, most reproducible proof point,
+  confirmed on-chain every time an invoice moves through the flow.
+- Brickken's sandbox has a documented indexing lag between a
+  transaction mining and their backend recognizing it in a
+  follow-up call. Rather than treat that as a hard failure, Raiquid
+  detects the specific error shape and retries automatically with
+  escalating backoff, real engineering around a real vendor
+  characteristic, not a workaround hidden from view.
 
-```bash
-nvm install
-nvm use
-npm install
-cp .env.example .env.local
-npm run dev
-```
+## Four real roles, one real loop
 
-Then open http://localhost:3000.
+- **Business** — submits invoices, tracks funding status, gets paid
+- **Buyer** — confirms debts via magic link, no account needed
+- **Investor** — browses the marketplace, completes real KYC,
+  funds invoices, earns real yield
+- **Admin** — reviews KYC, watches the on-chain ledger, monitors the
+  reserve pool
 
-## Scripts
+## Stack
 
-| Command                    | What it does                                      |
-| -------------------------- | ------------------------------------------------- |
-| npm run dev                | Start the Next.js dev server with Turbopack       |
-| npm run build              | Create a production build                         |
-| npm run start              | Run the production app                            |
-| npm run lint               | Run ESLint                                        |
-| npm run lint:fix           | Auto-fix ESLint issues                            |
-| npm run typecheck          | Run TypeScript checks                             |
-| npm run format             | Format the repo with Prettier                     |
-| npm run format:check       | Check formatting without rewriting files          |
-| npm run validate           | Run lint + typecheck + format checks              |
-| npm run generate:api-types | Regenerate API types from the live OpenAPI schema |
+- **Frontend:** Next.js, TypeScript, Tailwind — deployed on Vercel
+- **Backend:** NestJS, Prisma, PostgreSQL — deployed on Railway
+- **Auth:** Clerk
+- **Blockchain:** Brickken Dapp API, Ethereum Sepolia
+- **Email:** Resend
+- **Storage:** Cloudflare R2
 
-## Documentation map
+## Running it locally
 
-- CONTRIBUTING.md — branch flow, commit conventions, PR checklist, and the project rules that prevent drift
-- docs/RAIQUID_CONTEXT.md — product definition, architecture decisions, current implementation state, and assumptions to verify
-- docs/DESIGN_SYSTEM.md — tokens, typography, shells, and shared component inventory
-- docs/ROUTE_MAP.md — route-by-route status and screen mapping
+Backend (raiquid-api): copy `.env.example` to `.env`, fill in your
+own Clerk, Brickken, R2, and Resend credentials, `npm install`,
+`npx prisma migrate deploy`, `npm run start:dev`.
 
-## Repo structure
+Frontend (this repo): copy `.env.example` to `.env.local`, point
+`NEXT_PUBLIC_API_BASE_URL` at your backend, fill in your Clerk
+publishable key, `npm install`, `npm run dev`.
 
-```text
-.
-├── AGENTS.md
-├── CODEOWNERS
-├── CONTRIBUTING.md
-├── README.md
-├── commitlint.config.js
-├── docs/
-│   ├── DESIGN_SYSTEM.md
-│   ├── RAIQUID_CONTEXT.md
-│   ├── ROUTE_MAP.md
-│   └── screens/
-├── public/
-├── scripts/
-├── src/
-│   ├── app/
-│   │   ├── (landing)/
-│   │   ├── (shared)/
-│   │   ├── admin/
-│   │   ├── business/
-│   │   ├── buyer/
-│   │   ├── investor/
-│   │   └── ...
-│   ├── components/
-│   │   ├── admin/
-│   │   ├── business/
-│   │   ├── buyer/
-│   │   ├── investor/
-│   │   ├── landing/
-│   │   └── shared/
-│   ├── lib/
-│   ├── services/
-│   ├── types/
-│   ├── proxy.ts
-│   └── ...
-├── .env.example
-├── .nvmrc
-├── eslint.config.mjs
-├── next.config.ts
-├── package.json
-├── postcss.config.mjs
-├── tsconfig.json
-└── ...
-```
-
-## Working conventions
-
-The repo has a few strong conventions worth following:
-
-- Single source of truth for enums and display mappings in src/types/domain.ts and src/lib/domain-display.ts
-- Navigation configuration in src/lib/nav-config.ts rather than per-page duplication
-- Shared primitives live under src/components/shared; app-specific ones stay in their route area until a second area needs them
-- Route params should use the Next.js generated page prop type pattern
-- Dark theme only; no light-mode variant is intended
-
-## Contribution workflow
-
-Before opening a PR:
-
-```bash
-npm run validate
-npm run build
-```
-
-This matches the repo's contribution rules and CI expectations. See CONTRIBUTING.md for branch naming, conventional commits, and review requirements.
-
-## Important note
-
-This repo is still being built out incrementally. The route map and design docs are the source of truth for what is implemented versus stubbbed, and those files should be treated as the canonical reference for screen status and product behavior.
+Full architecture and open decisions are documented in
+`docs/RAIQUID_CONTEXT.md`.

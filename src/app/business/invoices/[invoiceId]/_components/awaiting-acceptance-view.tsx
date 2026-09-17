@@ -1,4 +1,3 @@
-import { ProvenanceTierBadge } from "@/components/shared/domain/status-badges";
 import { Stepper } from "@/components/shared/domain/stepper";
 import { Card } from "@/components/shared/ui/card";
 import { InlineNotice } from "@/components/shared/ui/notice";
@@ -6,12 +5,8 @@ import { INVOICE_LIFECYCLE_STEPS, INVOICE_STATUS_STEP_INDEX } from "@/lib/domain
 import { formatDate, formatNaira } from "@/lib/format";
 import type { Invoice } from "@/types";
 
-import { BUYER_SUMMARIES } from "@/components/business/fixtures";
-
 // Screen 06-bizPending (status: submitted / awaiting_acceptance).
 export function AwaitingAcceptanceView({ invoice }: { invoice: Invoice }) {
-  const buyerSummary = BUYER_SUMMARIES[invoice.buyerId];
-
   return (
     <>
       <Stepper
@@ -24,14 +19,6 @@ export function AwaitingAcceptanceView({ invoice }: { invoice: Invoice }) {
         <Card className="p-6">
           <h3 className="text-foreground font-semibold">Buyer</h3>
           <p className="text-foreground mt-4 text-lg">{invoice.buyerName}</p>
-          {buyerSummary ? (
-            <>
-              <ProvenanceTierBadge tier={buyerSummary.tier} className="mt-2" />
-              <p className="text-muted-foreground mt-4 text-sm">
-                Accepted {buyerSummary.acceptedOnTime} of {buyerSummary.totalSent} invoices on time
-              </p>
-            </>
-          ) : null}
         </Card>
 
         <Card className="p-6">

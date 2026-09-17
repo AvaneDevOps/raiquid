@@ -8,13 +8,6 @@ import type { Invoice } from "@/types";
 
 import type { MintEvent } from "../_lib/invoice";
 
-// Screen 07-bizTokenized. On-chain status now comes from the real mint
-// OnChainEvent for this invoice, if one has been written yet (see
-// ../_lib/invoice.ts, toMintEvent) — falls back to "pending" if none
-// exists rather than assuming confirmed. Chain name is Ethereum Sepolia,
-// confirmed directly against raiquid-api's config
-// (BRICKKEN_CHAIN_ID defaults to 11155111) — not the "Base Sepolia" text
-// this previously said, which was wrong.
 export function TokenizedView({ invoice, mintEvent }: { invoice: Invoice; mintEvent?: MintEvent }) {
   const percentFunded = invoice.amount > 0 ? (invoice.fundedAmount / invoice.amount) * 100 : 0;
 

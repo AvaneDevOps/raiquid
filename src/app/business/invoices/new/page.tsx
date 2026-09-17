@@ -8,7 +8,7 @@ import { Card } from "@/components/shared/ui/card";
 import { Input } from "@/components/shared/ui/input";
 import { InlineNotice } from "@/components/shared/ui/notice";
 import { Textarea } from "@/components/shared/ui/textarea";
-import { createInvoice } from "@/services/business";
+import { businessService } from "@/services/business";
 
 import { ProofOfDeliveryDropzone } from "./_components/proof-of-delivery-dropzone";
 
@@ -25,32 +25,19 @@ type FormErrors = Partial<
   >
 >;
 
-// Screen 05-bizUpload, wired to POST /business/invoices (CreateInvoiceDto —
-// see src/types/api-generated.ts). invoiceNumber and buyerContactEmail are
-// required by the DTO but weren't part of the original fixture-driven form,
-// so they're added here. Proof of delivery is still collected and validated
-// but not sent — CreateInvoiceDto has no field for it and no upload endpoint
-// exists yet for business invoices (unlike the investor KYC upload-url
-// flow). The buyer-reputation summary (provenance tier, on-time count) that
-// used to show under the Buyer field is gone — it was BUYER_SUMMARIES
-// fixture data keyed on typing the exact demo name, and no endpoint exists
-// to look up a buyer's reputation by name/email while filling this form.
-// See docs/RAIQUID_CONTEXT.md, "Open decisions".
 export default function Page() {
   const { getToken } = useAuth();
-  const [buyerName, setBuyerName] = useState("Distify Distribution Ltd");
-  const [invoiceNumber, setInvoiceNumber] = useState("INV-2026-0100");
-  const [buyerContactEmail, setBuyerContactEmail] = useState("ap@distify.example");
-  const [amountDisplay, setAmountDisplay] = useState("2,000,000");
-  const [dueDate, setDueDate] = useState("2026-10-30");
-  const [description, setDescription] = useState(
-    "400 units of woven fabric, delivered 28 Aug 2026.",
-  );
+  const [buyerName, setBuyerName] = useState("");
+  const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [buyerContactEmail, setBuyerContactEmail] = useState("");
+  const [amountDisplay, setAmountDisplay] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [description, setDescription] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   function handleAmountChange(rawValue: string) {
     const digitsOnly = rawValue.replace(/[^\d]/g, "");
@@ -59,41 +46,43 @@ export default function Page() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setApiError(null);
 
     const nextErrors: FormErrors = {};
     const amount = Number(amountDisplay.replace(/,/g, ""));
 
-    if (!buyerName.trim()) nextErrors.buyerName = "Enter the buyer's name.";
+    if (!buyerName.trim()) nextErrors.buyerName = "Enter the buyer's legal name.";
     if (!invoiceNumber.trim()) nextErrors.invoiceNumber = "Enter an invoice number.";
     if (!buyerContactEmail.trim())
       nextErrors.buyerContactEmail = "Enter the buyer's contact email.";
     if (!amountDisplay || !(amount > 0)) nextErrors.amount = "Enter a valid invoice amount.";
     if (!dueDate) nextErrors.dueDate = "Choose a due date.";
     if (!description.trim()) nextErrors.description = "Describe the goods or services delivered.";
-    if (!file) nextErrors.file = "Attach proof of delivery.";
 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
-    setSubmitError(null);
+
     try {
       const token = await getToken();
-      await createInvoice(
+
+      await businessService.createInvoice(
         {
-          invoiceNumber,
+          invoiceNumber: invoiceNumber.trim(),
           amount,
           currency: "NGN",
           dueDate,
-          description,
-          buyerLegalName: buyerName,
-          buyerContactEmail,
+          description: description.trim(),
+          buyerLegalName: buyerName.trim(),
+          buyerContactEmail: buyerContactEmail.trim(),
         },
         token,
       );
+
       setSubmitted(true);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Something went wrong. Try again.");
+      setApiError(error instanceof Error ? error.message : "The invoice could not be submitted.");
     } finally {
       setSubmitting(false);
     }
@@ -111,11 +100,12 @@ export default function Page() {
           <Card className="space-y-6 p-6">
             <div>
               <label htmlFor="buyerName" className="text-muted-foreground text-sm">
-                Buyer
+                Buyer legal name
               </label>
               <Input
                 id="buyerName"
                 className="mt-2"
+                placeholder="Distify Distribution Ltd"
                 value={buyerName}
                 onChange={(event) => setBuyerName(event.target.value)}
                 aria-invalid={Boolean(errors.buyerName)}
@@ -133,6 +123,7 @@ export default function Page() {
                 <Input
                   id="invoiceNumber"
                   className="mt-2"
+                  placeholder="INV-2026-0100"
                   value={invoiceNumber}
                   onChange={(event) => setInvoiceNumber(event.target.value)}
                   aria-invalid={Boolean(errors.invoiceNumber)}
@@ -150,6 +141,7 @@ export default function Page() {
                   id="buyerContactEmail"
                   type="email"
                   className="mt-2"
+                  placeholder="ap@distify.example"
                   value={buyerContactEmail}
                   onChange={(event) => setBuyerContactEmail(event.target.value)}
                   aria-invalid={Boolean(errors.buyerContactEmail)}
@@ -169,6 +161,7 @@ export default function Page() {
                   id="amount"
                   className="mt-2"
                   inputMode="numeric"
+                  placeholder="2,000,000"
                   value={amountDisplay}
                   onChange={(event) => handleAmountChange(event.target.value)}
                   aria-invalid={Boolean(errors.amount)}
@@ -184,6 +177,7 @@ export default function Page() {
                   id="dueDate"
                   type="date"
                   className="mt-2"
+                  placeholder="2026-10-30"
                   value={dueDate}
                   onChange={(event) => setDueDate(event.target.value)}
                   aria-invalid={Boolean(errors.dueDate)}
@@ -202,6 +196,7 @@ export default function Page() {
                 id="description"
                 className="mt-2"
                 rows={3}
+                placeholder="400 units of woven fabric, delivered 28 Aug 2026."
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 aria-invalid={Boolean(errors.description)}
@@ -215,27 +210,25 @@ export default function Page() {
           </Card>
         </fieldset>
 
-        {submitError ? (
+        {apiError ? (
           <InlineNotice tone="danger" className="mt-6">
-            {submitError}
+            {apiError}
           </InlineNotice>
         ) : submitted ? (
           <InlineNotice tone="success" className="mt-6">
-            Submitted — {buyerName.split(" ")[0] || "your buyer"} will need to confirm it before
-            it&apos;s listed to investors.
+            Invoice submitted successfully and is now awaiting buyer confirmation.
           </InlineNotice>
         ) : (
           <InlineNotice tone="info" className="mt-6">
-            {buyerName.split(" ")[0] || "Your buyer"} will need to confirm this invoice is genuine
-            before it&apos;s listed to investors. This usually takes 1–2 business days.
+            Your buyer will need to confirm this invoice before it can be listed to investors.
           </InlineNotice>
         )}
 
         <Button type="submit" size="lg" className="mt-6" disabled={submitted || submitting}>
-          {submitting
-            ? "Sending…"
-            : submitted
-              ? "Sent for buyer acceptance"
+          {submitted
+            ? "Sent for buyer acceptance"
+            : submitting
+              ? "Submitting…"
               : "Send for buyer acceptance"}
         </Button>
       </form>
